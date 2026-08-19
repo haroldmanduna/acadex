@@ -403,12 +403,20 @@ function renderLangs(){
   });
 }
 function updateBot(){
+  const profile=getProfile();
+  const displayName = profile.name && profile.name!=='Student' ? profile.name : 'Tatenda';
   const src = realAudioMap[activeLang];
   const isReal = !!src;
+  // Personalize preview text with real name (was hardcoded Tatenda)
+  const rawPreview = answers[activeLang].preview;
+  const personalizedPreview = rawPreview.replace(/Tatenda/g, displayName);
   const badge = isReal ? `<span style="background:#0a7a3c;color:white;padding:2px 7px;border-radius:999px;font-size:9px;font-weight:900">● REAL VOICE WIRED ✓</span>` : `<span style="background:#f59e0b;color:white;padding:2px 7px;border-radius:999px;font-size:9px;font-weight:900">○ Browser fallback</span>`;
-  const audioPlayer = isReal ? `<audio controls src="${src}" style="width:100%;height:32px;margin-top:8px" preload="metadata"></audio><div style="font-size:10px;color:#0a7a3c;font-weight:700;margin-top:4px">✓ Real fluent, slow voice - tap ▶ to hear Shona/Ndebele properly (not English accent). Speed slider affects playback.</div>` : `<div style="font-size:10px;color:var(--muted);margin-top:6px">No native TTS yet for this language - uses slowed English fallback. Production will use Azure Shona neural.</div>`;
-  document.getElementById('botMsg').innerHTML=answers[activeLang].preview + `<div class="voice"><div class="voice-top"><button class="play" onclick="speak()">▶</button><div class="wave"></div><span style="font-size:11px;font-weight:800">0:24 • ${languages.find(x=>x.code===activeLang).name}</span> ${badge}</div>${audioPlayer}<div class="voice-ctrl"><label>Speed</label><input type="range" min="0.65" max="1.1" step="0.05" value="0.85" oninput="this.nextElementSibling.textContent=this.value; if(currentRealAudio) currentRealAudio.playbackRate=parseFloat(this.value)" style="width:80px"><span style="font-size:11px;font-weight:800">0.85</span><span style="font-size:10px;color:var(--muted)">Slow = clearer for Shona</span></div></div>`; 
-  document.getElementById('coachText2').textContent=answers[activeLang].coach;
+  const personalizedBadge = profile.name && profile.name!=='Student' ? `<span style="background:#0a7a3c;color:white;padding:2px 7px;border-radius:999px;font-size:9px;font-weight:900">👋 ${displayName}</span>` : '';
+  const audioPlayer = isReal ? `<audio controls src="${src}" style="width:100%;height:32px;margin-top:8px" preload="metadata"></audio><div style="font-size:10px;color:#0a7a3c;font-weight:700;margin-top:4px">✓ Real fluent voice — for <b>${displayName}</b> will be personalized via dynamic voice below. Speed slider affects playback.</div>` : `<div style="font-size:10px;color:var(--muted);margin-top:6px">No native TTS yet for this language - uses slowed English fallback. Will say ${displayName} clearly.</div>`;
+  // If personalized name is not Tatenda, show dynamic voice note that WILL say the real name
+  const dynamicNote = profile.name && profile.name!=='Tatenda' && profile.name!=='Student' ? `<div style="margin-top:6px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:6px 8px;font-size:10px;color:#065a2c"><b>🎙️ Dynamic Voice:</b> Tap ▶ below to hear it say <b>"Mhoro ${displayName}"</b> in ${languages.find(x=>x.code===activeLang).name} (slow, personalized) — not "Tatenda".</div>` : '';
+  document.getElementById('botMsg').innerHTML=personalizedPreview + `<div class="voice"><div class="voice-top"><button class="play" onclick="speak()">▶</button><div class="wave"></div><span style="font-size:11px;font-weight:800">0:24 • ${languages.find(x=>x.code===activeLang).name}</span> ${badge} ${personalizedBadge}</div>${audioPlayer}${dynamicNote}<div class="voice-ctrl"><label>Speed</label><input type="range" min="0.65" max="1.1" step="0.05" value="0.85" oninput="this.nextElementSibling.textContent=this.value; if(currentRealAudio) currentRealAudio.playbackRate=parseFloat(this.value)" style="width:80px"><span style="font-size:11px;font-weight:800">0.85</span><span style="font-size:10px;color:var(--muted)">Slow = clearer</span></div></div>`; 
+  document.getElementById('coachText2').textContent=answers[activeLang].coach.replace(/Tatenda/g, displayName);
 }
 let currentQ=0;
 const questions=[
@@ -499,27 +507,51 @@ const realAudioMap = {
 };
 let currentRealAudio = null;
 function speak(){
-  // Try real wired audio first
-  const src = realAudioMap[activeLang];
+  const profile=getProfile();
+  const displayName = profile.name && profile.name!=='Student' ? profile.name : 'Tatenda';
+  const isPersonalized = displayName !== 'Tatenda' && displayName !== 'Student';
   const rate = parseFloat(document.getElementById('speed')?.value || 0.85);
+  // If personalized name, use DYNAMIC voice that says the real name (not static Tatenda MP3)
+  if(isPersonalized){
+    // Build personalized text with real name
+    let raw = answers[activeLang].preview.replace(/<[^>]*>/g,' ').replace(/Tatenda/g, displayName);
+    raw = raw.replace(/\.\.\./g, ', ... ').replace(/Danho|Isinyathelo|Step/g, ' $& ');
+    raw = raw.replace(/,/g, ', ... ');
+    // Add personal touch: "Mhoro Anesu, ..." will be spoken clearly
+    speechSynthesis.cancel();
+    if(currentRealAudio){ currentRealAudio.pause(); currentRealAudio=null; }
+    const utter=new SpeechSynthesisUtterance(raw);
+    utter.rate = rate; // slow = 0.85, respects slider
+    utter.pitch = 1.0;
+    const voices=speechSynthesis.getVoices();
+    let pickVoice = voices.find(v=>v.name.includes('Google') && v.lang.includes('en')) || voices.find(v=>v.lang.includes('en-ZA')) || voices[0];
+    const selVal=document.getElementById('voiceSel')?.value;
+    const chosen=voices.find(v=>v.name===selVal);
+    if(chosen) pickVoice=chosen;
+    if(pickVoice) utter.voice=pickVoice;
+    speechSynthesis.speak(utter);
+    return;
+  }
+  // Otherwise (Tatenda/default), try real wired audio (fluent pre-generated)
+  const src = realAudioMap[activeLang];
   if(src){
     if(currentRealAudio){ currentRealAudio.pause(); currentRealAudio=null; }
     const audio = new Audio(src);
-    audio.playbackRate = rate; // respects speed slider! 0.85 = slow & clear
+    audio.playbackRate = rate;
     audio.volume = 1;
     currentRealAudio = audio;
     audio.play().catch(()=>{
-      // fallback to browser TTS if file missing
-      fallbackSpeak(rate);
+      fallbackSpeak(rate, displayName);
     });
     audio.onended = ()=> currentRealAudio=null;
     return;
   }
-  fallbackSpeak(rate);
+  fallbackSpeak(rate, displayName);
 }
-function fallbackSpeak(rate){
+function fallbackSpeak(rate, displayName){
+  const name = displayName || getProfile().name || 'Tatenda';
   speechSynthesis.cancel();
-  let raw=answers[activeLang].preview.replace(/<[^>]*>/g,' ');
+  let raw=answers[activeLang].preview.replace(/<[^>]*>/g,' ').replace(/Tatenda/g, name);
   raw = raw.replace(/\.\.\./g, ', ... ').replace(/Danho|Isinyathelo|Step/g, ' $& ');
   raw = raw.replace(/,/g, ', ... ');
   const utter=new SpeechSynthesisUtterance(raw);
