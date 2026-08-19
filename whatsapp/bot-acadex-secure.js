@@ -141,8 +141,10 @@ app.use(rateLimit);
 
 // ========= ROUTES =========
 
-// Health
-app.get('/', (req,res)=>res.send(`
+// PWA - Serve Acadex app on root (so https://acadex-r6z0.onrender.com works without filename)
+app.get('/', (req,res)=>res.sendFile(path.join(workspaceRoot, 'zimsec-super-tutor.html')));
+app.get('/health', (req,res)=>res.json({ status:'ACADEX live', trigger: TRIGGER_PHRASE, admin: ADMIN_PHONE ? 'set' : 'not set', time: new Date().toISOString() }));
+app.get('/bot', (req,res)=>res.send(`
   <h2>ACADEX Secure Bot Running</h2>
   <p>Trigger phrase: <b>${TRIGGER_PHRASE}</b></p>
   <p>Bot Mode: ${SESSION_MINUTES} min</p>
