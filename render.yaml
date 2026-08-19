@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: acadex
+    env: node
+    plan: free
+    region: frankfurt # closest to Zimbabwe
+    buildCommand: npm install --prefix whatsapp && npm install
+    startCommand: ADMIN_PHONE=263771234567 ADMIN_PASSWORD=Acadex#2026!Secure TRIGGER_PHRASE="mhoro acadex" VERIFY_TOKEN=acadex-verify-2026 PORT=10000 node whatsapp/bot-acadex-secure.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20.20.2
+      - key: ADMIN_PHONE
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: PHONE_NUMBER_ID
+        sync: false
+      - key: PUBLIC_URL
+        sync: false

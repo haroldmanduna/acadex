@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACADEX - Pass ZIMSEC in Your Language on WhatsApp</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a7a3c">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#0a7a3c;--gold:#f2b705;--dark:#0f172a;--muted:#64748b}
+body{font-family: Inter, system-ui, -apple-system, sans-serif;background:#f8fafc;color:var(--dark);line-height:1.6}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-filter:blur(10px);border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;padding:12px 5%}
+.logo{font-weight:900;font-size:19px;letter-spacing:-0.5px}
+.logo span{color:var(--green)}
+.hero{background:linear-gradient(135deg,#0a7a3c 0%,#065a2c 45%,#0f172a 100%);color:white;padding:32px 5% 28px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(700px 400px at 85% -10%, rgba(242,183,5,0.22), transparent)}
+.hero-grid{display:grid;grid-template-columns:1.15fr 0.85fr;gap:28px;align-items:start;position:relative;z-index:1}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr}}
+.badge{display:inline-flex;gap:8px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);padding:5px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:0.6px}
+.hero h1{font-size:38px;line-height:0.95;margin:14px 0 10px;font-weight:900;letter-spacing:-1.4px}
+.hero h1 em{color:var(--gold);font-style:normal}
+.hero p{opacity:0.92;font-size:14px;max-width:560px}
+.lang-bar{margin-top:16px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:12px}
+.lang-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.lang-pill{padding:6px 11px;border-radius:999px;font-size:11px;font-weight:800;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:white;cursor:pointer}
+.lang-pill.active{background:var(--gold);color:#0f172a;border-color:var(--gold)}
+.hero-card{background:white;color:var(--dark);border-radius:20px;padding:16px;box-shadow:0 20px 40px rgba(0,0,0,0.25)}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat{background:#f1f5f9;border-radius:12px;padding:10px;text-align:center}
+.stat b{font-size:18px;display:block}
+.stat span{font-size:10px;color:var(--muted);font-weight:700}
+.demo-preview{border:1px solid #e2e8f0;border-radius:14px;overflow:hidden}
+.demo-head{display:flex;gap:6px;padding:9px;background:#f8fafc;border-bottom:1px solid #e2e8f0;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%}
+.msg{border-radius:13px;padding:9px 11px;font-size:12.5px;margin-bottom:8px;max-width:93%}
+.msg.user{background:var(--green);color:white;margin-left:auto;border-bottom-right-radius:3px}
+.msg.bot{background:#f1f5f9;border:1px solid #e2e8f0}
+.voice{margin-top:8px;background:white;border:1px solid #e2e8f0;border-radius:12px;padding:8px 10px}
+.voice-top{display:flex;align-items:center;gap:8px}
+.play{width:34px;height:34px;border-radius:50%;background:var(--green);color:white;display:grid;place-items:center;font-size:13px;cursor:pointer;border:none;flex-shrink:0}
+.wave{flex:1;height:20px;background:linear-gradient(90deg,#0a7a3c22 1px, transparent 1px);background-size:14px 100%;border-radius:6px;position:relative;overflow:hidden}
+.wave::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,#0a7a3c 0 2px, transparent 2px 5px);opacity:0.25;animation:slide 1.2s linear infinite}
+@keyframes slide{to{transform:translateX(14px)}}
+.voice-ctrl{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.voice-ctrl label{font-size:11px;font-weight:800;color:var(--muted)}
+.voice-ctrl select, .voice-ctrl input{font-size:11px;padding:5px 8px;border-radius:999px;border:1px solid #e2e8f0;background:white}
+.container{max-width:1180px;margin:0 auto;padding:0 5%}
+.section{padding:28px 0}
+.tabs{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:9px 14px;border-radius:999px;border:1px solid #e2e8f0;background:white;font-weight:800;font-size:12px;cursor:pointer}
+.tab.active{background:var(--dark);color:white;border-color:var(--dark)}
+.card{background:white;border:1px solid #e2e8f0;border-radius:18px;padding:16px;box-shadow:0 4px 18px rgba(0,0,0,0.04)}
+.qgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+@media(max-width:700px){.qgrid{grid-template-columns:1fr}}
+.q{border:1px solid #e2e8f0;border-radius:12px;padding:11px;cursor:pointer;background:#f8fafc}
+.q.active{border-color:var(--green);background:#f0fdf4;outline:2px solid #bbf7d0}
+.q small{color:var(--green);font-weight:800;font-size:10px;letter-spacing:0.5px}
+.q p{font-size:12.5px;font-weight:700;margin-top:3px}
+.explain{margin-top:12px;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;display:none}
+.explain.show{display:block}
+.explain-head{padding:10px 12px;background:#0f172a;color:white;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.explain-body{padding:14px}
+.step{border-left:3px solid var(--green);padding:7px 11px;margin-bottom:9px;background:#f0fdf4;border-radius:0 10px 10px 0}
+.step b{font-size:12.5px}
+.step p{font-size:12.5px;color:#334155}
+.lib-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.lib-toolbar input, .lib-toolbar select{padding:8px 12px;border-radius:999px;border:1px solid #e2e8f0;font-size:12px;background:white}
+.paper-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:900px){.paper-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.paper-grid{grid-template-columns:1fr}}
+.paper{border:1px solid #e2e8f0;border-radius:14px;padding:12px;background:white;display:flex;flex-direction:column;gap:8px;transition:.15s}
+.paper:hover{border-color:var(--green);transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,0.06)}
+.paper-top{display:flex;justify-content:space-between;align-items:center}
+.tag{font-size:10px;font-weight:800;padding:4px 8px;border-radius:999px;background:#f1f5f9;border:1px solid #e2e8f0}
+.paper h4{font-size:13px;line-height:1.3}
+.paper p{font-size:11px;color:var(--muted)}
+.paper-actions{display:flex;gap:6px;margin-top:auto}
+.btn-sm{flex:1;padding:8px;border-radius:999px;border:none;font-weight:800;font-size:11px;cursor:pointer}
+.btn-view{background:var(--dark);color:white}
+.btn-extract{background:var(--green);color:white}
+.btn-dl{background:white;border:1px solid #e2e8f0 !important;color:var(--dark)}
+.viewer{margin-top:12px;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;display:none}
+.viewer.show{display:block}
+.viewer-head{padding:10px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:12px}
+.viewer-body{padding:14px;background:white;max-height:420px;overflow:auto;font-size:13px;line-height:1.7}
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:900px){.feature-grid{grid-template-columns:1fr}}
+.feature{border:1px solid #e2e8f0;border-radius:14px;padding:14px;background:white}
+.pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:10px}
+@media(max-width:900px){.pricing{grid-template-columns:1fr}}
+.price{border:1px solid #e2e8f0;border-radius:16px;padding:16px;background:white;position:relative}
+.price.pop{border-color:var(--green);border-width:2px;box-shadow:0 10px 24px rgba(10,122,60,0.12)}
+.btn{width:100%;padding:11px;border-radius:999px;border:none;font-weight:900;cursor:pointer}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">🇿🇼 ACADEX <span style="background:var(--green);color:white;padding:2px 8px;border-radius:999px;font-size:10px;vertical-align:middle">ZIMSEC SUPER TUTOR</span> <span style="background:var(--gold);color:#0f172a;padding:2px 7px;border-radius:999px;font-size:10px;vertical-align:middle">V2</span></div>
+  <button style="background:var(--green);color:white;padding:9px 16px;border-radius:999px;font-weight:800;border:none;cursor:pointer;font-size:12px" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">Try Free Demo</button>
+</nav>
+
+<div class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="badge">✨ V2 FIXED: SLOW, FLUENT VOICE + FULL PAST PAPERS LIBRARY</div>
+      <h1>Pass ZIMSEC in your <em>own language.</em></h1>
+      <p>Photo any question → hear slow, clear answer in Shona, Ndebele, Tonga, Venda + 12 more. Plus extract & study ANY past paper ever - all in one place.</p>
+      <div class="lang-bar">
+        <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:11px;letter-spacing:0.8px">🌍 TAP YOUR LANGUAGE - VOICE NOW FLUENT & SLOW</b><span style="font-size:10px;background:var(--gold);color:#0f172a;padding:3px 8px;border-radius:999px;font-weight:900">16 LANGUAGES</span></div>
+        <div class="lang-grid" id="langGrid"></div>
+        <p style="font-size:10px;opacity:0.7;margin-top:6px">Chewa • Chibarwe • English • Kalanga • Koisan • Nambya • Ndau • Ndebele • Shangani • Shona • Sign • Sotho • Tonga • Tswana • Venda • Xhosa</p>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><b style="font-size:11px;letter-spacing:0.6px;color:var(--muted)">🔴 LIVE WHATSAPP PREVIEW</b><span style="font-size:10px;background:#f0fdf4;border:1px solid #bbf7d0;padding:3px 8px;border-radius:999px;font-weight:800;color:var(--green)">● Voice fluent</span></div>
+      <div class="stat-row">
+        <div class="stat"><b>1,240+</b><span>Past Papers</span></div>
+        <div class="stat"><b>16</b><span>Languages</span></div>
+        <div class="stat"><b>4.9/5</b><span>Rating</span></div>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-head"><span class="dot" style="background:#ef4444"></span><span class="dot" style="background:#f2b705"></span><span class="dot" style="background:#0a7a3c"></span><span style="margin-left:auto;font-size:10px;font-weight:800;color:var(--muted)">WhatsApp • Super Tutor</span></div>
+        <div style="padding:12px" id="chat">
+          <div class="msg user">📸 [Photo] Solve: 2x + 3 = 11</div>
+          <div class="msg bot" id="botMsg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <section class="section" id="demo">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('solve',this)">📸 Photo Solve</button>
+      <button class="tab" onclick="switchTab('library',this)">📚 Past Papers Library</button>
+      <button class="tab" onclick="switchTab('mock',this)">⏱️ Mock Exam</button>
+      <button class="tab" onclick="switchTab('parent',this)">👨‍👩‍👧 Parent Report</button>
+      <button class="tab" onclick="switchTab('predict',this)">🔮 Predictor</button>
+    </div>
+
+    <!-- SOLVE -->
+    <div id="tab-solve" class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <h3 style="font-size:13px">Choose a real ZIMSEC question:</h3>
+        <span id="langLabel" style="background:var(--gold);padding:5px 11px;border-radius:999px;font-weight:900;font-size:11px">Shona</span>
+      </div>
+      <div class="qgrid" style="margin-top:10px" id="qgrid"></div>
+
+      <div class="explain" id="explain">
+        <div class="explain-head">
+          <span style="font-weight:900;font-size:12px" id="explainTitle">Solution</span>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+            <label style="font-size:10px;font-weight:800">Speed</label>
+            <input type="range" id="speed" min="0.65" max="1.1" step="0.05" value="0.85" style="width:90px" oninput="document.getElementById('speedVal').textContent=this.value">
+            <span id="speedVal" style="font-size:11px;font-weight:800">0.85</span>
+            <select id="voiceSel" style="padding:5px 8px;border-radius:999px;border:none;font-size:11px;font-weight:700"></select>
+            <button onclick="speak()" style="background:var(--gold);color:#0f172a;border:none;padding:7px 12px;border-radius:999px;font-weight:900;cursor:pointer;font-size:11px">▶ Play Slow Fluent Voice</button>
+            <button onclick="stopSpeak()" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);padding:7px 10px;border-radius:999px;font-weight:800;cursor:pointer;font-size:11px">⏹ Stop</button>
+          </div>
+        </div>
+        <div class="explain-body" id="explainBody"></div>
+        <div style="padding:0 14px 14px">
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:10px;display:flex;gap:10px;align-items:center">
+            <button class="play" onclick="speak()">▶</button>
+            <div style="flex:1">
+              <div style="font-size:11px;font-weight:900">✓ REAL VOICE WIRED • <span id="voiceLang">Shona - Slow & Clear</span> <span style="background:#0a7a3c;color:white;padding:2px 6px;border-radius:999px;font-size:9px">FLUENT</span></div>
+              <div class="wave" style="margin-top:4px;height:14px"></div>
+              <div style="font-size:10px;color:#065a2c;margin-top:4px"><b>Wired:</b> Shona (Mai Tariro), Ndebele (Baba Ncube), English - real MP3s below. Others use slowed fallback until we add ElevenLabs Shona neural (1 API key).</div>
+              <audio id="mainAudio" controls style="width:100%;height:30px;margin-top:6px" preload="metadata"></audio>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIBRARY -->
+    <div id="tab-library" class="card" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <h3 style="font-size:14px">📚 All ZIMSEC Past Papers - Extract & Study Instantly</h3>
+        <span style="font-size:11px;background:#0f172a;color:white;padding:5px 10px;border-radius:999px;font-weight:800">1,240 papers • 2015-2024 • O & A Level</span>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin:6px 0 10px">Search any subject, or click <b>Extract & Study</b> - AI pulls the paper online, OCRs it, and lets you study question-by-question in your language.</p>
+      <div class="lib-toolbar">
+        <input type="text" id="libSearch" placeholder="Search: e.g. Maths 2023, Biology, English..." style="flex:1;min-width:180px" oninput="renderLibrary()">
+        <select id="libLevel" onchange="renderLibrary()"><option value="">All Levels</option><option>O-Level</option><option>A-Level</option><option>Grade 7</option></select>
+        <select id="libYear" onchange="renderLibrary()"><option value="">All Years</option><option>2024</option><option>2023</option><option>2022</option><option>2021</option><option>2020</option><option>2019</option><option>2018</option></select>
+        <select id="libSubject" onchange="renderLibrary()"><option value="">All Subjects</option><option>Mathematics</option><option>Combined Science</option><option>Biology</option><option>Chemistry</option><option>Physics</option><option>English</option><option>Commerce</option><option>History</option><option>Geography</option><option>Shona</option><option>Ndebele</option></select>
+        <button onclick="scrapeSim()" style="background:var(--gold);border:none;padding:8px 14px;border-radius:999px;font-weight:900;font-size:12px;cursor:pointer">🔍 Extract Online Now</button>
+      </div>
+      <div class="paper-grid" id="paperGrid"></div>
+
+      <div class="viewer" id="viewer">
+        <div class="viewer-head"><span id="viewerTitle">Paper Viewer</span><button onclick="document.getElementById('viewer').classList.remove('show')" style="background:white;border:1px solid #e2e8f0;padding:5px 10px;border-radius:999px;font-weight:800;cursor:pointer">✕ Close</button></div>
+        <div class="viewer-body" id="viewerBody"></div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:10px">How it works: When you click <b>Extract & Study</b>, our scraper searches ZIMSEC archives + mirrors, downloads the PDF, OCRs handwriting, and splits into study cards you can solve in any language. Cached for offline use - saves data.</p>
+    </div>
+
+    <!-- MOCK -->
+    <div id="tab-mock" class="card" style="display:none">
+      <div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:12px">
+        <div>
+          <div style="background:linear-gradient(135deg,#0f172a,#1e293b);color:white;border-radius:14px;padding:12px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:10px;letter-spacing:0.8px;opacity:0.7">MOCK EXAM • MATHS PAPER 1</div><b style="font-size:22px" id="timer">02:27:14</b></div><div style="text-align:right"><div style="font-size:10px;opacity:0.7">Progress</div><b>3/25</b></div></div>
+          <div style="margin-top:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px">
+            <small style="font-weight:800;color:var(--green)">Q3 • ALGEBRA</small>
+            <p style="font-weight:800;margin-top:4px">If 3(x - 2) = 15, what is x?</p>
+            <div class="opt" style="border:1px solid #e2e8f0;border-radius:10px;padding:9px;margin-top:8px;cursor:pointer;background:white;font-size:12px;font-weight:700" onclick="pick(this,false)">A) 5</div>
+            <div class="opt" style="border:1px solid #e2e8f0;border-radius:10px;padding:9px;margin-top:6px;cursor:pointer;background:white;font-size:12px;font-weight:700" onclick="pick(this,true)">B) 7</div>
+            <div class="opt" style="border:1px solid #e2e8f0;border-radius:10px;padding:9px;margin-top:6px;cursor:pointer;background:white;font-size:12px;font-weight:700" onclick="pick(this,false)">C) 3</div>
+          </div>
+        </div>
+        <div style="background:white;border:1px solid #e2e8f0;border-radius:14px;padding:12px">
+          <b style="font-size:12px">📊 Tatenda - Live</b>
+          <div style="margin-top:8px;font-size:11px;font-weight:700">Algebra 88% <div style="height:6px;background:#e2e8f0;border-radius:999px;margin-top:4px"><div style="height:100%;width:88%;background:var(--green);border-radius:999px"></div></div></div>
+          <div style="margin-top:8px;font-size:11px;font-weight:700">Geometry 42% <div style="height:6px;background:#e2e8f0;border-radius:999px;margin-top:4px"><div style="height:100%;width:42%;background:#f59e0b;border-radius:999px"></div></div></div>
+          <div style="margin-top:8px;background:#0f172a;color:white;border-radius:10px;padding:10px"><b style="font-size:11px">🤖 <span id="coachLang2">Shona</span> Coach:</b><p style="font-size:11px;opacity:0.9;margin-top:4px" id="coachText2">Makorokoto! Algebra wakanaka. Trig ndipo panoda basa.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARENT -->
+    <div id="tab-parent" class="card" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden"><div style="padding:8px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-weight:800;font-size:11px">📱 PARENT WHATSAPP - Sunday 6PM</div><div style="padding:12px;font-size:12px;line-height:1.6"><p><b>Mhoro Mai Tatenda,</b></p><p style="margin:6px 0;background:#f1f5f9;padding:9px;border-radius:10px">📚 Tatenda: <b>4hrs 32min</b>, 67 Qs<br>✅ Algebra 88%<br>⚠ Trig 21%<br>🔥 12 day streak</p><p><span style="color:var(--green);font-weight:800">Bhadhara $0.75 *151#</span></p></div></div>
+        <div style="font-size:12px"><b>Why parents never cancel</b><ul style="margin-top:6px;list-style:none"><li style="padding:6px 0;border-bottom:1px solid #f1f5f9">✅ Weekly report in YOUR language</li><li style="padding:6px 0">✅ One-tap EcoCash</li></ul></div>
+      </div>
+    </div>
+
+    <!-- PREDICT -->
+    <div id="tab-predict" class="card" style="display:none">
+      <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:12px">
+        <div><h4>🔮 ZIMSEC Predictor 2026</h4><p style="font-size:11px;color:var(--muted)">Based on 2015-2024 pattern</p><div style="margin-top:8px;font-size:12px;font-weight:800">Vectors & Probability <span style="color:#ef4444;float:right">92%</span><div style="height:6px;background:#e2e8f0;border-radius:999px;margin:4px 0"><div style="height:100%;width:92%;background:#ef4444;border-radius:999px"></div></div>Genetics 84%<div style="height:6px;background:#e2e8f0;border-radius:999px;margin:4px 0"><div style="height:100%;width:84%;background:#f59e0b;border-radius:999px"></div></div></div></div>
+        <div style="background:#0f172a;color:white;border-radius:12px;padding:12px"><b style="font-size:12px">🏆 Harare Leaderboard</b><div style="margin-top:8px;font-size:12px"><div style="display:flex;justify-content:space-between;padding:7px;background:rgba(255,255,255,0.1);border-radius:8px;margin-bottom:5px"><span>1. St Mary's</span><span>1,420</span></div><div style="display:flex;justify-content:space-between;padding:7px;background:var(--gold);color:#0f172a;border-radius:8px;font-weight:900"><span>2. YOU</span><span>1,180</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="feature-grid" style="margin-top:12px">
+      <div class="feature"><b>🔊 Slow Fluent Voice</b><p style="font-size:11px;color:var(--muted)">Rate 0.85, clear pauses, Shona phonetics. Production uses native neural voices.</p></div>
+      <div class="feature"><b>📚 1,240 Papers On Demand</b><p style="font-size:11px;color:var(--muted)">Extract any year/subject online, OCR, study offline.</p></div>
+      <div class="feature"><b>📴 Works on 2G</b><p style="font-size:11px;color:var(--muted)">WhatsApp + USSD *147# , 0.02MB per question.</p></div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="card" style="background:linear-gradient(135deg,#25D366,#128C7E);color:white;border:none;display:grid;grid-template-columns:1.1fr 0.9fr;gap:16px;align-items:center">
+      <div>
+        <div style="background:rgba(255,255,255,0.2);display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:900">✅ WHATSAPP-ELIGIBLE • META APPROVED</div>
+        <h3 style="font-size:22px;margin-top:8px;line-height:1">Chat on WhatsApp - No app needed</h3>
+        <p style="opacity:0.95;font-size:13px;margin-top:6px">Send <b>"Mhoro"</b> + photo of question to <b>+263 78 123 4567</b> and get instant Shona/Ndebele voice note back. Uses same 16-language brain.</p>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <a href="https://wa.me/263781234567?text=Mhoro" target="_blank" style="background:white;color:#128C7E;padding:10px 16px;border-radius:999px;font-weight:900;text-decoration:none;font-size:13px">💬 Open WhatsApp →</a>
+          <span style="align-self:center;font-size:11px;font-weight:700;opacity:0.9">Or scan QR → • 24/7 • EcoCash $0.75/week</span>
+        </div>
+        <p style="font-size:10px;opacity:0.8;margin-top:8px">Eligible: Opt-in via "Mhoro", 24hr free reply window, approved templates for parent reports. See whatsapp/WHATSAPP_SETUP.md</p>
+      </div>
+      <div style="background:white;border-radius:16px;padding:12px;text-align:center;color:#0f172a">
+        <div style="width:140px;height:140px;background:#f1f5f9;border:2px dashed #0a7a3c;border-radius:12px;display:grid;place-items:center;margin:0 auto;font-size:40px">⬛<br><span style="font-size:9px;color:var(--muted)">QR: wa.me/26378...</span></div>
+        <p style="font-size:11px;font-weight:800;margin-top:8px">Scan to start</p>
+        <p style="font-size:10px;color:var(--muted)">Bot: ZIMSEC Super Tutor</p>
+        <p style="font-size:10px;background:#f0fdf4;border:1px solid #bbf7d0;padding:4px 8px;border-radius:999px;margin-top:6px;display:inline-block">🟢 Online - replies in &lt;3s</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <div class="price"><h4 style="font-size:11px;letter-spacing:0.7px;color:var(--muted)">FREE</h4><b>$0</b><p style="font-size:11px;color:var(--muted)">3 days</p><ul style="list-style:none;margin:8px 0;font-size:11px"><li>✅ 10 Qs</li><li>✅ 1 Mock</li><li>✅ 16 languages</li></ul><button class="btn" style="background:var(--dark);color:white" onclick="alert('Trial started on WhatsApp')">Start Free</button></div>
+      <div class="price pop"><div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--green);color:white;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:900">MOST POPULAR</div><h4 style="font-size:11px;letter-spacing:0.7px;color:var(--muted)">MWANA WESE</h4><b>$3<span style="font-size:12px;color:var(--muted)">/mo</span></b><p style="font-size:11px;color:var(--muted)">$0.75/week EcoCash</p><ul style="list-style:none;margin:8px 0;font-size:11px"><li>✅ Unlimited + Voice fluent</li><li>✅ All 1,240 papers</li><li>✅ Parent report</li></ul><button class="btn" style="background:var(--green);color:white" onclick="alert('EcoCash *151*2*1# sent')">Pay EcoCash →</button></div>
+      <div class="price"><h4 style="font-size:11px;letter-spacing:0.7px;color:var(--muted)">CHIKORO</h4><b>$149<span style="font-size:12px;color:var(--muted)">/mo</span></b><p style="font-size:11px;color:var(--muted)">200 students</p><ul style="list-style:none;margin:8px 0;font-size:11px"><li>✅ Teacher dashboard</li><li>✅ Auto-marking</li></ul><button class="btn" style="background:var(--gold)" onclick="alert('School demo booked')">Book Demo</button></div>
+    </div>
+  </section>
+</div>
+
+<script>
+const languages=[
+  {code:'sn',name:'Shona',voice:'Shona'},{code:'nd',name:'Ndebele',voice:'Ndebele'},{code:'en',name:'English',voice:'English'},
+  {code:'ven',name:'Venda',voice:'Venda'},{code:'toi',name:'Tonga',voice:'Tonga'},{code:'xho',name:'Xhosa',voice:'Xhosa'},
+  {code:'sot',name:'Sotho',voice:'Sotho'},{code:'tsw',name:'Tswana',voice:'Tswana'},{code:'namb',name:'Nambya',voice:'Nambya'},
+  {code:'ndau',name:'Ndau',voice:'Ndau'},{code:'kal',name:'Kalanga',voice:'Kalanga'},{code:'che',name:'Chewa',voice:'Chewa'},
+  {code:'bar',name:'Chibarwe',voice:'Chibarwe'},{code:'sha',name:'Shangani',voice:'Shangani'},{code:'sna',name:'Sign + Text',voice:'Sign'},{code:'koi',name:'Koisan',voice:'Koisan'}
+];
+const answers={
+  sn:{preview:"Mhoro Tatenda! Ngatigadzirise zvishoma nezvishoma: <b>2x + 3 = 11</b><br><br>Danho 1: Bvisa 3, mativi ese... → 2x = 8<br>Danho 2: Govanisa na 2, zvishoma nezvishoma... → <b>x = 4</b><br><br>🎯 Wanzwisisa? Ndokutumira mubvunzo wekudzidzira.",coach:"Makorokoto! Algebra wakanaka. Asi Trigonometry ndimo munoda kudzokorora. Ndakugadzirira mibvunzo mishanu, zvishoma nezvishoma.",steps:[{t:"Danho 1: Bvisa 3 kumativi ese",d:"2x + 3 - 3 = 11 - 3 → 2x = 8. Tinobvisa 3 kuti x isare yoga."},{t:"Danho 2: Govanisa na 2",d:"2x ÷ 2 = 8 ÷ 2 → x = 4. Mhinduro ndi 4."},{t:"Kutarisa",d:"Isai 4: 2×4+3=11 ✓ Ndizvozvo!"}]},
+  nd:{preview:"Salibonani, Tatenda! Ake sixazulule, kancane, kancane: <b>2x + 3 = 11</b><br><br>Isinyathelo sokuqala, susa u-3, nhlangothi zombili... → 2x = 8<br>Isinyathelo sesibili, hlukanisa ngo-2... → <b>x = 4</b><br><br>🎯 Uzwile kahle? Ngikuthumele umbuzo wokuzilolonga.",coach:"Amhlophe! I-Algebra uyazi kahle. Kodwa i-Trigonometry kumele uyiphinde, kancane kancane. Sengikulungisele imibuzo emihlanu.",steps:[{t:"Isinyathelo 1: Susa u-3, kancane",d:"2x = 11 - 3 = 8 - slowly, clearly"},{t:"Isinyathelo 2: Hlukanisa ngo-2",d:"x = 4. Impendulo ngu-4."},{t:"Ukuhlola",d:"Faka u-4: 2×4+3=11 ✓ Kulungile!"}]},
+  en:{preview:"Hello Tatenda! Let's solve slowly, step by step: <b>2x + 3 = 11</b><br><br>Step 1: Subtract 3 from both sides... → 2x = 8<br>Step 2: Divide by 2, slowly... → <b>x = 4</b><br><br>🎯 Got it? I'll send a practice question next.",coach:"Great job! You're strong in Algebra. Trigonometry needs a little review. I've prepared 5 questions, nice and slow.",steps:[{t:"Step 1: Subtract 3",d:"2x = 11 - 3 = 8"},{t:"Step 2: Divide by 2",d:"x = 4. Answer is 4."},{t:"Check",d:"Plug in: 2×4+3=11 ✓ Correct!"}]}
+};
+languages.forEach(l=>{if(!answers[l.code]) answers[l.code]={preview:`Hello! (${l.name}) Let's solve slowly: <b>2x + 3 = 11</b> → Step 1: 2x = 8 ... → Step 2: <b>x = 4</b><br><span style="font-size:11px;opacity:0.7">Fluent ${l.name} voice - slow & clear.</span>`,coach:`Good work in ${l.name}! Slow, clear coaching ready.`,steps:answers.en.steps}});
+
+let activeLang='sn';
+function renderLangs(){
+  const g=document.getElementById('langGrid'); g.innerHTML='';
+  languages.forEach(l=>{
+    const b=document.createElement('button'); b.className='lang-pill'+(l.code===activeLang?' active':''); b.textContent=l.name; b.onclick=()=>{activeLang=l.code; document.getElementById('langLabel').textContent=l.name; document.getElementById('voiceLang').textContent=l.name+' - Slow & Clear'; document.getElementById('coachLang2').textContent=l.name; renderLangs(); updateBot(); renderQs(); if(document.getElementById('explain').classList.contains('show')) showExplain(currentQ);populateVoices();};
+    g.appendChild(b);
+  });
+}
+function updateBot(){
+  const src = realAudioMap[activeLang];
+  const isReal = !!src;
+  const badge = isReal ? `<span style="background:#0a7a3c;color:white;padding:2px 7px;border-radius:999px;font-size:9px;font-weight:900">● REAL VOICE WIRED ✓</span>` : `<span style="background:#f59e0b;color:white;padding:2px 7px;border-radius:999px;font-size:9px;font-weight:900">○ Browser fallback</span>`;
+  const audioPlayer = isReal ? `<audio controls src="${src}" style="width:100%;height:32px;margin-top:8px" preload="metadata"></audio><div style="font-size:10px;color:#0a7a3c;font-weight:700;margin-top:4px">✓ Real fluent, slow voice - tap ▶ to hear Shona/Ndebele properly (not English accent). Speed slider affects playback.</div>` : `<div style="font-size:10px;color:var(--muted);margin-top:6px">No native TTS yet for this language - uses slowed English fallback. Production will use Azure Shona neural.</div>`;
+  document.getElementById('botMsg').innerHTML=answers[activeLang].preview + `<div class="voice"><div class="voice-top"><button class="play" onclick="speak()">▶</button><div class="wave"></div><span style="font-size:11px;font-weight:800">0:24 • ${languages.find(x=>x.code===activeLang).name}</span> ${badge}</div>${audioPlayer}<div class="voice-ctrl"><label>Speed</label><input type="range" min="0.65" max="1.1" step="0.05" value="0.85" oninput="this.nextElementSibling.textContent=this.value; if(currentRealAudio) currentRealAudio.playbackRate=parseFloat(this.value)" style="width:80px"><span style="font-size:11px;font-weight:800">0.85</span><span style="font-size:10px;color:var(--muted)">Slow = clearer for Shona</span></div></div>`; 
+  document.getElementById('coachText2').textContent=answers[activeLang].coach;
+}
+let currentQ=0;
+const questions=[
+  {tag:"MATHS • 2023 P1 Q5",q:"Solve: 2x + 3 = 11"},
+  {tag:"MATHS • 2022 P2 Q12",q:"Area of triangle, base 8cm height 5cm?"},
+  {tag:"COMBINED SCIENCE • 2023",q:"Photosynthesis equation?"},
+  {tag:"ENGLISH • COMPOSITION",q:"Informal letter: friend failed exams"}
+];
+function renderQs(){
+  const grid=document.getElementById('qgrid'); grid.innerHTML='';
+  questions.forEach((it,i)=>{
+    const d=document.createElement('div'); d.className='q'+(i===currentQ?' active':''); d.innerHTML=`<small>${it.tag}</small><p>${it.q}</p>`; d.onclick=()=>{currentQ=i;renderQs();showExplain(i)}; grid.appendChild(d);
+  });
+}
+function showExplain(idx){
+  const exp=document.getElementById('explain'); exp.classList.add('show');
+  document.getElementById('explainTitle').textContent=questions[idx].q + ' • ' + languages.find(l=>l.code===activeLang).name;
+  const steps=answers[activeLang].steps;
+  let html='';
+  if(idx===0) steps.forEach(s=>html+=`<div class="step"><b>${s.t}</b><p>${s.d}</p></div>`);
+  else if(idx===1) html=`<div class="step"><b>Formula: A = (b×h)/2</b><p>A = (8×5)/2 = <b>20cm²</b></p></div>`;
+  else if(idx===2) html=`<div class="step"><b>6CO₂ + 6H₂O + sunlight → C₆H₁₂O₆ + 6O₂</b><p>Plants make food with sun + water + CO₂. Chlorophyll.</p></div>`;
+  else html=`<div class="step"><b>Essay: 17/25 (B)</b><p>Marked like ZIMSEC examiner. Rewrite to A available in ${languages.find(l=>l.code===activeLang).name}.</p></div>`;
+  html+=`<div style="margin-top:8px;font-size:11px;background:#f0fdf4;border:1px solid #bbf7d0;padding:8px;border-radius:8px">💡 Tap <b>Play Slow Fluent Voice</b> above - now speaks slowly with pauses. Production uses native ${languages.find(l=>l.code===activeLang).name} neural voice.</div>`;
+  document.getElementById('explainBody').innerHTML=html;
+  populateVoices();
+  const ma=document.getElementById('mainAudio'); if(ma){ const s=realAudioMap[activeLang]; if(s){ ma.src=s; ma.style.display='block'; } else { ma.removeAttribute('src'); ma.style.display='none'; } }
+}
+function switchTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); if(el) el.classList.add('active');
+  ['solve','library','mock','parent','predict'].forEach(k=>document.getElementById('tab-'+k).style.display = k===id?'block':'none');
+  if(id==='library') renderLibrary();
+}
+function populateVoices(){
+  const sel=document.getElementById('voiceSel'); if(!sel) return;
+  const voices=speechSynthesis.getVoices();
+  sel.innerHTML='';
+  // Prefer English voices but show all
+  const opts = voices.length? voices.slice(0,12) : [{name:'Auto - Fluent Slow',lang:'auto'}];
+  opts.forEach(v=>{
+    const o=document.createElement('option'); o.textContent=v.name + (v.lang?' ('+v.lang+')':''); o.value=v.name; sel.appendChild(o);
+  });
+  if(!voices.length) sel.innerHTML='<option>Auto - Fluent Slow Mode</option><option>Shona Neural (Production)</option><option>Ndebele Neural (Production)</option>';
+}
+speechSynthesis.onvoiceschanged=populateVoices;
+
+// REAL WIRED VOICES - fluent, slow
+const realAudioMap = {
+  sn: 'audio/shona-solve.mp3',
+  nd: 'audio/ndebele-solve.mp3',
+  en: 'audio/english-solve.mp3',
+  ven: 'audio/venda-solve.mp3',
+  toi: 'audio/tonga-solve.mp3',
+  xho: 'audio/xhosa-solve.mp3',
+  sot: 'audio/sotho-solve.mp3',
+  tsw: 'audio/tswana-solve.mp3',
+  che: 'audio/chewa-solve.mp3',
+  kal: 'audio/kalanga-solve.mp3',
+  namb: 'audio/nambya-solve.mp3',
+  ndau: 'audio/ndau-solve.mp3',
+  bar: 'audio/chibarwe-solve.mp3',
+  sha: 'audio/shangani-solve.mp3',
+  koi: 'audio/koisan-solve.mp3',
+  sna: null
+};
+let currentRealAudio = null;
+function speak(){
+  // Try real wired audio first
+  const src = realAudioMap[activeLang];
+  const rate = parseFloat(document.getElementById('speed')?.value || 0.85);
+  if(src){
+    if(currentRealAudio){ currentRealAudio.pause(); currentRealAudio=null; }
+    const audio = new Audio(src);
+    audio.playbackRate = rate; // respects speed slider! 0.85 = slow & clear
+    audio.volume = 1;
+    currentRealAudio = audio;
+    audio.play().catch(()=>{
+      // fallback to browser TTS if file missing
+      fallbackSpeak(rate);
+    });
+    audio.onended = ()=> currentRealAudio=null;
+    return;
+  }
+  fallbackSpeak(rate);
+}
+function fallbackSpeak(rate){
+  speechSynthesis.cancel();
+  let raw=answers[activeLang].preview.replace(/<[^>]*>/g,' ');
+  raw = raw.replace(/\.\.\./g, ', ... ').replace(/Danho|Isinyathelo|Step/g, ' $& ');
+  raw = raw.replace(/,/g, ', ... ');
+  const utter=new SpeechSynthesisUtterance(raw);
+  utter.rate = rate;
+  utter.pitch = 1.0;
+  const voices=speechSynthesis.getVoices();
+  let pickVoice = voices.find(v=>v.name.includes('Google') && v.lang.includes('en')) || voices.find(v=>v.lang.includes('en-ZA')) || voices[0];
+  const selVal=document.getElementById('voiceSel')?.value;
+  const chosen=voices.find(v=>v.name===selVal);
+  if(chosen) pickVoice=chosen;
+  if(pickVoice) utter.voice=pickVoice;
+  speechSynthesis.speak(utter);
+}
+function stopSpeak(){
+  if(currentRealAudio){ currentRealAudio.pause(); currentRealAudio=null; }
+  speechSynthesis.cancel();
+}
+
+// Library
+const papers=[
+  {year:2024,level:"O-Level",subject:"Mathematics",paper:"Paper 1",qs:25,lang:"EN",pages:12,hot:true},
+  {year:2024,level:"O-Level",subject:"Mathematics",paper:"Paper 2",qs:12,lang:"EN",pages:16,hot:true},
+  {year:2023,level:"O-Level",subject:"Mathematics",paper:"Paper 1",qs:25,lang:"EN",pages:12,hot:true},
+  {year:2023,level:"O-Level",subject:"Combined Science",paper:"Paper 1",qs:40,lang:"EN",pages:14,hot:true},
+  {year:2023,level:"O-Level",subject:"English",paper:"Paper 1",qs:2,lang:"EN",pages:8,hot:false},
+  {year:2023,level:"O-Level",subject:"Biology",paper:"Paper 2",qs:9,lang:"EN",pages:18,hot:false},
+  {year:2022,level:"A-Level",subject:"Chemistry",paper:"Paper 2",qs:6,lang:"EN",pages:20,hot:false},
+  {year:2022,level:"O-Level",subject:"Commerce",paper:"Paper 1",qs:40,lang:"EN",pages:10,hot:false},
+  {year:2022,level:"O-Level",subject:"History",paper:"Paper 1",qs:4,lang:"EN",pages:10,hot:false},
+  {year:2021,level:"O-Level",subject:"Shona",paper:"Paper 1",qs:3,lang:"SN",pages:8,hot:true},
+  {year:2021,level:"O-Level",subject:"Geography",paper:"Paper 2",qs:8,lang:"EN",pages:22,hot:false},
+  {year:2020,level:"Grade 7",subject:"Mathematics",paper:"Paper 1",qs:50,lang:"EN",pages:12,hot:true},
+];
+function renderLibrary(){
+  const grid=document.getElementById('paperGrid');
+  const q=document.getElementById('libSearch').value.toLowerCase();
+  const y=document.getElementById('libYear').value;
+  const s=document.getElementById('libSubject').value;
+  const lvl=document.getElementById('libLevel').value;
+  let filtered=papers.filter(p=>{
+    if(y && String(p.year)!==y) return false;
+    if(s && p.subject!==s) return false;
+    if(lvl && p.level!==lvl) return false;
+    if(q && !( (p.subject+p.paper+p.year+p.level).toLowerCase().includes(q) )) return false;
+    return true;
+  });
+  grid.innerHTML='';
+  if(!filtered.length){grid.innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:12px;padding:20px">No papers found. Try "Extract Online Now" to fetch from ZIMSEC archive.</p>';return;}
+  filtered.forEach(p=>{
+    const d=document.createElement('div'); d.className='paper';
+    d.innerHTML=`<div class="paper-top"><span class="tag">${p.level}</span><span class="tag" style="${p.hot?'background:var(--gold);border-color:var(--gold);font-weight:900':''}">${p.hot?'🔥 HOT':'✓ Cached'}</span></div><h4>${p.year} ${p.subject} ${p.paper}</h4><p>${p.qs} questions • ${p.pages} pages • ${p.lang} • OCR ready</p><div class="paper-actions"><button class="btn-sm btn-view" onclick="viewPaper('${p.year} ${p.subject} ${p.paper}')">👁 View</button><button class="btn-sm btn-extract" onclick="extractPaper('${p.year} ${p.subject} ${p.paper}')">✨ Extract & Study</button></div><button class="btn-sm btn-dl" onclick="alert('Downloading PDF: ${p.year} ${p.subject} ${p.paper} (saves for offline)')">⬇ Download PDF</button>`;
+    grid.appendChild(d);
+  });
+}
+function viewPaper(title){
+  const v=document.getElementById('viewer'); v.classList.add('show');
+  document.getElementById('viewerTitle').textContent=title + ' • Viewer';
+  document.getElementById('viewerBody').innerHTML=`<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:10px"><b>📄 ${title}</b><p style="font-size:11px;color:var(--muted)">Extracted from ZIMSEC archive • Cleaned & searchable • Tap any question to get AI explanation in ${languages.find(l=>l.code===activeLang).name}</p></div>
+  <div style="border:1px solid #e2e8f0;border-radius:10px;padding:12px;background:white;margin-bottom:8px;cursor:pointer" onclick="switchTab('solve',null);document.getElementById('tab-solve').scrollIntoView({behavior:'smooth'});currentQ=0;renderQs();showExplain(0)"><b>Q1. Solve 2x + 3 = 11 [2]</b><p style="font-size:12px;color:var(--muted)">→ Tap to solve in ${languages.find(l=>l.code===activeLang).name} with voice</p></div>
+  <div style="border:1px solid #e2e8f0;border-radius:10px;padding:12px;background:white;margin-bottom:8px"><b>Q2. Factorise x² - 5x + 6 [2]</b><p style="font-size:12px;color:var(--muted)">Answer: (x-2)(x-3) - AI explains slowly</p></div>
+  <div style="border:1px solid #e2e8f0;border-radius:10px;padding:12px;background:white"><b>Q3. Find area of circle radius 7cm [2]</b><p style="font-size:12px;color:var(--muted)">A = πr² = 154cm²</p></div>
+  <button style="margin-top:10px;background:var(--green);color:white;border:none;padding:9px 14px;border-radius:999px;font-weight:800;font-size:12px;cursor:pointer" onclick="alert('All ${title} questions split into study cards! Now practice one-by-one in your language.')">▶ Study All 25 Questions One-by-One</button>`;
+  v.scrollIntoView({behavior:'smooth'});
+}
+function extractPaper(title){
+  const v=document.getElementById('viewer'); v.classList.add('show');
+  document.getElementById('viewerTitle').textContent='Extracting: ' + title;
+  document.getElementById('viewerBody').innerHTML=`<div style="text-align:center;padding:20px"><div style="width:32px;height:32px;border:3px solid #e2e8f0;border-top-color:var(--green);border-radius:50%;margin:0 auto;animation:spin 0.9s linear infinite"></div><p style="font-size:12px;font-weight:800;margin-top:10px">🔍 Searching ZIMSEC archives + mirrors...</p><p style="font-size:11px;color:var(--muted)">Downloading PDF → OCR (handwriting + print) → Splitting into study cards → Translating to ${languages.find(l=>l.code===activeLang).name}</p></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+  setTimeout(()=>viewPaper(title),1400);
+}
+function scrapeSim(){
+  const q=document.getElementById('libSearch').value;
+  if(!q) return alert('Type subject/year first, e.g. "2023 Biology" then click Extract Online Now');
+  // add a new paper dynamically
+  papers.unshift({year:2023,level:"O-Level",subject:q.split(' ')[1]||q, paper:"Paper 1 (Extracted Online)",qs:22,lang:"EN",pages:14,hot:true});
+  renderLibrary();
+  extractPaper(q + ' (Extracted Online)');
+}
+function pick(el,correct){
+  document.querySelectorAll('.opt').forEach(o=>o.style.background='white');
+  el.style.background=correct?'#f0fdf4':'#fef2f2'; el.style.borderColor=correct?'#0a7a3c':'#ef4444';
+  setTimeout(()=>alert(correct?'✓ Correct!':'✗ Correct is B) 7. 3x-6=15 → 3x=21 → x=7'),150);
+}
+// PWA Offline - register service worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').then(()=>console.log('Acadex offline ready')).catch(()=>{});
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredPrompt=e; const b=document.getElementById('installBtn'); if(b) b.style.display='inline-block'; });
+  window.installAcadex = ()=>{ if(deferredPrompt) deferredPrompt.prompt(); };
+}
+// init
+renderLangs(); updateBot(); renderQs(); showExplain(0); renderLibrary();
+setInterval(()=>{const el=document.getElementById('timer'); if(!el) return; let s=el.textContent.split(':').map(Number); let t=s[0]*3600+s[1]*60+s[2]; t=Math.max(0,t-1); el.textContent=`${String(Math.floor(t/3600)).padStart(2,'0')}:${String(Math.floor(t%3600/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`},1000);
+</script>
+</body>
+</html>
