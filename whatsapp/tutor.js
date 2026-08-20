@@ -12,7 +12,7 @@ import {
 } from './learner.js';
 import { startMock, formatMockQ, scoreAnswer, finishMock } from './mock.js';
 import { parseNumbered, markAgainstPaper, markComposition, looksLikeEssay } from './marker.js';
-import { detectLang, ttsFile, stockVoice, wantsVoice, stripVoiceAsk } from './voice.js';
+import { detectLang, ttsFile, wantsVoice, stripVoiceAsk, speechScript } from './voice.js';
 import { examLock, looksLikeExam } from './zimsec.js';
 
 const FREE_LIMIT = 10000;
@@ -124,29 +124,27 @@ function buildContext(text, bank, phone) {
   return bits.join('\n\n');
 }
 
-function storeLast(phone, text) {
+function storeLast(phone, text, speak) {
   const s = sessions.get(phone) || {};
   s.lastReply = String(text || '').slice(0, 2000);
+  if (speak) s.lastSpeak = String(speak).slice(0, 400);
+  else s.lastSpeak = s.lastReply;
   sessions.set(phone, s);
 }
 
 async function attachVoice(replies, phone, spoken) {
   if (process.env.DISABLE_VOICE === '1') return false;
   const lang = getLang(phone);
+  const name = getLearner(phone).name || '';
   const root = workspaceRoot || path.join(path.dirname(new URL(import.meta.url).pathname), '..');
   try {
-    const fp = await ttsFile(root, spoken, lang);
-    if (fp && fs.existsSync(fp) && fs.statSync(fp).size > 400) {
-      replies.push({ type: 'audio', filePath: fp, url: fp });
+    const fp = await ttsFile(root, spoken, lang, name);
+    if (fp && fs.existsSync(fp) && fs.statSync(fp).size > 400 && !/solve\.mp3$/i.test(fp)) {
+      replies.push({ type: 'audio', filePath: fp, url: fp, script: speechScript(spoken, name) });
       return true;
     }
   } catch (e) {
     console.warn('voice', e.message);
-  }
-  const stock = stockVoice(root, lang);
-  if (stock && fs.existsSync(stock)) {
-    replies.push({ type: 'audio', filePath: stock, url: stock });
-    return true;
   }
   return false;
 }
@@ -160,7 +158,9 @@ async function teach(digits, text, bank, say, replies) {
     learner: card(digits),
   });
   if (!taught) return false;
+  const math = solveMath(text);
   say(taught);
+  if (math) storeLast(digits, taught, `x equals ${math.answer}. ${math.steps.map(s => s.t + ' ' + (s.d || '')).join('. ')}`);
   pushChat(digits, 'user', text);
   pushChat(digits, 'assistant', taught);
   incrementUse(digits);
@@ -278,9 +278,10 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     if (langOnly) setLang(digits, langOnly[1].toLowerCase());
     if (!stripped || langOnly) {
       enterBotMode(digits, sessionMinutes);
-      const last = (sessions.get(digits) || {}).lastReply;
+      const sess0 = sessions.get(digits) || {};
+      const last = sess0.lastSpeak || sess0.lastReply;
       if (!last) {
-        say('Send the exam question first. Then say VOICE and I will speak that working only.');
+        say('Send the question first. Then say VOICE and I will speak that working only.');
         return { replies };
       }
       const ok = await attachVoice(replies, digits, last);
