@@ -301,4 +301,4 @@ app.post('/admin/api/reset', adminAuth, (req,res)=>{
 });
 
 const PORT=process.env.PORT||3000;
-app.listen(PORT, ()=>console.log(`ACADEX Secure Bot live :${PORT} | Trigger "${TRIGGER_PHRASE}" | WA +${ADMIN_PHONE}`));
+app.listen(PORT, '0.0.0.0', ()=>console.log(`ACADEX Secure Bot live :${PORT} | Trigger "${TRIGGER_PHRASE}" | WA +${ADMIN_PHONE}`));
