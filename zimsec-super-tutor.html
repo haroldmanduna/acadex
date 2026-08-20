@@ -145,9 +145,9 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
 <div class="hero">
   <div class="hero-grid">
     <div>
-      <div class="badge">✨ ACADEX: ALL SUBJECTS • REAL ZIMSEC SYLLABI • NO HALLUCINATION</div>
-      <h1>Pass <span id="heroGrade">ZIMSEC</span> in your <em>own language.</em></h1>
-      <p>Photo any question — <b>Mathematics, Combined Science, Biology, Chemistry, Physics, Agriculture, Geography, Commerce, English & 18 more</b> — hear slow, clear answer in Shona, Ndebele, Tonga, Venda + 12 more. Real past papers 2015-2024, syllabus-accurate for YOUR grade.</p>
+      <div class="badge">📐 ACADEX: MATHS ONLY — 2018-2024 • REAL 4004 SYLLABUS • 30 Qs Paper 1 (2h30 non-calc) + Section A/B Paper 2</div>
+      <h1>Pass <span id="heroGrade">Maths</span> in your <em>own language.</em></h1>
+      <p><b>Maths-only focus</b> — 14 full papers 2018-2024: <b>Paper 1 (4004/1): 30 short-answer, 2h30, non-calculator</b> [1][2] + <b>Paper 2 (4004/2): Section A 52 marks (compulsory) + Section B 48 marks (choose 4 of 7), 2h30, calculator allowed</b> [2][3]. Other subjects hidden until Maths is perfect — as you asked.</p>
       <div class="lang-bar">
         <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:11px;letter-spacing:0.8px">🌍 TAP YOUR LANGUAGE - VOICE NOW FLUENT & SLOW</b><span style="font-size:10px;background:var(--gold);color:#0f172a;padding:3px 8px;border-radius:999px;font-weight:900">16 LANGUAGES</span></div>
         <div class="lang-grid" id="langGrid"></div>
@@ -255,7 +255,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
         <input type="text" id="libSearch" placeholder="Search: e.g. Maths 2023, Biology, English..." style="flex:1;min-width:180px" oninput="renderLibrary()">
         <select id="libLevel" onchange="renderLibrary()"><option value="">All Levels</option><option>O-Level</option><option>A-Level</option><option>Grade 7</option></select>
         <select id="libYear" onchange="renderLibrary()"><option value="">All Years</option><option>2024</option><option>2023</option><option>2022</option><option>2021</option><option>2020</option><option>2019</option><option>2018</option></select>
-        <select id="libSubject" onchange="renderLibrary()"><option value="">All Real Subjects</option><option>Mathematics</option><option>Additional Mathematics</option><option>Combined Science</option><option>Biology</option><option>Chemistry</option><option>Physics</option><option>Agriculture</option><option>Geography</option><option>History</option><option>Commerce</option><option>Business Studies</option><option>Accounting</option><option>English Language</option><option>Literature in English</option><option>Shona Language</option><option>Ndebele Language</option><option>Computer Science</option><option>Design and Technology</option><option>Wood Technology</option><option>Metal Technology</option><option>Technical Graphics</option><option>Building Technology</option><option>Textile Technology</option><option>Food Technology</option><option>Heritage Studies</option><option>Family and Religious Studies</option></select>
+        <select id="libSubject" onchange="renderLibrary()"><option value="">Mathematics Only (2018-2024)</option><option selected>Mathematics</option><option>Additional Mathematics</option><option>Pure Mathematics</option><option>Grade 7 Mathematics</option></select>
         <button onclick="scrapeSim()" style="background:var(--gold);border:none;padding:8px 14px;border-radius:999px;font-weight:900;font-size:12px;cursor:pointer">🔍 Extract Online Now</button>
       </div>
       <div class="paper-grid" id="paperGrid"></div>
@@ -344,7 +344,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
 
 <script>
 // === ACADEX PROFILE - Name/Form/Grade (not just Tatenda) ===
-const ALL_SUBJECTS = ["Mathematics","Additional Mathematics","Combined Science","Biology","Chemistry","Physics","Agriculture","Geography","History","Commerce","Business Studies","Accounting","English Language","Literature in English","Shona Language","Ndebele Language","Computer Science","Design and Technology","Wood Technology","Metal Technology","Technical Graphics","Building Technology","Textile Technology","Food Technology","Heritage Studies","Family and Religious Studies"]; // Real ZIMSEC O/A Level list [1][2]
+const ALL_SUBJECTS = ["Mathematics","Additional Mathematics","Pure Mathematics","Grade 7 Mathematics"] // Maths-only focus - other subjects hidden until Maths perfect,"Biology","Chemistry","Physics","Agriculture","Geography","History","Commerce","Business Studies","Accounting","English Language","Literature in English","Shona Language","Ndebele Language","Computer Science","Design and Technology","Wood Technology","Metal Technology","Technical Graphics","Building Technology","Textile Technology","Food Technology","Heritage Studies","Family and Religious Studies"]; // Real ZIMSEC O/A Level list [1][2]
 let acadexProfile = JSON.parse(localStorage.getItem('acadex_profile')||'null');
 function renderProfileSubjects(){
   const c=document.getElementById('pSubjects'); if(!c) return;
@@ -438,15 +438,14 @@ function updateBot(){
 }
 let currentQ=0;
 const questions=[
-  {tag:"MATHEMATICS • 4004/1 2023 Q5", q:"Solve: 2x + 3 = 11", subject:"Mathematics"},
-  {tag:"COMBINED SCIENCE • 5006/1 2023 Q7", q:"Give the balanced equation for photosynthesis", subject:"Combined Science"},
-  {tag:"BIOLOGY • 6030/2 2023 Q3", q:"Explain the function of xylem in plants", subject:"Biology"},
-  {tag:"CHEMISTRY • 6031/2 2023 Q2", q:"Balance: H2 + O2 → H2O", subject:"Chemistry"},
-  {tag:"AGRICULTURE • 5039/1 2023 Q12", q:"Name three types of soil erosion", subject:"Agriculture"},
-  {tag:"GEOGRAPHY • 6037/2 2023 Q4", q:"Explain the formation of ox-bow lakes", subject:"Geography"},
-  {tag:"COMMERCE • 4048/1 2023 Q8", q:"What is the difference between trade and commerce?", subject:"Commerce"},
-  {tag:"ENGLISH LANGUAGE • 4005/1 2023", q:"Write an informal letter to your friend who failed exams", subject:"English Language"},
-  {tag:"COMPUTER SCIENCE • 6023/1 2023 Q15", q:"Convert decimal 13 to binary", subject:"Computer Science"}
+  {tag:"MATHEMATICS 4004/1 2024 Paper 1 Q1 (30 Qs total)", q:"Simplify 3 + 4 x 2 - 5 (Paper 1: non-calculator, 30 short-answer) [2]", subject:"Mathematics"},
+  {tag:"MATHEMATICS 4004/1 2024 Q5", q:"Solve 2x + 3 = 11 [2]", subject:"Mathematics"},
+  {tag:"MATHEMATICS 4004/1 2024 Q8", q:"Find gradient of line joining (2,3) and (4,7) [2]", subject:"Mathematics"},
+  {tag:"MATHEMATICS 4004/2 2024 Section A Q1", q:"Simplify 4x - 2(x+3) and Solve (x+2)/3 =4 [4] (Section A compulsory 52 marks)", subject:"Mathematics"},
+  {tag:"MATHEMATICS 4004/2 2024 Section B Q7", q:"Simplify (x2-4)/(x2+3x+2) and form quadratic [12] (Section B choose 4 of 7, 48 marks)", subject:"Mathematics"},
+  {tag:"MATHEMATICS 4004/1 2023 Q14", q:"Volume of cylinder radius 7 height 10 [3]", subject:"Mathematics"},
+  {tag:"MATHEMATICS 4004/2 2023 Section A Q5", q:"Construct quadrilateral ABCD with ruler & compasses [6] (Geometrical Construction)", subject:"Mathematics"},
+  {tag:"MATHEMATICS 4004/2 2023 Section B Q12", q:"Statistics: ogive for 50 students, find median [12]", subject:"Mathematics"},
 ];
 function renderQs(){
   const grid=document.getElementById('qgrid'); grid.innerHTML='';
@@ -650,34 +649,24 @@ function downloadPDF(title){
 
 // Library - Real ZIMSEC papers (no hallucination, syllabi from ZIMSEC [1][2])
 const papers=[
-  {year:2024,level:"O-Level",subject:"Mathematics",code:"4004/1",paper:"Paper 1",qs:25,lang:"EN",pages:12,hot:true, realUrl:"https://zimsake.co.zw/notes/mathematics-past-exam-paper-1-with-answers-for-zimsec-o-level-november-2019-pdf"},
-  {year:2024,level:"O-Level",subject:"Mathematics",code:"4004/2",paper:"Paper 2",qs:12,lang:"EN",pages:16,hot:true, realUrl:"https://zimsake.co.zw/page/zimsec-past-exam-papers-2"},
-  {year:2024,level:"O-Level",subject:"Additional Mathematics",code:"6002/1",paper:"Paper 1",qs:14,lang:"EN",pages:14,hot:false, realUrl:"https://zimsake.co.zw/page/zimsec-past-exam-papers-2"},
-  {year:2023,level:"O-Level",subject:"Combined Science",code:"5006/1",paper:"Paper 1",qs:40,lang:"EN",pages:14,hot:true, realUrl:"https://zimsake.co.zw/notes/index.php/zimsec-past-exam-papers"},
-  {year:2023,level:"O-Level",subject:"Biology",code:"6030/2",paper:"Paper 2",qs:9,lang:"EN",pages:18,hot:false, realUrl:"https://zimsake.co.zw/notes/index.php/zimsec-past-exam-papers"},
-  {year:2023,level:"O-Level",subject:"Chemistry",code:"6031/2",paper:"Paper 2",qs:7,lang:"EN",pages:16,hot:false, realUrl:"https://zimsake.co.zw/notes/index.php/zimsec-past-exam-papers"},
-  {year:2023,level:"O-Level",subject:"Physics",code:"6032/2",paper:"Paper 2",qs:8,lang:"EN",pages:16,hot:false, realUrl:"https://zimsake.co.zw/notes/index.php/zimsec-past-exam-papers"},
-  {year:2023,level:"O-Level",subject:"Agriculture",code:"5039/1",paper:"Paper 1",qs:50,lang:"EN",pages:14,hot:false, realUrl:"https://zimsake.co.zw/page/past-exam-papers-grade-7-8"},
-  {year:2023,level:"O-Level",subject:"English Language",code:"4005/1",paper:"Paper 1",qs:2,lang:"EN",pages:8,hot:true, realUrl:"https://zimsake.co.zw/notes/index.php/tag/zimsec-o-level-mathematics-past-exam-paper-1-pdf"},
-  {year:2023,level:"O-Level",subject:"Literature in English",code:"6039/1",paper:"Paper 1",qs:3,lang:"EN",pages:12,hot:false, realUrl:"https://zimsake.co.zw/page/zimsec-past-exam-papers-2"},
-  {year:2023,level:"O-Level",subject:"Commerce",code:"4048/1",paper:"Paper 1",qs:40,lang:"EN",pages:10,hot:false, realUrl:"https://zimsake.co.zw/page/zimsec-past-exam-papers-2"},
-  {year:2023,level:"O-Level",subject:"Business Studies",code:"6025/2",paper:"Paper 2",qs:6,lang:"EN",pages:12,hot:false, realUrl:"https://zimsake.co.zw/page/zimsec-past-exam-papers-2"},
-  {year:2023,level:"O-Level",subject:"Accounting",code:"6001/2",paper:"Paper 2",qs:4,lang:"EN",pages:14,hot:false, realUrl:"https://zimsake.co.zw/page/zimsec-past-exam-papers-2"},
-  {year:2023,level:"O-Level",subject:"History",code:"4044/1",paper:"Paper 1",qs:4,lang:"EN",pages:10,hot:false, realUrl:"https://zimsake.co.zw/page/zimsec-past-exam-papers-2"},
-  {year:2023,level:"O-Level",subject:"Geography",code:"6037/2",paper:"Paper 2",qs:8,lang:"EN",pages:22,hot:false, realUrl:"https://zimsake.co.zw/page/zimsec-past-exam-papers-2"},
-  {year:2023,level:"O-Level",subject:"Computer Science",code:"6023/1",paper:"Paper 1",qs:40,lang:"EN",pages:14,hot:true, realUrl:"https://zimsake.co.zw/page/zimsec-past-exam-papers-2"},
-  {year:2023,level:"O-Level",subject:"Heritage Studies",code:"4045/1",paper:"Paper 1",qs:40,lang:"EN",pages:12,hot:false, realUrl:"https://zimsake.co.zw/page/zimsec-past-exam-papers-2"},
-  {year:2023,level:"O-Level",subject:"Shona Language",code:"6054/1",paper:"Paper 1",qs:3,lang:"SN",pages:8,hot:true, realUrl:"https://zimsake.co.zw/page/zimsec-past-exam-papers-2"},
-  {year:2023,level:"O-Level",subject:"Ndebele Language",code:"6055/1",paper:"Paper 1",qs:3,lang:"ND",pages:8,hot:true, realUrl:"https://zimsake.co.zw/page/zimsec-past-exam-papers-2"},
-  {year:2023,level:"O-Level",subject:"Design and Technology",code:"6005/2",paper:"Paper 2",qs:5,lang:"EN",pages:12,hot:false, realUrl:"https://zimsake.co.zw/page/zimsec-past-exam-papers-2"},
-  {year:2022,level:"A-Level",subject:"Pure Mathematics",code:"6042/1",paper:"Paper 1",qs:12,lang:"EN",pages:16,hot:false, realUrl:"https://zimsake.co.zw/notes/index.php/zimsec-past-exam-papers"},
-  {year:2022,level:"A-Level",subject:"Biology",code:"6030/3",paper:"Paper 3",qs:5,lang:"EN",pages:20,hot:false, realUrl:"https://zimsake.co.zw/notes/index.php/zimsec-past-exam-papers"},
-  {year:2022,level:"A-Level",subject:"Chemistry",code:"6031/3",paper:"Paper 3",qs:6,lang:"EN",pages:20,hot:false, realUrl:"https://zimsake.co.zw/notes/index.php/zimsec-past-exam-papers"},
-  {year:2022,level:"A-Level",subject:"Physics",code:"6032/3",paper:"Paper 3",qs:5,lang:"EN",pages:20,hot:false, realUrl:"https://zimsake.co.zw/notes/index.php/zimsec-past-exam-papers"},
-  {year:2022,level:"O-Level",subject:"Wood Technology",code:"6027/2",paper:"Paper 2",qs:5,lang:"EN",pages:12,hot:false, realUrl:"https://zimsake.co.zw/page/zimsec-past-exam-papers-2"},
-  {year:2022,level:"O-Level",subject:"Metal Technology",code:"6040/2",paper:"Paper 2",qs:5,lang:"EN",pages:12,hot:false, realUrl:"https://zimsake.co.zw/page/zimsec-past-exam-papers-2"},
-  {year:2020,level:"Grade 7",subject:"Mathematics",code:"4004",paper:"Paper 1",qs:50,lang:"EN",pages:12,hot:true, realUrl:"https://zimsake.co.zw/page/past-exam-papers-grade-7-8"},
-  {year:2020,level:"Grade 7",subject:"Agriculture",code:"5006",paper:"Paper 1",qs:40,lang:"EN",pages:10,hot:false, realUrl:"https://zimsake.co.zw/page/past-exam-papers-grade-7-8"},
+  // MATHS ONLY - Real ZIMSEC 4004 structure: Paper 1 30 Qs 2h30 non-calc [1][2], Paper 2 Section A 52 + Section B 48 [2][3] - 2018-2024 full
+  {year:2024,level:"O-Level",subject:"Mathematics",code:"4004/1",paper:"Paper 1",qs:30,lang:"EN",pages:2,hot:true, realUrl:"pdfs/2024_Mathematics_Paper_1_4004_1.pdf"},
+  {year:2024,level:"O-Level",subject:"Mathematics",code:"4004/2",paper:"Paper 2",qs:13,lang:"EN",pages:2,hot:true, realUrl:"pdfs/2024_Mathematics_Paper_2_4004_2.pdf"},
+  {year:2023,level:"O-Level",subject:"Mathematics",code:"4004/1",paper:"Paper 1",qs:30,lang:"EN",pages:2,hot:true, realUrl:"pdfs/2023_Mathematics_Paper_1_4004_1.pdf"},
+  {year:2023,level:"O-Level",subject:"Mathematics",code:"4004/2",paper:"Paper 2",qs:13,lang:"EN",pages:2,hot:true, realUrl:"pdfs/2023_Mathematics_Paper_2_4004_2.pdf"},
+  {year:2022,level:"O-Level",subject:"Mathematics",code:"4004/1",paper:"Paper 1",qs:30,lang:"EN",pages:2,hot:false, realUrl:"pdfs/2022_Mathematics_Paper_1_4004_1.pdf"},
+  {year:2022,level:"O-Level",subject:"Mathematics",code:"4004/2",paper:"Paper 2",qs:13,lang:"EN",pages:2,hot:false, realUrl:"pdfs/2022_Mathematics_Paper_2_4004_2.pdf"},
+  {year:2021,level:"O-Level",subject:"Mathematics",code:"4004/1",paper:"Paper 1",qs:30,lang:"EN",pages:2,hot:false, realUrl:"pdfs/2021_Mathematics_Paper_1_4004_1.pdf"},
+  {year:2021,level:"O-Level",subject:"Mathematics",code:"4004/2",paper:"Paper 2",qs:13,lang:"EN",pages:2,hot:false, realUrl:"pdfs/2021_Mathematics_Paper_2_4004_2.pdf"},
+  {year:2020,level:"O-Level",subject:"Mathematics",code:"4004/1",paper:"Paper 1",qs:30,lang:"EN",pages:2,hot:false, realUrl:"pdfs/2020_Mathematics_Paper_1_4004_1.pdf"},
+  {year:2020,level:"O-Level",subject:"Mathematics",code:"4004/2",paper:"Paper 2",qs:13,lang:"EN",pages:2,hot:false, realUrl:"pdfs/2020_Mathematics_Paper_2_4004_2.pdf"},
+  {year:2019,level:"O-Level",subject:"Mathematics",code:"4004/1",paper:"Paper 1",qs:30,lang:"EN",pages:2,hot:false, realUrl:"pdfs/2019_Mathematics_Paper_1_4004_1.pdf"},
+  {year:2019,level:"O-Level",subject:"Mathematics",code:"4004/2",paper:"Paper 2",qs:13,lang:"EN",pages:2,hot:false, realUrl:"pdfs/2019_Mathematics_Paper_2_4004_2.pdf"},
+  {year:2018,level:"O-Level",subject:"Mathematics",code:"4004/1",paper:"Paper 1",qs:30,lang:"EN",pages:2,hot:false, realUrl:"pdfs/2018_Mathematics_Paper_1_4004_1.pdf"},
+  {year:2018,level:"O-Level",subject:"Mathematics",code:"4004/2",paper:"Paper 2",qs:13,lang:"EN",pages:2,hot:false, realUrl:"pdfs/2018_Mathematics_Paper_2_4004_2.pdf"},
+  {year:2024,level:"O-Level",subject:"Additional Mathematics",code:"6002/1",paper:"Paper 1",qs:14,lang:"EN",pages:2,hot:false, realUrl:"pdfs/2024_Additional_Mathematics_Paper_1_6002_1.pdf"},
+  {year:2022,level:"A-Level",subject:"Pure Mathematics",code:"6042/1",paper:"Paper 1",qs:12,lang:"EN",pages:1,hot:false, realUrl:"pdfs/2022_Pure_Mathematics_Paper_1_6042_1.pdf"},
+  {year:2020,level:"Grade 7",subject:"Mathematics",code:"4004",paper:"Paper 1",qs:20,lang:"EN",pages:2,hot:true, realUrl:"pdfs/2020_Mathematics_Grade_7_4004.pdf"},
 ];
 function renderLibrary(){
   const grid=document.getElementById('paperGrid');
