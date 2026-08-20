@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ACADEX - Pass ZIMSEC Maths & Combined Science in Your Language</title>
+<title>ACADEX - Pass ZIMSEC Maths, Science & English in Your Language</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <meta name="theme-color" content="#0a7a3c">
@@ -98,7 +98,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
 </head>
 <body>
 <nav>
-  <div class="logo">🇿🇼 ACADEX <span style="background:var(--green);color:white;padding:2px 8px;border-radius:999px;font-size:10px;vertical-align:middle">ZIMSEC TUTOR</span> <span style="background:var(--gold);color:#0f172a;padding:2px 7px;border-radius:999px;font-size:10px;vertical-align:middle">V7</span></div>
+  <div class="logo">🇿🇼 ACADEX <span style="background:var(--green);color:white;padding:2px 8px;border-radius:999px;font-size:10px;vertical-align:middle">ZIMSEC TUTOR</span> <span style="background:var(--gold);color:#0f172a;padding:2px 7px;border-radius:999px;font-size:10px;vertical-align:middle">V8</span></div>
   <div style="display:flex;gap:8px;align-items:center">
     <span id="profileBadge" style="background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;display:none"></span>
     <button style="background:var(--green);color:white;padding:9px 16px;border-radius:999px;font-weight:800;border:none;cursor:pointer;font-size:12px" onclick="openProfile()">👤 Profile</button>
@@ -109,7 +109,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
 <div id="profileModal" style="position:fixed;inset:0;background:rgba(15,23,42,0.85);backdrop-filter:blur(8px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px">
   <div style="background:white;border-radius:20px;max-width:480px;width:100%;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,0.3)">
     <h3 style="font-size:18px">👋 Welcome to ACADEX</h3>
-    <p style="font-size:12px;color:var(--muted);margin:6px 0 14px">Maths (4004) and Combined Science (5006). Pick your grade and subjects.</p>
+    <p style="font-size:12px;color:var(--muted);margin:6px 0 14px">Maths (4004), Combined Science (5006) and English Language (1122). Pick your grade and subjects.</p>
     <label style="font-size:11px;font-weight:800">Your Name</label>
     <input id="pName" placeholder="e.g. Anesu" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:10px;margin:4px 0 10px;font-size:13px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -145,10 +145,11 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
 <div class="hero">
   <div class="hero-grid">
     <div>
-      <div class="badge">📐 MATHS 4004 + COMBINED SCIENCE 5006 · ORIGINAL ZIMSEC-STYLE PAPERS</div>
-      <h1>Pass <span id="heroGrade">Maths &amp; Science</span> in your <em>own language.</em></h1>
+      <div class="badge">📐 4004 MATHS · 5006 SCIENCE · 1122 ENGLISH · ORIGINAL ZIMSEC-STYLE PAPERS</div>
+      <h1>Pass <span id="heroGrade">Maths, Science &amp; English</span> in your <em>own language.</em></h1>
       <p><b>Maths 4004:</b> Paper 1 — 30 short, 2h30, no calculator. Paper 2 — Sec A 52 + Sec B choose 4 of 7.<br>
-      <b>Combined Science 5006:</b> Paper 1 — 40 multiple choice, 1 hour. Paper 2 — 8 structured Bio/Chem/Phys questions, 2 hours. Worked solutions match each question.</p>
+      <b>Combined Science 5006:</b> Paper 1 — 40 MCQ, 1 hour. Paper 2 — 8 structured Bio/Chem/Phys, 2 hours.<br>
+      <b>English 1122:</b> Paper 1 — composition 350–450 words + guided writing, 1h30. Paper 2 — comprehension, summary, register, 2 hours.</p>
       <div class="lang-bar">
         <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:11px;letter-spacing:0.8px">🌍 TAP YOUR LANGUAGE</b><span style="font-size:10px;background:var(--gold);color:#0f172a;padding:3px 8px;border-radius:999px;font-weight:900">16 LANGUAGES</span></div>
         <div class="lang-grid" id="langGrid"></div>
@@ -206,7 +207,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
           <button class="btn" style="background:var(--green);color:white;margin-top:8px" onclick="solveTyped()">Solve step-by-step</button>
         </div>
       </div>
-      <p style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center">— 2024 November 4004 Maths &amp; 5006 Combined Science samples —</p>
+      <p style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center">— 2024 November 4004 / 5006 / 1122 samples —</p>
       <div class="qgrid" style="margin-top:10px" id="qgrid"></div>
 
       <div class="explain" id="explain">
@@ -238,10 +239,10 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
 
     <div id="tab-library" class="card" style="display:none">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-        <h3 style="font-size:14px">📚 ZIMSEC-style Maths &amp; Combined Science papers</h3>
+        <h3 style="font-size:14px">📚 ZIMSEC-style Maths, Combined Science &amp; English papers</h3>
         <span id="libCount" style="font-size:11px;background:#0f172a;color:white;padding:5px 10px;border-radius:999px;font-weight:800">52 papers</span>
       </div>
-      <p class="notice">Original ACADEX questions in official format (4004 Maths / 5006 Combined Science). Not copyrighted ZIMSEC past papers. Extract &amp; Study opens matching worked solutions.</p>
+      <p class="notice">Original ACADEX questions in official format (4004 Maths / 5006 Combined Science / 1122 English). Not copyrighted ZIMSEC past papers. Extract &amp; Study opens matching worked solutions.</p>
       <div class="lib-toolbar">
         <input type="text" id="libSearch" placeholder="Search: 2024 Paper 1, vectors, Grade 7…" style="flex:1;min-width:180px" oninput="renderLibrary()">
         <select id="libLevel" onchange="renderLibrary()"><option value="">All Levels</option><option>O-Level</option><option>A-Level</option><option>Grade 7</option></select>
@@ -249,6 +250,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
         <select id="libSubject" onchange="renderLibrary()">
           <option value="">All subjects</option>
           <option>Mathematics</option>
+          <option>English Language</option>
           <option>Combined Science</option>
           <option>Grade 7 Mathematics</option>
           <option>Pure Mathematics</option>
@@ -287,19 +289,19 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
       <div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:12px">
         <div>
           <h4>🔮 Topic emphasis (practice, not a leak)</h4>
-          <p style="font-size:11px;color:var(--muted)">Typical 4004 Maths and 5006 Combined Science structure 2018–2024 style. Use this to order revision — not as a promise of the live paper.</p>
+          <p style="font-size:11px;color:var(--muted)">Typical 4004 Maths, 5006 Combined Science and 1122 English structure 2018–2024 style. Use this to order revision — not as a promise of the live paper.</p>
           <div id="predictBars" style="margin-top:8px"></div>
         </div>
         <div style="background:#0f172a;color:white;border-radius:12px;padding:12px">
           <b style="font-size:12px">This week’s drill</b>
-          <p style="font-size:12px;margin-top:8px;opacity:0.9">Maths: one full 4004/1 (30 questions, 2h30, no calculator), then two Section B questions (trig and vectors).<br><br>Science: one 5006/1 (40 MCQ, 1 hour) and one 5006/2 (8 structured, 2 hours) — photosynthesis, acids/salts, F = ma, V = IR.</p>
+          <p style="font-size:12px;margin-top:8px;opacity:0.9">Maths: one full 4004/1 then two Section B questions (trig and vectors).<br><br>Science: one 5006/1 (40 MCQ) and one 5006/2.<br><br>English: one 1122/1 essay (350–450 words) plus Section B guided writing, then a 1122/2 summary of 160 words.</p>
         </div>
       </div>
     </div>
 
     <div class="feature-grid" style="margin-top:12px">
       <div class="feature"><b>🔊 Slow voice</b><p style="font-size:11px;color:var(--muted)">Shona, Ndebele and English MP3s, plus browser speech that reads the actual working.</p></div>
-      <div class="feature"><b>📚 Maths + Combined Science</b><p style="font-size:11px;color:var(--muted)">4004 Maths and 5006 Combined Science (Bio / Chem / Phys) — each PDF is a real question paper.</p></div>
+      <div class="feature"><b>📚 Maths + Science + English</b><p style="font-size:11px;color:var(--muted)">4004 Maths, 5006 Combined Science and 1122 English Language — each PDF is a real question paper.</p></div>
       <div class="feature"><b>📴 Low data</b><p style="font-size:11px;color:var(--muted)">Install the PWA on Wi‑Fi. WhatsApp trigger: <b>mhoro acadex</b>.</p></div>
     </div>
   </section>

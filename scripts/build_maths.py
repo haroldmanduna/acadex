@@ -39,6 +39,7 @@ DATA_DIR = ROOT / "data"
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from papers_4004 import olevel_p1 as _olevel_p1, olevel_p2 as _olevel_p2
 from papers_5006 import combined_p1, combined_p2
+from papers_1122 import english_p1, english_p2
 GREEN = HexColor("#0a7a3c")
 GOLD = HexColor("#f2b705")
 DARK = HexColor("#0f172a")
@@ -574,6 +575,13 @@ def catalogue():
     for year in (2023, 2024):
         items.append(("O-Level", "Combined Science", "5006", 1, year, "June", True))
         items.append(("O-Level", "Combined Science", "5006", 2, year, "June", True))
+    # English Language 1122
+    for year in range(2018, 2025):
+        items.append(("O-Level", "English Language", "1122", 1, year, "November", False))
+        items.append(("O-Level", "English Language", "1122", 2, year, "November", False))
+    for year in (2023, 2024):
+        items.append(("O-Level", "English Language", "1122", 1, year, "June", True))
+        items.append(("O-Level", "English Language", "1122", 2, year, "June", True))
     return items
 
 
@@ -597,6 +605,10 @@ def build_questions(level, subject, code, paper, year, session):
         return combined_p1(rng, year, session)
     if code == "5006" and paper == 2:
         return combined_p2(rng, year, session)
+    if code == "1122" and paper == 1:
+        return english_p1(rng, year, session)
+    if code == "1122" and paper == 2:
+        return english_p2(rng, year, session)
     raise ValueError((code, paper))
 
 
@@ -622,6 +634,14 @@ def paper_meta(level, subject, code, paper, year, session, hot, questions):
         dur, extra = "2 hours", "Answer all questions. The number of marks is given in brackets [ ]."
         instr = "Write your answers in the spaces provided. You may use a calculator."
         calc = True
+    elif code == "1122" and paper == 1:
+        dur, extra = "1 hour 30 minutes", "Answer booklet. Dictionaries may NOT be used."
+        instr = "Answer one question from Section A (30 marks, 350–450 words) and the compulsory question in Section B (20 marks). Mistakes in spelling, punctuation and grammar may be penalised."
+        calc = False
+    elif code == "1122" and paper == 2:
+        dur, extra = "2 hours", "The passage is printed in this paper. Dictionaries may NOT be used."
+        instr = "Answer all questions. Spend about 1 hour 30 minutes on Section A (comprehension and summary) and 30 minutes on Section B (register)."
+        calc = False
     else:
         dur, extra = "3 hours", "A calculator may be used unless a question forbids it."
         instr = "Answer all questions. Full marks are not given for answers only — show method."
@@ -730,6 +750,10 @@ def build_pdf(paper, path: Path):
         story.append(Paragraph("<b>PAPER 1 — MULTIPLE CHOICE — 40 QUESTIONS — 1 HOUR</b>", styles["center2"]))
     elif paper.get("syllabus") == "5006" and paper.get("paperNo") == 2:
         story.append(Paragraph("<b>PAPER 2 — STRUCTURED QUESTIONS — ANSWER ALL — 2 HOURS</b>", styles["center2"]))
+    elif paper.get("syllabus") == "1122" and paper.get("paperNo") == 1:
+        story.append(Paragraph("<b>PAPER 1 — COMPOSITION — 50 MARKS — 1 HOUR 30 MINUTES</b>", styles["center2"]))
+    elif paper.get("syllabus") == "1122" and paper.get("paperNo") == 2:
+        story.append(Paragraph("<b>PAPER 2 — READING — COMPREHENSION, SUMMARY, REGISTER — 2 HOURS</b>", styles["center2"]))
     elif paper.get("paperNo") == 1:
         story.append(Paragraph("<b>PAPER 1 — SHORT-ANSWER — CALCULATORS MUST NOT BE USED</b>", styles["center2"]))
     elif paper.get("paperNo") == 2:
@@ -756,6 +780,26 @@ def build_pdf(paper, path: Path):
                 else:
                     story.append(PageBreak())
                     story.append(Paragraph("SECTION B  (48 marks)  —  Answer any FOUR of the seven questions", styles["sec"]))
+        elif paper.get("syllabus") == "1122":
+            if q["section"] != last_sec:
+                last_sec = q["section"]
+                if paper.get("paperNo") == 1:
+                    if last_sec == "A":
+                        story.append(Paragraph("SECTION A  (30 marks)  —  Answer ONE question  ·  350–450 words", styles["sec"]))
+                    else:
+                        story.append(PageBreak())
+                        story.append(Paragraph("SECTION B  (20 marks)  —  Answer the following question  ·  compulsory", styles["sec"]))
+                else:
+                    if last_sec == "A":
+                        story.append(Paragraph("SECTION A  (40 marks)  —  Comprehension and summary", styles["sec"]))
+                    else:
+                        story.append(PageBreak())
+                        story.append(Paragraph("SECTION B  (10 marks)  —  Register  ·  Answer ALL", styles["sec"]))
+        if q.get("kind") == "passage":
+            story.append(Paragraph("<b>PASSAGE</b>", styles["sec"]))
+            story.append(Paragraph(xml_safe(q["text"]), styles["body"]))
+            story.append(Spacer(1, 5 * mm))
+            continue
         marks = q["marks"]
         body = xml_safe(q["text"])
         bits = [Paragraph(f"<b>{q['n']}.</b>  {body}  &nbsp;&nbsp; <b>[{marks}]</b>", styles["q"])]
@@ -765,6 +809,10 @@ def build_pdf(paper, path: Path):
             gap = 6 * mm
         elif paper.get("syllabus") == "5006" and paper.get("paperNo") == 2:
             gap = 28 * mm
+        elif paper.get("syllabus") == "1122" and paper.get("paperNo") == 1:
+            gap = 10 * mm
+        elif paper.get("syllabus") == "1122":
+            gap = 8 * mm
         else:
             gap = 8 * mm if q.get("kind") == "mcq" else (16 * mm if q.get("kind") == "short" else 12 * mm)
         bits.append(Spacer(1, gap))
@@ -813,7 +861,7 @@ def featured_from(papers):
             continue
         seen.add(q["topic"])
         picked.append({**q, "paperId": p1["id"], "tag": f"4004/1 2024 Q{q['n']} · {q['topic']}"})
-        if len(picked) >= 4:
+        if len(picked) >= 2:
             break
     picked.append({**p2["questions"][0], "paperId": p2["id"], "tag": f"4004/2 2024 Q1 · {p2['questions'][0]['topic']}"})
     cs = next((p for p in papers if p["id"] == "5006-1-2024-November"), None)
@@ -823,6 +871,13 @@ def featured_from(papers):
             picked.append({**q, "paperId": cs["id"], "tag": f"5006/1 2024 Q{q['n']} · {q['topic']}"})
     if cs2:
         picked.append({**cs2["questions"][0], "paperId": cs2["id"], "tag": f"5006/2 2024 Q1 · {cs2['questions'][0]['topic']}"})
+    en = next((p for p in papers if p["id"] == "1122-1-2024-November"), None)
+    en2 = next((p for p in papers if p["id"] == "1122-2-2024-November"), None)
+    if en:
+        picked.append({**en["questions"][0], "paperId": en["id"], "tag": f"1122/1 2024 Q1 · {en['questions'][0]['topic']}"})
+    if en2:
+        q = next((x for x in en2["questions"] if x.get("kind") != "passage"), en2["questions"][0])
+        picked.append({**q, "paperId": en2["id"], "tag": f"1122/2 2024 · {q['topic']}"})
     return picked[:8]
 
 
@@ -849,6 +904,19 @@ def science_predictor():
         {"topic": "Atomic structure & periodic table", "pct": 74, "why": "Protons, electronic configuration, group and period."},
         {"topic": "Health (malaria, cholera, HIV)", "pct": 70, "why": "Pathogen, transmission and one control method."},
         {"topic": "Particle theory", "pct": 64, "why": "Arrangement and motion in solids, liquids and gases."},
+    ]
+
+
+def english_predictor():
+    return [
+        {"topic": "Free composition (350–450 words)", "pct": 90, "why": "Paper 1 Section A: choose one of seven titles. Narrative and discursive almost always appear."},
+        {"topic": "Guided writing (letter / speech / report)", "pct": 88, "why": "Paper 1 Section B is compulsory. Cover every bullet or you leak content marks."},
+        {"topic": "Summary (own words, ~160)", "pct": 86, "why": "Paper 2 Section A — 20 marks. Stay inside the paragraph boundary."},
+        {"topic": "Comprehension (literal + inference)", "pct": 82, "why": "Own-words items and vocabulary-in-context every session."},
+        {"topic": "Register (formal vs informal)", "pct": 78, "why": "Paper 2 Section B: five situations, 2 marks each. Tone and audience."},
+        {"topic": "Story openings / given sentences", "pct": 74, "why": "A Section A narrative often starts or ends with a set line."},
+        {"topic": "Accuracy (SPAG)", "pct": 70, "why": "Spelling, punctuation and grammar are penalised in every part of both papers."},
+        {"topic": "Layout of letters and reports", "pct": 64, "why": "Address, date, Yours faithfully / sincerely, report headings."},
     ]
 
 
@@ -902,8 +970,8 @@ def main():
         js_papers.append({k: p[k] for k in p if k != "bytes"})
 
     payload = {
-        "version": 6,
-        "disclaimer": "Original ACADEX practice papers aligned to ZIMSEC 4004 Maths and 5006 Combined Science. Not official ZIMSEC past papers.",
+        "version": 8,
+        "disclaimer": "Original ACADEX practice papers aligned to ZIMSEC 4004 Maths, 5006 Combined Science and 1122 English Language. Not official ZIMSEC past papers.",
         "counts": {
             "papers": len(papers),
             "questions": len(bank),
@@ -911,12 +979,14 @@ def main():
             "grade7": sum(1 for p in papers if p["level"] == "Grade 7"),
             "aLevel": sum(1 for p in papers if p["level"] == "A-Level"),
             "science": sum(1 for p in papers if p.get("syllabus") == "5006"),
+            "english": sum(1 for p in papers if p.get("syllabus") == "1122"),
         },
         "papers": js_papers,
         "featured": featured,
         "mockPaperId": mock["id"],
         "predictor": predictor(),
         "sciencePredictor": science_predictor(),
+        "englishPredictor": english_predictor(),
     }
 
     (DATA_DIR / "acadex-maths.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")

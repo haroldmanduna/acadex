@@ -1,6 +1,6 @@
 /* ACADEX V3 — Maths tutor UI. Consumes window.ACADEX_DATA */
 const DATA = window.ACADEX_DATA || { papers: [], featured: [], predictor: [], counts: {} };
-const ALL_SUBJECTS = ["Mathematics", "Grade 7 Mathematics", "Pure Mathematics", "Further Mathematics", "Combined Science"];
+const ALL_SUBJECTS = ["Mathematics", "English Language", "Combined Science", "Grade 7 Mathematics", "Pure Mathematics", "Further Mathematics"];
 const languages = [
   { code: "sn", name: "Shona" }, { code: "nd", name: "Ndebele" }, { code: "en", name: "English" },
   { code: "ven", name: "Venda" }, { code: "toi", name: "Tonga" }, { code: "xho", name: "Xhosa" },
@@ -382,6 +382,8 @@ function renderLibrary() {
     let kind = p.paper;
     if (p.syllabus === "5006" && p.paperNo === 1) kind = "PAPER 1 · 40 MCQ · 1 hour";
     else if (p.syllabus === "5006" && p.paperNo === 2) kind = "PAPER 2 · structured Bio/Chem/Phys · 2 hours";
+    else if (p.syllabus === "1122" && p.paperNo === 1) kind = "PAPER 1 · composition 350–450 words · 1h30";
+    else if (p.syllabus === "1122" && p.paperNo === 2) kind = "PAPER 2 · comprehension + summary + register · 2 hours";
     else if (p.paperNo === 1) kind = "PAPER 1 · 30 short Qs · NO calculator";
     else if (p.paperNo === 2) kind = "PAPER 2 · Sec A + Sec B · calculator";
     d.innerHTML = `<div class="paper-top"><span class="tag">${p.level} • ${p.code}</span><span class="tag" style="${p.hot ? "background:var(--gold);border-color:var(--gold)" : ""}">${p.session} ${p.year}</span></div>
@@ -458,7 +460,11 @@ async function downloadPDF(id) {
     document.getElementById("viewerBody").innerHTML = `<p>✅ Downloaded <b>${esc(fname)}</b></p>
       <p>${esc(p.year)} ${esc(p.session)} ${esc(p.code)} ${esc(p.paper)} · ${p.qs} questions</p>
       <p><a href="${p.realUrl}" target="_blank" rel="noopener">Open in browser instead →</a></p>
-      <p class="notice">Paper 1 is short-answer / no calculator. Paper 2 is structured Section A + B / calculator. Different files, different questions.</p>`;
+      <p class="notice">${p.syllabus === "1122"
+        ? "Paper 1 is composition (Section A one essay + Section B guided writing). Paper 2 is reading: passage, comprehension, summary and register. Different files, different questions."
+        : p.syllabus === "5006"
+        ? "Paper 1 is 40 multiple-choice questions (1 hour). Paper 2 is 8 structured Bio/Chem/Phys questions (2 hours). Different files, different questions."
+        : "Paper 1 is short-answer / no calculator. Paper 2 is structured Section A + B / calculator. Different files, different questions."}</p>`;
   } catch (err) {
     document.getElementById("viewerBody").innerHTML = `<p>Could not auto-save. <a href="${p.realUrl}" download="${esc(fname)}" target="_blank">Tap here to download ${esc(fname)}</a></p>`;
     window.open(p.realUrl, "_blank");
@@ -601,7 +607,7 @@ function renderPredict() {
       <div class="progress"><i style="width:${t.pct}%;background:${t.pct >= 80 ? "#ef4444" : "var(--green)"}"></i></div>
       <p style="font-weight:500;color:var(--muted);font-size:11px">${esc(t.why)}</p>
     </div>`).join("");
-  bars.innerHTML = block("4004 Mathematics", DATA.predictor) + block("5006 Combined Science", DATA.sciencePredictor);
+  bars.innerHTML = block("4004 Mathematics", DATA.predictor) + block("5006 Combined Science", DATA.sciencePredictor) + block("1122 English Language", DATA.englishPredictor);
 }
 
 /* ----- helpers ----- */
