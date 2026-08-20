@@ -606,7 +606,11 @@ function esc(s) {
 function escAttr(s) { return esc(s).replace(/`/g, ""); }
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js").catch(() => {});
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    Promise.all(regs.map(r => r.update())).finally(() => {
+      navigator.serviceWorker.register("./sw.js?v=5").catch(() => {});
+    });
+  });
 }
 
 function init() {

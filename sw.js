@@ -1,16 +1,9 @@
-// ACADEX Service Worker v3 — Maths PWA
-const CACHE = 'acadex-v4';
+// ACADEX Service Worker v5 — always fetch fresh HTML/JS so paper bank updates
+const CACHE = 'acadex-v5';
 const ASSETS = [
-  './zimsec-super-tutor.html',
-  './acadex-app.js',
-  './acadex-data.js',
   './manifest.json',
   './icon-192.png',
-  './icon-512.png',
-  './audio/shona-solve.mp3',
-  './audio/ndebele-solve.mp3',
-  './audio/english-solve.mp3',
-  './pdfs/2024_November_4004_Paper1.pdf'
+  './icon-512.png'
 ];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -22,10 +15,22 @@ self.addEventListener('activate', e => {
   );
 });
 self.addEventListener('fetch', e => {
+  const url = e.request.url;
+  const isCode = url.includes('.html') || url.includes('.js') || url.includes('acadex-data');
+  if (isCode) {
+    e.respondWith(
+      fetch(e.request).then(resp => {
+        const clone = resp.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return resp;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
   e.respondWith(
     caches.match(e.request).then(cached => {
       return cached || fetch(e.request).then(resp => {
-        if (e.request.url.includes('audio/') || e.request.url.includes('.js') || e.request.url.includes('.html') || e.request.url.includes('/pdfs/') || e.request.url.includes('.pdf')) {
+        if (url.includes('audio/') || url.includes('/pdfs/') || url.includes('.pdf')) {
           const clone = resp.clone();
           caches.open(CACHE).then(c => c.put(e.request, clone));
         }
