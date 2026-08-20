@@ -1,5 +1,5 @@
-// ACADEX Service Worker v5 — always fetch fresh HTML/JS so paper bank updates
-const CACHE = 'acadex-v5';
+// ACADEX Service Worker v7 — always fetch fresh HTML/JS so paper bank updates
+const CACHE = 'acadex-v7';
 const ASSETS = [
   './manifest.json',
   './icon-192.png',

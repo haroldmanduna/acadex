@@ -1,6 +1,6 @@
 /* ACADEX V3 — Maths tutor UI. Consumes window.ACADEX_DATA */
 const DATA = window.ACADEX_DATA || { papers: [], featured: [], predictor: [], counts: {} };
-const ALL_SUBJECTS = ["Mathematics", "Grade 7 Mathematics", "Pure Mathematics", "Further Mathematics"];
+const ALL_SUBJECTS = ["Mathematics", "Grade 7 Mathematics", "Pure Mathematics", "Further Mathematics", "Combined Science"];
 const languages = [
   { code: "sn", name: "Shona" }, { code: "nd", name: "Ndebele" }, { code: "en", name: "English" },
   { code: "ven", name: "Venda" }, { code: "toi", name: "Tonga" }, { code: "xho", name: "Xhosa" },
@@ -190,6 +190,9 @@ function showExplain(idx, custom) {
   if (sel) sel.value = eff;
   const lab = L(eff);
   let html = `<p style="font-weight:800;margin-bottom:8px">${q.text}</p>`;
+  if ((q.options || []).length) {
+    html += `<div style="margin:8px 0">${q.options.map(o => `<div style="font-size:13px;margin:3px 0">${esc(o)}</div>`).join("")}</div>`;
+  }
   (q.steps || []).forEach((s, i) => {
     html += `<div class="step"><b>${lab.step} ${i + 1}: ${esc(s.t)}</b><p>${esc(s.d)}</p></div>`;
   });
@@ -376,11 +379,11 @@ function renderLibrary() {
   filtered.forEach(p => {
     const d = document.createElement("div");
     d.className = "paper";
-    const kind = p.paperNo === 1
-      ? "PAPER 1 · 30 short Qs · NO calculator"
-      : p.paperNo === 2
-        ? "PAPER 2 · Sec A + Sec B · calculator"
-        : p.paper;
+    let kind = p.paper;
+    if (p.syllabus === "5006" && p.paperNo === 1) kind = "PAPER 1 · 40 MCQ · 1 hour";
+    else if (p.syllabus === "5006" && p.paperNo === 2) kind = "PAPER 2 · structured Bio/Chem/Phys · 2 hours";
+    else if (p.paperNo === 1) kind = "PAPER 1 · 30 short Qs · NO calculator";
+    else if (p.paperNo === 2) kind = "PAPER 2 · Sec A + Sec B · calculator";
     d.innerHTML = `<div class="paper-top"><span class="tag">${p.level} • ${p.code}</span><span class="tag" style="${p.hot ? "background:var(--gold);border-color:var(--gold)" : ""}">${p.session} ${p.year}</span></div>
       <h4>${p.year} ${p.subject} ${p.paper}</h4>
       <p><b>${kind}</b><br>${p.qs} questions • ${p.pages} pages • ${p.duration}</p>
@@ -405,6 +408,7 @@ function viewPaper(id, study) {
     html += `<div class="qcard" onclick="studyQuestion('${id}',${q.n})">
       <small style="color:var(--green);font-weight:800">Q${q.n} · ${esc(q.topic)} · [${q.marks}] ${q.section === "B" ? "· Section B" : ""}</small>
       <p style="font-weight:700;margin-top:4px">${q.text}</p>
+      ${(q.options || []).length ? `<div style="margin:6px 0 0;font-size:13px">${q.options.map(o => `<div>${esc(o)}</div>`).join("")}</div>` : ""}
       ${study ? `<div class="step" style="margin-top:8px"><b>Answer</b><p>${esc(q.answer)}</p></div>` : `<p style="font-size:11px;color:var(--muted);margin-top:4px">Tap to work this in ${esc(lang)}</p>`}
     </div>`;
   });
@@ -591,12 +595,13 @@ function renderParent() {
 }
 function renderPredict() {
   const bars = document.getElementById("predictBars");
-  bars.innerHTML = (DATA.predictor || []).map(t => `
+  const block = (title, list) => `<h4 style="margin-top:12px">${esc(title)}</h4>` + (list || []).map(t => `
     <div style="margin-top:10px;font-size:12px;font-weight:800">${esc(t.topic)}
       <span style="float:right;color:${t.pct >= 80 ? "#ef4444" : "#0a7a3c"}">${t.pct}%</span>
       <div class="progress"><i style="width:${t.pct}%;background:${t.pct >= 80 ? "#ef4444" : "var(--green)"}"></i></div>
       <p style="font-weight:500;color:var(--muted);font-size:11px">${esc(t.why)}</p>
     </div>`).join("");
+  bars.innerHTML = block("4004 Mathematics", DATA.predictor) + block("5006 Combined Science", DATA.sciencePredictor);
 }
 
 /* ----- helpers ----- */
@@ -608,7 +613,7 @@ function escAttr(s) { return esc(s).replace(/`/g, ""); }
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.getRegistrations().then(regs => {
     Promise.all(regs.map(r => r.update())).finally(() => {
-      navigator.serviceWorker.register("./sw.js?v=5").catch(() => {});
+      navigator.serviceWorker.register("./sw.js?v=7").catch(() => {});
     });
   });
 }

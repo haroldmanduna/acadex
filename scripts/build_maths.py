@@ -38,6 +38,7 @@ PDF_DIR = ROOT / "pdfs"
 DATA_DIR = ROOT / "data"
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from papers_4004 import olevel_p1 as _olevel_p1, olevel_p2 as _olevel_p2
+from papers_5006 import combined_p1, combined_p2
 GREEN = HexColor("#0a7a3c")
 GOLD = HexColor("#f2b705")
 DARK = HexColor("#0f172a")
@@ -566,6 +567,13 @@ def catalogue():
         items.append(("A-Level", "Mathematics", "9164", 2, year, "November", True))
         items.append(("A-Level", "Further Mathematics", "9187", 1, year, "November", True))
         items.append(("A-Level", "Further Mathematics", "9187", 2, year, "November", True))
+    # Combined Science 5006
+    for year in range(2018, 2025):
+        items.append(("O-Level", "Combined Science", "5006", 1, year, "November", False))
+        items.append(("O-Level", "Combined Science", "5006", 2, year, "November", False))
+    for year in (2023, 2024):
+        items.append(("O-Level", "Combined Science", "5006", 1, year, "June", True))
+        items.append(("O-Level", "Combined Science", "5006", 2, year, "June", True))
     return items
 
 
@@ -585,6 +593,10 @@ def build_questions(level, subject, code, paper, year, session):
         return alevel_pure_p2(rng, year, code)
     if code == "9187":
         return alevel_further(rng, year, paper)
+    if code == "5006" and paper == 1:
+        return combined_p1(rng, year, session)
+    if code == "5006" and paper == 2:
+        return combined_p2(rng, year, session)
     raise ValueError((code, paper))
 
 
@@ -602,6 +614,14 @@ def paper_meta(level, subject, code, paper, year, session, hot, questions):
     elif code == "702" and paper == 2:
         dur, extra = "2 hours", "Calculators may be used."
         instr = "Answer all questions. Show working."
+    elif code == "5006" and paper == 1:
+        dur, extra = "1 hour", "Answer all 40 questions. For each question there are four possible answers A, B, C and D."
+        instr = "Choose the one you consider correct and record it. Each question carries 1 mark."
+        calc = False
+    elif code == "5006" and paper == 2:
+        dur, extra = "2 hours", "Answer all questions. The number of marks is given in brackets [ ]."
+        instr = "Write your answers in the spaces provided. You may use a calculator."
+        calc = True
     else:
         dur, extra = "3 hours", "A calculator may be used unless a question forbids it."
         instr = "Answer all questions. Full marks are not given for answers only — show method."
@@ -675,7 +695,8 @@ def header_footer(canvas, doc, paper):
     canvas.rect(0, h - 8 * mm, w, 8 * mm, fill=1, stroke=0)
     canvas.setFillColor(white)
     canvas.setFont("Helvetica-Bold", 8)
-    canvas.drawString(16 * mm, h - 5.5 * mm, "ACADEX  ·  ZIMSEC-STYLE PRACTICE  ·  MATHEMATICS")
+    subj = (paper.get("subject") or "MATHEMATICS").upper()
+    canvas.drawString(16 * mm, h - 5.5 * mm, f"ACADEX  ·  ZIMSEC-STYLE PRACTICE  ·  {subj}")
     canvas.drawRightString(w - 16 * mm, h - 5.5 * mm, f"{paper['code']}  {paper['session']} {paper['year']}")
     canvas.setFillColor(MUTED)
     canvas.setFont("Helvetica-Oblique", 8)
@@ -702,10 +723,14 @@ def build_pdf(paper, path: Path):
     story.append(Paragraph("ACADEX PRACTICE EXAMINATION", styles["center2"]))
     story.append(Paragraph(paper["level"].upper() + "  ·  " + paper["subject"].upper(), styles["center2"]))
     story.append(Spacer(1, 3 * mm))
-    story.append(Paragraph(f"<b>MATHEMATICS</b>  &nbsp;&nbsp; {paper['code']}", styles["center"]))
+    story.append(Paragraph(f"<b>{xml_safe(paper['subject'].upper())}</b>  &nbsp;&nbsp; {paper['code']}", styles["center"]))
     story.append(Paragraph(paper["paper"].upper() + f"  &nbsp;  {paper['session']} {paper['year']}", styles["center2"]))
     story.append(Paragraph(paper["duration"], styles["center2"]))
-    if paper.get("paperNo") == 1:
+    if paper.get("syllabus") == "5006" and paper.get("paperNo") == 1:
+        story.append(Paragraph("<b>PAPER 1 — MULTIPLE CHOICE — 40 QUESTIONS — 1 HOUR</b>", styles["center2"]))
+    elif paper.get("syllabus") == "5006" and paper.get("paperNo") == 2:
+        story.append(Paragraph("<b>PAPER 2 — STRUCTURED QUESTIONS — ANSWER ALL — 2 HOURS</b>", styles["center2"]))
+    elif paper.get("paperNo") == 1:
         story.append(Paragraph("<b>PAPER 1 — SHORT-ANSWER — CALCULATORS MUST NOT BE USED</b>", styles["center2"]))
     elif paper.get("paperNo") == 2:
         story.append(Paragraph("<b>PAPER 2 — STRUCTURED QUESTIONS — CALCULATOR ALLOWED</b>", styles["center2"]))
@@ -733,12 +758,17 @@ def build_pdf(paper, path: Path):
                     story.append(Paragraph("SECTION B  (48 marks)  —  Answer any FOUR of the seven questions", styles["sec"]))
         marks = q["marks"]
         body = xml_safe(q["text"])
-        gap = 16 * mm if q.get("kind") == "short" else 12 * mm
-        block = [
-            Paragraph(f"<b>{q['n']}.</b>  {body}  &nbsp;&nbsp; <b>[{marks}]</b>", styles["q"]),
-            Spacer(1, gap),
-        ]
-        story.append(KeepTogether(block))
+        bits = [Paragraph(f"<b>{q['n']}.</b>  {body}  &nbsp;&nbsp; <b>[{marks}]</b>", styles["q"])]
+        for opt in q.get("options") or []:
+            bits.append(Paragraph(xml_safe(opt), styles["meta"]))
+        if paper.get("syllabus") == "5006" and paper.get("paperNo") == 1:
+            gap = 6 * mm
+        elif paper.get("syllabus") == "5006" and paper.get("paperNo") == 2:
+            gap = 28 * mm
+        else:
+            gap = 8 * mm if q.get("kind") == "mcq" else (16 * mm if q.get("kind") == "short" else 12 * mm)
+        bits.append(Spacer(1, gap))
+        story.append(KeepTogether(bits))
 
     story.append(Spacer(1, 8 * mm))
     story.append(Paragraph("END OF QUESTION PAPER", styles["center2"]))
@@ -783,10 +813,16 @@ def featured_from(papers):
             continue
         seen.add(q["topic"])
         picked.append({**q, "paperId": p1["id"], "tag": f"4004/1 2024 Q{q['n']} · {q['topic']}"})
-        if len(picked) >= 6:
+        if len(picked) >= 4:
             break
-    for q in (p2["questions"][0], p2["questions"][6]):
-        picked.append({**q, "paperId": p2["id"], "tag": f"4004/2 2024 Q{q['n']} · {q['topic']}"})
+    picked.append({**p2["questions"][0], "paperId": p2["id"], "tag": f"4004/2 2024 Q1 · {p2['questions'][0]['topic']}"})
+    cs = next((p for p in papers if p["id"] == "5006-1-2024-November"), None)
+    cs2 = next((p for p in papers if p["id"] == "5006-2-2024-November"), None)
+    if cs:
+        for q in cs["questions"][:2]:
+            picked.append({**q, "paperId": cs["id"], "tag": f"5006/1 2024 Q{q['n']} · {q['topic']}"})
+    if cs2:
+        picked.append({**cs2["questions"][0], "paperId": cs2["id"], "tag": f"5006/2 2024 Q1 · {cs2['questions'][0]['topic']}"})
     return picked[:8]
 
 
@@ -803,19 +839,31 @@ def predictor():
     ]
 
 
+def science_predictor():
+    return [
+        {"topic": "Photosynthesis & limiting factors", "pct": 90, "why": "Word/symbol equation and light, CO₂, temperature on Paper 1 and Paper 2."},
+        {"topic": "Acids, bases and salts", "pct": 86, "why": "pH, neutralisation, hydrogen and carbon dioxide tests."},
+        {"topic": "Forces and F = ma", "pct": 84, "why": "Paper 2 almost always has an unbalanced-force calculation."},
+        {"topic": "Electricity (V = IR)", "pct": 80, "why": "Ohm’s law, series vs parallel, earth wire and fuse."},
+        {"topic": "Transport (heart, xylem, phloem)", "pct": 78, "why": "Core biology structured question every session."},
+        {"topic": "Atomic structure & periodic table", "pct": 74, "why": "Protons, electronic configuration, group and period."},
+        {"topic": "Health (malaria, cholera, HIV)", "pct": 70, "why": "Pathogen, transmission and one control method."},
+        {"topic": "Particle theory", "pct": 64, "why": "Arrangement and motion in solids, liquids and gases."},
+    ]
+
+
 def main():
     PDF_DIR.mkdir(exist_ok=True)
     DATA_DIR.mkdir(exist_ok=True)
 
-    # remove non-maths stubs so the library stays Maths-only
-    maths_keep = set()
+    keep_files = set()
     papers = []
     bank = []
     for level, subject, code, paper_no, year, session, hot in catalogue():
         questions = build_questions(level, subject, code, paper_no, year, session)
         meta = paper_meta(level, subject, code, paper_no, year, session, hot, questions)
         fname = Path(meta["realUrl"]).name
-        maths_keep.add(fname)
+        keep_files.add(fname)
         out = PDF_DIR / fname
         pages = build_pdf(meta, out)
         # real page count via file size heuristic is ok; try pdf reader
@@ -824,7 +872,7 @@ def main():
         papers.append(meta)
         for q in questions:
             bank.append({
-                "level": {"O-Level": "o_level", "A-Level": "a_level", "Grade 7": "grade7"}[level],
+                "level": {"O-Level": "o_level", "A-Level": "a_level", "Grade 7": "grade7"}.get(level, "o_level"),
                 "syllabus_code": code,
                 "paper": paper_no,
                 "section": q["section"],
@@ -841,9 +889,9 @@ def main():
             })
 
     for p in PDF_DIR.glob("*.pdf"):
-        if p.name not in maths_keep:
+        if p.name not in keep_files:
             p.unlink()
-            print("removed non-maths stub", p.name)
+            print("removed leftover pdf", p.name)
 
     featured = featured_from(papers)
     mock = next(p for p in papers if p["id"] == "4004-1-2024-November")
@@ -854,19 +902,21 @@ def main():
         js_papers.append({k: p[k] for k in p if k != "bytes"})
 
     payload = {
-        "version": 4,
-        "disclaimer": "Original ACADEX practice papers aligned to ZIMSEC Maths syllabuses 702, 4004, 6042, 9164 and 9187. Not official ZIMSEC past papers.",
+        "version": 6,
+        "disclaimer": "Original ACADEX practice papers aligned to ZIMSEC 4004 Maths and 5006 Combined Science. Not official ZIMSEC past papers.",
         "counts": {
             "papers": len(papers),
             "questions": len(bank),
             "oLevel": sum(1 for p in papers if p["level"] == "O-Level"),
             "grade7": sum(1 for p in papers if p["level"] == "Grade 7"),
             "aLevel": sum(1 for p in papers if p["level"] == "A-Level"),
+            "science": sum(1 for p in papers if p.get("syllabus") == "5006"),
         },
         "papers": js_papers,
         "featured": featured,
         "mockPaperId": mock["id"],
         "predictor": predictor(),
+        "sciencePredictor": science_predictor(),
     }
 
     (DATA_DIR / "acadex-maths.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ACADEX - Pass ZIMSEC Maths in Your Language</title>
+<title>ACADEX - Pass ZIMSEC Maths & Combined Science in Your Language</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <meta name="theme-color" content="#0a7a3c">
@@ -98,7 +98,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
 </head>
 <body>
 <nav>
-  <div class="logo">🇿🇼 ACADEX <span style="background:var(--green);color:white;padding:2px 8px;border-radius:999px;font-size:10px;vertical-align:middle">ZIMSEC MATHS</span> <span style="background:var(--gold);color:#0f172a;padding:2px 7px;border-radius:999px;font-size:10px;vertical-align:middle">V3</span></div>
+  <div class="logo">🇿🇼 ACADEX <span style="background:var(--green);color:white;padding:2px 8px;border-radius:999px;font-size:10px;vertical-align:middle">ZIMSEC TUTOR</span> <span style="background:var(--gold);color:#0f172a;padding:2px 7px;border-radius:999px;font-size:10px;vertical-align:middle">V7</span></div>
   <div style="display:flex;gap:8px;align-items:center">
     <span id="profileBadge" style="background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;display:none"></span>
     <button style="background:var(--green);color:white;padding:9px 16px;border-radius:999px;font-weight:800;border:none;cursor:pointer;font-size:12px" onclick="openProfile()">👤 Profile</button>
@@ -109,7 +109,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
 <div id="profileModal" style="position:fixed;inset:0;background:rgba(15,23,42,0.85);backdrop-filter:blur(8px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px">
   <div style="background:white;border-radius:20px;max-width:480px;width:100%;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,0.3)">
     <h3 style="font-size:18px">👋 Welcome to ACADEX</h3>
-    <p style="font-size:12px;color:var(--muted);margin:6px 0 14px">Maths first. We pick the right syllabus for your grade — Grade 7 (702), O-Level (4004) or A-Level.</p>
+    <p style="font-size:12px;color:var(--muted);margin:6px 0 14px">Maths (4004) and Combined Science (5006). Pick your grade and subjects.</p>
     <label style="font-size:11px;font-weight:800">Your Name</label>
     <input id="pName" placeholder="e.g. Anesu" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:10px;margin:4px 0 10px;font-size:13px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -133,7 +133,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
         </select>
       </div>
     </div>
-    <label style="font-size:11px;font-weight:800;margin-top:10px;display:block">Maths papers (other subjects stay hidden until Maths is solid)</label>
+    <label style="font-size:11px;font-weight:800;margin-top:10px;display:block">Subjects (tap to select)</label>
     <div id="pSubjects" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;border:1px solid #e2e8f0;border-radius:10px;padding:8px;background:#f8fafc"></div>
     <div style="display:flex;gap:8px;margin-top:14px">
       <button onclick="saveProfile()" style="flex:1;background:var(--green);color:white;border:none;padding:11px;border-radius:999px;font-weight:900;cursor:pointer">Save & Continue →</button>
@@ -145,9 +145,10 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
 <div class="hero">
   <div class="hero-grid">
     <div>
-      <div class="badge">📐 MATHS ONLY · ZIMSEC 4004 / 702 / 6042 · PAPER 1: 30 Qs, 2h30, NON-CALC · PAPER 2: SEC A 52 + SEC B 48</div>
-      <h1>Pass <span id="heroGrade">Maths</span> in your <em>own language.</em></h1>
-      <p><b>Original practice papers</b> written to ZIMSEC exam structure — not leaked scripts. Paper 1: 30 short questions, 100 marks, no calculator. Paper 2: Section A all (52) + Section B choose 4 of 7 (48). Worked solutions match each question, in your language.</p>
+      <div class="badge">📐 MATHS 4004 + COMBINED SCIENCE 5006 · ORIGINAL ZIMSEC-STYLE PAPERS</div>
+      <h1>Pass <span id="heroGrade">Maths &amp; Science</span> in your <em>own language.</em></h1>
+      <p><b>Maths 4004:</b> Paper 1 — 30 short, 2h30, no calculator. Paper 2 — Sec A 52 + Sec B choose 4 of 7.<br>
+      <b>Combined Science 5006:</b> Paper 1 — 40 multiple choice, 1 hour. Paper 2 — 8 structured Bio/Chem/Phys questions, 2 hours. Worked solutions match each question.</p>
       <div class="lang-bar">
         <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:11px;letter-spacing:0.8px">🌍 TAP YOUR LANGUAGE</b><span style="font-size:10px;background:var(--gold);color:#0f172a;padding:3px 8px;border-radius:999px;font-weight:900">16 LANGUAGES</span></div>
         <div class="lang-grid" id="langGrid"></div>
@@ -157,7 +158,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
     <div class="hero-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><b style="font-size:11px;letter-spacing:0.6px;color:var(--muted)">LIVE TUTOR PREVIEW</b><span style="font-size:10px;background:#f0fdf4;border:1px solid #bbf7d0;padding:3px 8px;border-radius:999px;font-weight:800;color:var(--green)">● Worked solution</span></div>
       <div class="stat-row">
-        <div class="stat"><b id="statPapers">52</b><span>Maths papers</span></div>
+        <div class="stat"><b id="statPapers">70</b><span>Papers</span></div>
         <div class="stat"><b id="statQs">861</b><span>Questions</span></div>
         <div class="stat"><b>16</b><span>Languages</span></div>
       </div>
@@ -205,7 +206,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
           <button class="btn" style="background:var(--green);color:white;margin-top:8px" onclick="solveTyped()">Solve step-by-step</button>
         </div>
       </div>
-      <p style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center">— 2024 November 4004 samples —</p>
+      <p style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center">— 2024 November 4004 Maths &amp; 5006 Combined Science samples —</p>
       <div class="qgrid" style="margin-top:10px" id="qgrid"></div>
 
       <div class="explain" id="explain">
@@ -237,17 +238,18 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
 
     <div id="tab-library" class="card" style="display:none">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-        <h3 style="font-size:14px">📚 ZIMSEC-style Maths practice papers</h3>
+        <h3 style="font-size:14px">📚 ZIMSEC-style Maths &amp; Combined Science papers</h3>
         <span id="libCount" style="font-size:11px;background:#0f172a;color:white;padding:5px 10px;border-radius:999px;font-weight:800">52 papers</span>
       </div>
-      <p class="notice">Original ACADEX questions in official format (4004 / 702 / 6042 / 9164 / 9187). Not copyrighted ZIMSEC past papers. Each PDF has real questions; Extract &amp; Study opens matching worked solutions.</p>
+      <p class="notice">Original ACADEX questions in official format (4004 Maths / 5006 Combined Science). Not copyrighted ZIMSEC past papers. Extract &amp; Study opens matching worked solutions.</p>
       <div class="lib-toolbar">
         <input type="text" id="libSearch" placeholder="Search: 2024 Paper 1, vectors, Grade 7…" style="flex:1;min-width:180px" oninput="renderLibrary()">
         <select id="libLevel" onchange="renderLibrary()"><option value="">All Levels</option><option>O-Level</option><option>A-Level</option><option>Grade 7</option></select>
         <select id="libYear" onchange="renderLibrary()"><option value="">All Years</option><option>2024</option><option>2023</option><option>2022</option><option>2021</option><option>2020</option><option>2019</option><option>2018</option></select>
         <select id="libSubject" onchange="renderLibrary()">
-          <option value="">All Maths</option>
+          <option value="">All subjects</option>
           <option>Mathematics</option>
+          <option>Combined Science</option>
           <option>Grade 7 Mathematics</option>
           <option>Pure Mathematics</option>
           <option>Further Mathematics</option>
@@ -284,20 +286,20 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
     <div id="tab-predict" class="card" style="display:none">
       <div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:12px">
         <div>
-          <h4>🔮 4004 topic emphasis (practice, not a leak)</h4>
-          <p style="font-size:11px;color:var(--muted)">Based on typical Paper 1 + Paper 2 structure 2018–2024 style. Use this to order revision — not as a promise of the live paper.</p>
+          <h4>🔮 Topic emphasis (practice, not a leak)</h4>
+          <p style="font-size:11px;color:var(--muted)">Typical 4004 Maths and 5006 Combined Science structure 2018–2024 style. Use this to order revision — not as a promise of the live paper.</p>
           <div id="predictBars" style="margin-top:8px"></div>
         </div>
         <div style="background:#0f172a;color:white;border-radius:12px;padding:12px">
           <b style="font-size:12px">This week’s drill</b>
-          <p style="font-size:12px;margin-top:8px;opacity:0.9">Do one full 4004/1 (30 questions, 2h30, no calculator), then two Section B long questions: trigonometry and vectors.</p>
+          <p style="font-size:12px;margin-top:8px;opacity:0.9">Maths: one full 4004/1 (30 questions, 2h30, no calculator), then two Section B questions (trig and vectors).<br><br>Science: one 5006/1 (40 MCQ, 1 hour) and one 5006/2 (8 structured, 2 hours) — photosynthesis, acids/salts, F = ma, V = IR.</p>
         </div>
       </div>
     </div>
 
     <div class="feature-grid" style="margin-top:12px">
       <div class="feature"><b>🔊 Slow voice</b><p style="font-size:11px;color:var(--muted)">Shona, Ndebele and English MP3s, plus browser speech that reads the actual working.</p></div>
-      <div class="feature"><b>📚 52 Maths papers</b><p style="font-size:11px;color:var(--muted)">Grade 7, O-Level 4004, A-Level Pure / Maths / Further — each PDF is a real question paper.</p></div>
+      <div class="feature"><b>📚 Maths + Combined Science</b><p style="font-size:11px;color:var(--muted)">4004 Maths and 5006 Combined Science (Bio / Chem / Phys) — each PDF is a real question paper.</p></div>
       <div class="feature"><b>📴 Low data</b><p style="font-size:11px;color:var(--muted)">Install the PWA on Wi‑Fi. WhatsApp trigger: <b>mhoro acadex</b>.</p></div>
     </div>
   </section>
@@ -328,7 +330,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.98);backdrop-
     </div>
   </section>
 </div>
-<script src="acadex-data.js?v=5"></script>
-<script src="acadex-app.js?v=5"></script>
+<script src="acadex-data.js?v=7"></script>
+<script src="acadex-app.js?v=7"></script>
 </body>
 </html>
