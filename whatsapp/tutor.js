@@ -5,6 +5,7 @@ import {
   solveMath, solveLinearEq, explainScience, helpEnglish,
   searchBank, formatHit, formatMath, closer, fallback,
 } from './brain.js';
+import { askTeacher } from './teacher.js';
 
 const FREE_LIMIT = 10;
 const sessions = new Map();
@@ -73,6 +74,7 @@ export function enterBotMode(phone, minutes) {
     botModeUntil: Date.now() + minutes * 60 * 1000,
     at: new Date().toISOString(),
     lang: prev.lang || 'sn',
+    chat: prev.chat || [],
   });
 }
 export function exitBotMode(phone) {
@@ -85,6 +87,40 @@ export function setLang(phone, lang) {
 }
 export function getLang(phone) {
   return (sessions.get(phone) || {}).lang || 'sn';
+}
+
+function pushChat(phone, role, content) {
+  const s = sessions.get(phone) || {};
+  s.chat = (s.chat || []).concat({ role, content: String(content || '').slice(0, 1800) }).slice(-12);
+  sessions.set(phone, s);
+}
+
+function buildContext(text, bank) {
+  const bits = [];
+  const math = solveMath(text);
+  if (math) bits.push('MATH ENGINE (correct numbers):\n' + formatMath(math, 'en'));
+  const sci = explainScience(text);
+  if (sci) bits.push('SCIENCE NOTES:\n' + sci.title + '\n' + sci.answer);
+  const eng = helpEnglish(text);
+  if (eng) bits.push('ENGLISH 1122 NOTES:\n' + eng.title + '\n' + eng.answer);
+  const hit = searchBank(bank, text);
+  if (hit) bits.push('SIMILAR ACADEX PAPER ITEM (practice, not a leaked ZIMSEC script):\n' + formatHit(hit).slice(0, 1100));
+  return bits.join('\n\n');
+}
+
+async function teach(digits, text, bank, say) {
+  const s = sessions.get(digits) || {};
+  const taught = await askTeacher({
+    history: s.chat || [],
+    user: text,
+    context: buildContext(text, bank),
+  });
+  if (!taught) return false;
+  say(taught);
+  pushChat(digits, 'user', text);
+  pushChat(digits, 'assistant', taught);
+  incrementUse(digits);
+  return true;
 }
 
 export function checkTrigger(text, phrase) {
@@ -134,13 +170,11 @@ export function findQuestion(bank, text) {
 }
 
 function helpText() {
-  return `ACADEX — send the actual question. I work it out.
+  return `I'm ACADEX — send the actual question and I'll work it with you like class.
 
-Maths: 2+2 · 15% of 80 · 2x+3=11 · x^2-5x+6=0 · area rectangle 5 by 8
-Science: photosynthesis · osmosis · F=ma m=2 a=3 · electrolysis
-English: composition about a kombi · summary · register
+Maths, Combined Science 5006, English 1122. Any language.
 Papers: Download 2024 Maths Paper 1
-predictor · mock · acadex exit`;
+Type acadex exit to leave.`;
 }
 
 function predictorText(bank) {
@@ -156,9 +190,9 @@ function predictorText(bank) {
 }
 
 /**
- * Pure tutor turn. Returns { replies: [{type, text, url, filename, caption}], enter, exit, increment }
+ * Pure tutor turn. Returns { replies, enter, exit, increment }
  */
-export function handleTurn({ from, text, bank, publicUrl, adminPhone, trigger, sessionMinutes }) {
+export async function handleTurn({ from, text, bank, publicUrl, adminPhone, trigger, sessionMinutes }) {
   const replies = [];
   const say = (t) => replies.push({ type: 'text', text: t });
   const tl = (text || '').toLowerCase().trim();
@@ -172,7 +206,16 @@ export function handleTurn({ from, text, bank, publicUrl, adminPhone, trigger, s
   }
   if (triggered && !inMode) {
     enterBotMode(digits, sessionMinutes);
-    say('✅ Acadex on. I am a tutor, not a menu.\nSend the question itself: 2+2, 2x+3=11, photosynthesis, or paste a full exam sentence.\nPapers: Download 2024 Maths Paper 1');
+    const taught = await askTeacher({
+      history: [],
+      user: text,
+      context: 'The student just opened ACADEX on WhatsApp. Greet them as ACADEX the ZIMSEC tutor. Invite any question in their language. Do not dump a menu.',
+    });
+    say(taught || 'Mhoro — I\'m ACADEX, your ZIMSEC tutor. Send me the question in any language. Maths, Science or English.');
+    if (taught) {
+      pushChat(digits, 'user', text);
+      pushChat(digits, 'assistant', taught);
+    }
     return { replies, enter: true };
   }
   enterBotMode(digits, sessionMinutes);
@@ -201,15 +244,6 @@ export function handleTurn({ from, text, bank, publicUrl, adminPhone, trigger, s
     return { replies, exit: true };
   }
 
-  if (/^(shona|chishona)$/i.test(tl)) { setLang(digits, 'sn'); say('Mutauro: Shona. Tumira mubvunzo.'); return { replies }; }
-  if (/^ndebele$/i.test(tl)) { setLang(digits, 'nd'); say('Ulimi: isiNdebele. Thumela umbuzo.'); return { replies }; }
-  if (/^(english|chirungu)$/i.test(tl)) { setLang(digits, 'en'); say('Language: English. Send the actual question.'); return { replies }; }
-
-  if (/^(help|menu|\?)$/i.test(tl)) {
-    say(helpText());
-    return { replies };
-  }
-
   const sub = canUse(digits);
   if (!sub.allowed) {
     say('Wapfuura 10 FREE. Bhadhara $0.75/vhiki or $3/mwedzi. Admin activates after EcoCash.');
@@ -220,11 +254,6 @@ export function handleTurn({ from, text, bank, publicUrl, adminPhone, trigger, s
     say(predictorText(bank));
     incrementUse(digits);
     return { replies, increment: true };
-  }
-
-  if (/^mock\b/.test(tl)) {
-    say('Mock exam is on the website (Mock tab). Maths 4004/1: 30 short, 2h30, no calculator.');
-    return { replies };
   }
 
   const wantsPaper = /download|pdf|past paper/.test(tl) || /\bpaper\s*[12]\b/.test(tl);
@@ -243,10 +272,15 @@ export function handleTurn({ from, text, bank, publicUrl, adminPhone, trigger, s
   }
 
   if (tl === '[photo]' || tl.startsWith('[image]')) {
-    say('Photo received — type the question (e.g. 2+2 or 2x+3=11). I cannot read handwriting yet.');
+    say('I cannot read handwriting yet — type the question and I will work it with you.');
     return { replies };
   }
 
+  if (await teach(digits, text, bank, say)) {
+    return { replies, increment: true };
+  }
+
+  // Offline fallback if the teacher network is down
   const lang = getLang(digits);
   const solved = solveMath(text);
   if (solved) {
@@ -255,31 +289,28 @@ export function handleTurn({ from, text, bank, publicUrl, adminPhone, trigger, s
     say(closer(digits));
     return { replies, increment: true };
   }
-
   const sci = explainScience(text);
   if (sci) {
     say(`${sci.title}\n\n${sci.answer}`);
     incrementUse(digits);
-    say(closer(digits));
     return { replies, increment: true };
   }
-
   const eng = helpEnglish(text);
   if (eng) {
     say(`${eng.title}\n\n${eng.answer}`);
     incrementUse(digits);
-    say(closer(digits));
     return { replies, increment: true };
   }
-
   const hit = searchBank(bank, text);
   if (hit) {
     say(formatHit(hit));
     incrementUse(digits);
-    say(closer(digits));
     return { replies, increment: true };
   }
-
+  if (/^(help|menu|\?)$/i.test(tl)) {
+    say(helpText());
+    return { replies };
+  }
   say(fallback(text));
   return { replies };
 }

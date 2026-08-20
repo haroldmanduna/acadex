@@ -70,7 +70,7 @@ async function ensurePhoneLink() {
       authDir: path.join(__dirname, 'session'),
       phone: ADMIN_PHONE,
       onMessage: async ({ from, jid, text }) => {
-        const result = runTurn(from, text);
+        const result = await runTurn(from, text);
         if (result.ignored) {
           console.log(`→ Ignored (no trigger) from ${from}`);
           return;
@@ -254,7 +254,7 @@ app.post('/webhook', async (req,res)=>{
     else text = `[${type}]`;
 
     console.log(`IN ${from}: ${text}`);
-    const result = runTurn(from, text);
+    const result = await runTurn(from, text);
     if (result.ignored) {
       console.log(`→ Ignored (no trigger, not in bot mode) from ${from}`);
       return res.sendStatus(200);
@@ -270,7 +270,7 @@ app.post('/bot/simulate', async (req,res)=>{
   if (WHATSAPP_TOKEN) return res.status(403).json({ error: 'simulate off when Cloud API is live — use real WhatsApp' });
   const from = String(req.body?.from || ADMIN_PHONE || '263716987183').replace(/\D/g,'');
   const text = String(req.body?.text || '');
-  const result = runTurn(from, text);
+  const result = await runTurn(from, text);
   res.json({ from, text, ignored: !!result.ignored, replies: result.replies || [] });
 });
 
