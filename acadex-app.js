@@ -441,14 +441,17 @@ async function downloadPDF(id) {
   const p = paperById(id);
   if (!p) return;
   const fname = (p.realUrl || "").split("/").pop();
-  const url = "/download/pdfs/" + encodeURIComponent(fname);
+  const urls = [p.realUrl, "/download/pdfs/" + encodeURIComponent(fname)].filter(Boolean);
   const v = document.getElementById("viewer");
   v.classList.add("show");
   document.getElementById("viewerTitle").textContent = "Download " + p.paper;
   document.getElementById("viewerBody").innerHTML = `<p>Saving <b>${esc(fname)}</b> (${esc(p.paper)} — ${p.calc ? "calculator allowed" : "non-calculator"})…</p>`;
   try {
-    const r = await fetch(url);
-    if (!r.ok) throw new Error("HTTP " + r.status);
+    let r = null;
+    for (const url of urls) {
+      try { r = await fetch(url); if (r && r.ok) break; } catch (e) { r = null; }
+    }
+    if (!r || !r.ok) throw new Error("HTTP " + (r && r.status));
     const blob = await r.blob();
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -619,7 +622,7 @@ function escAttr(s) { return esc(s).replace(/`/g, ""); }
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.getRegistrations().then(regs => {
     Promise.all(regs.map(r => r.update())).finally(() => {
-      navigator.serviceWorker.register("./sw.js?v=9").catch(() => {});
+      navigator.serviceWorker.register("./sw.js?v=10").catch(() => {});
     });
   });
 }
