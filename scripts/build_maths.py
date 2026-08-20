@@ -32,9 +32,12 @@ from reportlab.platypus import (
     TableStyle,
 )
 
+import sys
 ROOT = Path(__file__).resolve().parents[1]
 PDF_DIR = ROOT / "pdfs"
 DATA_DIR = ROOT / "data"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from papers_4004 import olevel_p1 as _olevel_p1, olevel_p2 as _olevel_p2
 GREEN = HexColor("#0a7a3c")
 GOLD = HexColor("#f2b705")
 DARK = HexColor("#0f172a")
@@ -42,7 +45,7 @@ MUTED = HexColor("#64748b")
 
 
 def seed_rng(year: int, session: str, code: str, paper: int) -> random.Random:
-    s = f"{year}-{session}-{code}-{paper}-acadex-v3"
+    s = f"{year}-{session}-{code}-{paper}-acadex-v4"
     return random.Random(s)
 
 
@@ -92,601 +95,12 @@ def xml_safe(s: str) -> str:
     return s.replace("<<<BR>>>", "<br/>")
 
 
-# ---------------------------------------------------------------------------
-# O-LEVEL 4004 PAPER 1  (30 short, non-calculator)
-# ---------------------------------------------------------------------------
-def olevel_p1(rng: random.Random, year: int) -> list[dict]:
-    qs = []
-    n = 1
-
-    # 1 BODMAS
-    a, b, c, d = rng.randint(2, 8), rng.randint(2, 9), rng.randint(2, 6), rng.randint(1, 7)
-    val = a + b * c - d
-    qs.append(qdict(n, 2, "Number operations",
-        f"Evaluate  {a} + {b} × {c} − {d}.",
-        val,
-        [step("Use BODMAS / order of operations", f"Multiply first: {b} × {c} = {b*c}."),
-         step("Then add and subtract from left to right", f"{a} + {b*c} − {d} = {a+b*c} − {d} = {val}."),
-         step("Check", f"Not ({a}+{b})×{c}. Brackets were not given.")],
-        markscheme="M1 for multiplying before adding; A1 for correct value."))
-    n += 1
-
-    # 2 Directed numbers
-    p, q = rng.randint(4, 12), rng.randint(6, 15)
-    val = -p - (-q)
-    qs.append(qdict(n, 2, "Directed numbers",
-        f"Evaluate  −{p} − (−{q}).",
-        val,
-        [step("Minus a negative is plus", f"−{p} − (−{q}) = −{p} + {q}."),
-         step("Calculate", f"{q} − {p} = {val}.")]))
-    n += 1
-
-    # 3 Fractions
-    f1 = Fraction(rng.choice([1, 2, 3]), rng.choice([3, 4, 5, 6]))
-    f2 = Fraction(rng.choice([1, 2]), rng.choice([2, 3, 4, 5]))
-    if f1.denominator == f2.denominator:
-        f2 = Fraction(1, f1.denominator + 1)
-    ans = f1 + f2
-    qs.append(qdict(n, 2, "Fractions",
-        f"Work out  {fmt(f1)} + {fmt(f2)}. Give your answer as a mixed number if possible.",
-        ans,
-        [step("Common denominator", f"LCM of {f1.denominator} and {f2.denominator} is {ans.denominator}."),
-         step("Add numerators", f"{fmt(f1)} + {fmt(f2)} = {fmt(ans)}.")]))
-    n += 1
-
-    # 4 Percentage
-    whole = rng.choice([40, 50, 80, 120, 200, 250])
-    pct = rng.choice([10, 15, 20, 25, 30, 40])
-    val = whole * pct // 100
-    qs.append(qdict(n, 2, "Percentages",
-        f"Find {pct}% of {whole}.",
-        val,
-        [step("Percent means /100", f"{pct}% of {whole} = {pct}/100 × {whole}."),
-         step("Calculate", f"= {val}.")]))
-    n += 1
-
-    # 5 Linear equation  ax + b = c
-    a = rng.choice([2, 3, 4, 5, 6])
-    x = rng.randint(2, 9)
-    b = rng.choice([1, 2, 3, 4, 5, 7])
-    c = a * x + b
-    qs.append(qdict(n, 2, "Linear equations",
-        f"Solve  {a}x + {b} = {c}.",
-        x,
-        [step(f"Subtract {b} from both sides", f"{a}x = {c} − {b} = {c-b}."),
-         step(f"Divide both sides by {a}", f"x = {c-b}/{a} = {x}."),
-         step("Check", f"{a}×{x} + {b} = {c}.")]))
-    n += 1
-
-    # 6 Ratio
-    r1, r2 = rng.choice([2, 3, 4]), rng.choice([3, 5, 7])
-    total_parts = r1 + r2
-    share = rng.choice([12, 18, 24, 30, 36, 48])
-    while share % total_parts:
-        share += 1
-    one = share // total_parts
-    qs.append(qdict(n, 3, "Ratio",
-        f"Share ${share} in the ratio {r1} : {r2}.",
-        f"${one*r1} and ${one*r2}",
-        [step("Total parts", f"{r1} + {r2} = {total_parts} parts."),
-         step("Value of one part", f"{share} ÷ {total_parts} = {one}."),
-         step("Shares", f"{r1}×{one} = {one*r1},  {r2}×{one} = {one*r2}.")]))
-    n += 1
-
-    # 7 HCF / LCM
-    x1 = rng.choice([12, 18, 24, 30, 36])
-    x2 = rng.choice([16, 20, 24, 28, 42])
-    h = math.gcd(x1, x2)
-    l = x1 * x2 // h
-    qs.append(qdict(n, 3, "HCF and LCM",
-        f"Find (a) the HCF and (b) the LCM of {x1} and {x2}.",
-        f"HCF = {h}, LCM = {l}",
-        [step("Prime factors / Euclidean algorithm", f"gcd({x1},{x2}) = {h}."),
-         step("LCM formula", f"LCM = {x1}×{x2}/{h} = {l}.")]))
-    n += 1
-
-    # 8 Standard form
-    k = rng.randint(2, 9)
-    e = rng.choice([3, 4, 5, 6])
-    qs.append(qdict(n, 2, "Standard form",
-        f"Write {k * 10**e} in standard form.",
-        f"{k} × 10^{e}",
-        [step("Standard form is a × 10^n with 1 ≤ a < 10", f"{k * 10**e} = {k} × 10^{e}.")]))
-    n += 1
-
-    # 9 Indices
-    base = rng.choice([2, 3, 4, 5])
-    e1, e2 = rng.randint(2, 5), rng.randint(2, 4)
-    qs.append(qdict(n, 2, "Indices",
-        f"Simplify  {base}^{e1} × {base}^{e2}. Leave your answer as a power of {base}.",
-        f"{base}^{e1+e2}",
-        [step("Product rule a^m × a^n = a^(m+n)", f"{base}^{e1} × {base}^{e2} = {base}^{e1+e2}.")]))
-    n += 1
-
-    # 10 Sets
-    nA = rng.randint(8, 16)
-    nB = rng.randint(7, 15)
-    both = rng.randint(2, max(2, min(6, nA, nB) - 1))
-    union = nA + nB - both
-    qs.append(qdict(n, 2, "Sets",
-        f"n(A) = {nA}, n(B) = {nB} and n(A ∩ B) = {both}. Find n(A ∪ B).",
-        union,
-        [step("Inclusion-exclusion", f"n(A ∪ B) = n(A) + n(B) − n(A ∩ B) = {nA} + {nB} − {both} = {union}.")]))
-    n += 1
-
-    # 11 Expand
-    p, q, r = rng.randint(2, 6), rng.randint(1, 5), rng.randint(1, 6)
-    qs.append(qdict(n, 2, "Algebra expand",
-        f"Expand and simplify  {p}(x + {q}) − {r}x.",
-        f"{p-r}x + {p*q}" if p != r else f"{p*q}",
-        [step("Expand the bracket", f"{p}(x + {q}) = {p}x + {p*q}."),
-         step("Collect like terms", f"{p}x − {r}x + {p*q} = {p-r}x + {p*q}.")]))
-    n += 1
-
-    # 12 Factorise
-    g = rng.choice([2, 3, 4, 5, 6])
-    u, v = rng.randint(2, 7), rng.randint(1, 8)
-    qs.append(qdict(n, 2, "Factorisation",
-        f"Factorise completely  {g*u}x + {g*v}.",
-        f"{g}({u}x + {v})",
-        [step("Highest common factor", f"HCF of {g*u} and {g*v} is {g}."),
-         step("Factorise", f"{g*u}x + {g*v} = {g}({u}x + {v}).")]))
-    n += 1
-
-    # 13 Factorise quadratic
-    r1, r2 = rng.choice([1, 2, 3, 4, 5]), rng.choice([2, 3, 4, 6])
-    qs.append(qdict(n, 3, "Quadratic factorisation",
-        f"Factorise  x² + {r1+r2}x + {r1*r2}.",
-        f"(x + {r1})(x + {r2})",
-        [step("Find two numbers that multiply to c and add to b",
-              f"Numbers {r1} and {r2}: {r1}×{r2}={r1*r2}, {r1}+{r2}={r1+r2}."),
-         step("Write factors", f"(x + {r1})(x + {r2}).")]))
-    n += 1
-
-    # 14 Change of subject
-    qs.append(qdict(n, 3, "Change of subject",
-        "Make h the subject of the formula  A = 2πr(r + h).  Take π as a symbol.",
-        "h = A/(2πr) − r",
-        [step("Divide both sides by 2πr", "A/(2πr) = r + h."),
-         step("Subtract r", "h = A/(2πr) − r.")]))
-    n += 1
-
-    # 15 Inequality
-    a = rng.choice([2, 3, 4])
-    xsol = rng.randint(2, 6)
-    b = rng.randint(1, 5)
-    rhs = a * xsol + b
-    qs.append(qdict(n, 2, "Inequalities",
-        f"Solve  {a}x + {b} < {rhs}.",
-        f"x < {xsol}",
-        [step(f"Subtract {b}", f"{a}x < {rhs-b}."),
-         step(f"Divide by {a} (positive, sign stays)", f"x < {xsol}.")]))
-    n += 1
-
-    # 16 Simultaneous (easy)
-    x, y = rng.randint(2, 6), rng.randint(1, 5)
-    a1, b1 = 1, 1
-    c1 = x + y
-    a2, b2 = 1, -1
-    c2 = x - y
-    qs.append(qdict(n, 3, "Simultaneous equations",
-        f"Solve the simultaneous equations<br/>x + y = {c1}<br/>x − y = {c2}.",
-        f"x = {x}, y = {y}",
-        [step("Add the two equations", f"2x = {c1+c2} ⇒ x = {x}."),
-         step("Substitute", f"{x} + y = {c1} ⇒ y = {y}.")]))
-    n += 1
-
-    # 17 Sequence
-    a0 = rng.randint(2, 8)
-    d = rng.choice([2, 3, 4, 5])
-    qs.append(qdict(n, 2, "Sequences",
-        f"The nth term of a sequence is {a0} + {d}(n − 1). Find the 8th term.",
-        a0 + d * 7,
-        [step("Substitute n = 8", f"{a0} + {d}(8 − 1) = {a0} + {d*7} = {a0 + 7*d}.")]))
-    n += 1
-
-    # 18 Angles on a straight line / triangle
-    ang1 = rng.randint(35, 70)
-    ang2 = rng.randint(30, 80)
-    ang3 = 180 - ang1 - ang2
-    qs.append(qdict(n, 2, "Angles in a triangle",
-        f"In triangle ABC, angle A = {ang1}° and angle B = {ang2}°. Find angle C.",
-        f"{ang3}°",
-        [step("Angles in a triangle sum to 180°", f"C = 180° − {ang1}° − {ang2}° = {ang3}°.")]))
-    n += 1
-
-    # 19 Polygon exterior
-    sides = rng.choice([5, 6, 8, 9, 10, 12])
-    ext = 360 // sides
-    qs.append(qdict(n, 2, "Polygons",
-        f"A regular polygon has {sides} sides. Find the size of each exterior angle.",
-        f"{ext}°",
-        [step("Sum of exterior angles is 360°", f"Each exterior = 360°/{sides} = {ext}°.")]))
-    n += 1
-
-    # 20 Pythagoras
-    trips = [(3, 4, 5), (5, 12, 13), (6, 8, 10), (8, 15, 17), (7, 24, 25), (9, 12, 15)]
-    k = rng.choice([1, 2, 3])
-    t = rng.choice(trips)
-    aa, bb, cc = t[0] * k, t[1] * k, t[2] * k
-    qs.append(qdict(n, 3, "Pythagoras",
-        f"A right-angled triangle has shorter sides {aa} cm and {bb} cm. Calculate the hypotenuse.",
-        f"{cc} cm",
-        [step("Pythagoras: c² = a² + b²", f"c² = {aa}² + {bb}² = {aa*aa} + {bb*bb} = {aa*aa+bb*bb}."),
-         step("Square root", f"c = {cc} cm.")]))
-    n += 1
-
-    # 21 Trigonometry SOHCAHTOA
-    # Use 3-4-5 so tan, sin exact-ish or leave 3 s.f. with known ratios
-    # Paper 1 non-calc: use 30-60-90 or 45-45
-    choice = rng.choice(["30", "45", "60"])
-    adj = rng.choice([6, 8, 10, 12])
-    if choice == "30":
-        # tan30 = 1/√3, opposite = adj/√3 — messy. Use sin30=1/2 with hypotenuse
-        hyp = rng.choice([8, 10, 12, 16])
-        opp = hyp // 2
-        qs.append(qdict(n, 3, "Trigonometry",
-            f"In right-angled triangle PQR, angle P = 30° and hypotenuse PR = {hyp} cm. Calculate PQ, the side opposite 30°.",
-            f"{opp} cm",
-            [step("sin 30° = 1/2 = opposite/hypotenuse", f"PQ/{hyp} = 1/2."),
-             step("Solve", f"PQ = {hyp}/2 = {opp} cm.")]))
-    elif choice == "45":
-        # isosceles right triangle, given leg
-        qs.append(qdict(n, 3, "Trigonometry",
-            f"In an isosceles right-angled triangle, the two equal sides are {adj} cm. Write tan 45° and hence find the opposite side to 45° if the adjacent is {adj} cm.",
-            f"{adj} cm",
-            [step("tan 45° = 1", "opposite/adjacent = 1."),
-             step("Therefore opposite = adjacent", f"opposite = {adj} cm.")]))
-    else:
-        hyp = rng.choice([8, 10, 12, 16])
-        adj2 = hyp // 2  # cos 60 = 1/2
-        qs.append(qdict(n, 3, "Trigonometry",
-            f"In right-angled triangle XYZ, angle X = 60° and hypotenuse XZ = {hyp} cm. Calculate XY, the side adjacent to 60°.",
-            f"{adj2} cm",
-            [step("cos 60° = 1/2 = adjacent/hypotenuse", f"XY/{hyp} = 1/2."),
-             step("Solve", f"XY = {hyp}/2 = {adj2} cm.")]))
-    n += 1
-
-    # 22 Area of triangle
-    base = rng.choice([6, 8, 10, 12, 14])
-    height = rng.choice([5, 7, 9, 11])
-    area = Fraction(base * height, 2)
-    qs.append(qdict(n, 2, "Mensuration (area)",
-        f"A triangle has base {base} cm and perpendicular height {height} cm. Find its area.",
-        f"{fmt(area)} cm²",
-        [step("Area = ½ × base × height", f"½ × {base} × {height} = {fmt(area)} cm².")]))
-    n += 1
-
-    # 23 Circle area π=22/7
-    r = rng.choice([7, 14, 21])
-    area_c = Fraction(22, 7) * r * r
-    qs.append(qdict(n, 3, "Circle",
-        f"Calculate the area of a circle of radius {r} cm. Take π = 22/7.",
-        f"{fmt(area_c)} cm²",
-        [step("A = πr²", f"A = 22/7 × {r} × {r} = {fmt(area_c)} cm².")]))
-    n += 1
-
-    # 24 Volume of cuboid / cylinder
-    if rng.random() < 0.5:
-        L, W, H = rng.randint(4, 12), rng.randint(3, 8), rng.randint(2, 7)
-        vol = L * W * H
-        qs.append(qdict(n, 2, "Volume",
-            f"A cuboid measures {L} cm by {W} cm by {H} cm. Find its volume.",
-            f"{vol} cm³",
-            [step("V = lwh", f"V = {L}×{W}×{H} = {vol} cm³.")]))
-    else:
-        r, h = 7, rng.choice([3, 4, 5, 6, 10])
-        vol = Fraction(22, 7) * r * r * h
-        qs.append(qdict(n, 3, "Volume of cylinder",
-            f"A cylinder has radius 7 cm and height {h} cm. Find its volume. Take π = 22/7.",
-            f"{fmt(vol)} cm³",
-            [step("V = πr²h", f"V = 22/7 × 7 × 7 × {h} = {fmt(vol)} cm³.")]))
-    n += 1
-
-    # 25 Coordinate geometry
-    x1, y1 = rng.randint(1, 5), rng.randint(1, 6)
-    dx = rng.choice([2, 3, 4])
-    dy = rng.choice([2, 4, 6, 8])
-    x2, y2 = x1 + dx, y1 + dy
-    grad = Fraction(dy, dx)
-    qs.append(qdict(n, 2, "Coordinate geometry",
-        f"Find the gradient of the line joining ({x1}, {y1}) and ({x2}, {y2}).",
-        fmt(grad),
-        [step("Gradient m = (y2 − y1)/(x2 − x1)", f"m = ({y2} − {y1})/({x2} − {x1}) = {dy}/{dx} = {fmt(grad)}.")]))
-    n += 1
-
-    # 26 Midpoint
-    qs.append(qdict(n, 2, "Midpoint",
-        f"Find the midpoint of the line joining ({x1}, {y1}) and ({x2}, {y2}).",
-        f"({fmt(Fraction(x1+x2,2))}, {fmt(Fraction(y1+y2,2))})",
-        [step("Midpoint = ((x1+x2)/2, (y1+y2)/2)",
-              f"(({x1}+{x2})/2, ({y1}+{y2})/2) = ({fmt(Fraction(x1+x2,2))}, {fmt(Fraction(y1+y2,2))}).")]))
-    n += 1
-
-    # 27 Probability
-    red = rng.randint(3, 7)
-    blue = rng.randint(2, 6)
-    green = rng.randint(1, 5)
-    tot = red + blue + green
-    qs.append(qdict(n, 2, "Probability",
-        f"A bag contains {red} red, {blue} blue and {green} green beads. A bead is drawn at random. Find the probability that it is red.",
-        f"{red}/{tot}",
-        [step("P(red) = red / total", f"Total = {red}+{blue}+{green} = {tot}. P = {red}/{tot}.")]))
-    n += 1
-
-    # 28 Mean
-    data = [rng.randint(4, 12) for _ in range(5)]
-    mean = Fraction(sum(data), 5)
-    qs.append(qdict(n, 2, "Statistics (mean)",
-        f"Find the mean of  {', '.join(map(str, data))}.",
-        fmt(mean),
-        [step("Mean = sum / n", f"Sum = {sum(data)}. Mean = {sum(data)}/5 = {fmt(mean)}.")]))
-    n += 1
-
-    # 29 Matrix
-    a11, a12 = rng.randint(1, 4), rng.randint(0, 3)
-    a21, a22 = rng.randint(1, 4), rng.randint(0, 3)
-    b1, b2 = rng.randint(1, 5), rng.randint(1, 5)
-    r1 = a11 * b1 + a12 * b2
-    r2 = a21 * b1 + a22 * b2
-    qs.append(qdict(n, 3, "Matrices",
-        f"Work out  ({a11}  {a12} ; {a21}  {a22})  ( {b1} ; {b2} )  where ( ) denotes a 2×2 matrix times a column vector.",
-        f"({r1} ; {r2})",
-        [step("Row × column", f"First entry = {a11}×{b1} + {a12}×{b2} = {r1}."),
-         step("Second entry", f"{a21}×{b1} + {a22}×{b2} = {r2}.")]))
-    n += 1
-
-    # 30 Vector / consumer
-    if rng.random() < 0.5:
-        u1, u2 = rng.randint(1, 6), rng.randint(-3, 5)
-        v1, v2 = rng.randint(-2, 5), rng.randint(1, 6)
-        k = rng.choice([2, 3])
-        qs.append(qdict(n, 3, "Vectors",
-            f"Given u = ({u1} ; {u2}) and v = ({v1} ; {v2}), find {k}u + v.",
-            f"({k*u1+v1} ; {k*u2+v2})",
-            [step(f"Multiply u by {k}", f"{k}u = ({k*u1} ; {k*u2})."),
-             step("Add v", f"{k}u + v = ({k*u1+v1} ; {k*u2+v2}).")]))
-    else:
-        cost = rng.choice([20, 25, 40, 50, 80])
-        sp = cost + rng.choice([5, 8, 10, 12, 15])
-        profit = sp - cost
-        pct = Fraction(profit * 100, cost)
-        qs.append(qdict(n, 3, "Consumer arithmetic",
-            f"A trader in Mbare buys a crate of tomatoes for ${cost} and sells it for ${sp}. Calculate the percentage profit.",
-            f"{fmt(pct)}%",
-            [step("Profit = SP − CP", f"{sp} − {cost} = {profit}."),
-             step("% profit = (profit/CP)×100%", f"{profit}/{cost} × 100% = {fmt(pct)}%.")]))
-    # ZIMSEC 4004/1 is 100 marks across ~30 questions
-    total = sum(q["marks"] for q in qs)
-    i = len(qs) - 1
-    while total < 100 and i >= 0:
-        qs[i]["marks"] += 1
-        qs[i]["markscheme"] = f"{qs[i]['marks']} marks: method + accuracy. Answer: {qs[i]['answer']}"
-        total += 1
-        i -= 1
-    return qs
+def olevel_p1(rng: random.Random, year: int, session: str = "November") -> list[dict]:
+    return _olevel_p1(rng, year, session)
 
 
-# ---------------------------------------------------------------------------
-# O-LEVEL 4004 PAPER 2
-# Section A 6 structured (52 marks)  Section B 7 × 12 (choose 4)
-# ---------------------------------------------------------------------------
-def olevel_p2(rng: random.Random, year: int) -> list[dict]:
-    qs = []
-
-    # Q1 Algebra 10
-    a, b = rng.randint(2, 5), rng.randint(1, 4)
-    r1, r2 = rng.choice([2, 3, 4]), rng.choice([1, 5, 6])
-    qs.append(qdict(1, 10, "Algebra",
-        f"(a) Expand and simplify  ({a}x − {b})(x + {b}).  [3]<br/>"
-        f"(b) Factorise  x² + {r1+r2}x + {r1*r2}.  [2]<br/>"
-        f"(c) Solve  (x + {b})/{a} = {r1}.  [3]<br/>"
-        f"(d) Simplify  (x² − {r1*r1})/(x − {r1}).  [2]",
-        f"(a) {a}x² + {a*b - b}x − {b*b}; (b) (x+{r1})(x+{r2}); (c) x = {a*r1 - b}; (d) x + {r1}",
-        [step("(a) FOIL", f"{a}x·x + {a}x·{b} − {b}·x − {b}·{b} = {a}x² + {a*b}x − {b}x − {b*b} = {a}x² + {a*b-b}x − {b*b}."),
-         step("(b) Factorise", f"(x + {r1})(x + {r2})."),
-         step("(c) Multiply both sides by {a}", f"x + {b} = {a*r1} ⇒ x = {a*r1 - b}."),
-         step("(d) Difference of squares", f"(x − {r1})(x + {r1})/(x − {r1}) = x + {r1}, x ≠ {r1}.")],
-        section="A", kind="structured",
-        markscheme="(a) 3 (b) 2 (c) 3 (d) 2 = 10"))
-
-    # Q2 Geometry 8
-    a1 = rng.randint(40, 70)
-    a2 = rng.randint(30, 55)
-    corr = a1
-    co = 180 - a1
-    qs.append(qdict(2, 8, "Geometry (angles)",
-        f"Lines AB and CD are parallel. Transversal EF meets AB at P and CD at Q.<br/>"
-        f"(a) Angle APQ = {a1}°. State the corresponding angle at Q and give a reason.  [2]<br/>"
-        f"(b) Find the co-interior angle to {a1}° and give a reason.  [2]<br/>"
-        f"(c) A triangle has angles {a1}°, {a2}° and x°. Find x.  [2]<br/>"
-        f"(d) Is the triangle acute, right-angled or obtuse? Give a reason.  [2]",
-        f"(a) {corr}° corresponding; (b) {co}° co-interior; (c) {180-a1-a2}°; (d) {'obtuse' if max(a1,a2,180-a1-a2)>90 else 'right-angled' if 90 in (a1,a2,180-a1-a2) else 'acute'}",
-        [step("(a) Corresponding angles", f"Equal to {a1}° (corresponding angles, AB ∥ CD)."),
-         step("(b) Co-interior (allied) angles", f"Sum to 180°, so {180-a1}°."),
-         step("(c) Angle sum", f"x = 180 − {a1} − {a2} = {180-a1-a2}°."),
-         step("(d) Classify", "Compare each angle with 90°.")],
-        section="A", kind="structured"))
-
-    # Q3 Mensuration 8
-    L, W = rng.choice([12, 14, 16, 18]), rng.choice([8, 9, 10, 11])
-    r = 7
-    path = rng.choice([1, 2])
-    inner = L * W
-    outer = (L + 2 * path) * (W + 2 * path)
-    path_area = outer - inner
-    circ = Fraction(22, 7) * r * r
-    qs.append(qdict(3, 8, "Mensuration",
-        f"A rectangular garden in Chitungwiza measures {L} m by {W} m. A path of width {path} m runs all around the outside.<br/>"
-        f"(a) Find the area of the garden.  [2]<br/>"
-        f"(b) Find the area of the path.  [3]<br/>"
-        f"(c) A circular flower bed of radius {r} m is later dug inside the garden. Find its area. Take π = 22/7.  [3]",
-        f"(a) {inner} m²; (b) {path_area} m²; (c) {fmt(circ)} m²",
-        [step("(a) Rectangle", f"{L} × {W} = {inner} m²."),
-         step("(b) Outer rectangle minus garden", f"Outer = {L+2*path} × {W+2*path} = {outer}. Path = {outer} − {inner} = {path_area} m²."),
-         step("(c) πr²", f"22/7 × {r}² = {fmt(circ)} m².")],
-        section="A", kind="structured"))
-
-    # Q4 Coordinate / graphs 8
-    m = rng.choice([1, 2, 3])
-    c = rng.choice([-4, -2, 1, 3, 5])
-    xA = rng.choice([0, 1, 2])
-    yA = m * xA + c
-    qs.append(qdict(4, 8, "Graphs and coordinates",
-        f"The line L has equation  y = {m}x + {c}.<br/>"
-        f"(a) State the gradient and the y-intercept.  [2]<br/>"
-        f"(b) Find the coordinates of the point where L meets the x-axis.  [2]<br/>"
-        f"(c) Point A is ({xA}, {yA}). Show that A lies on L.  [2]<br/>"
-        f"(d) Write the equation of a line parallel to L that passes through (0, 4).  [2]",
-        f"(a) gradient {m}, intercept (0,{c}); (b) ({fmt(Fraction(-c,m))}, 0); (c) shown; (d) y = {m}x + 4",
-        [step("(a) Compare with y = mx + c", f"m = {m}, y-intercept = {c}."),
-         step("(b) y = 0", f"0 = {m}x + {c} ⇒ x = {fmt(Fraction(-c,m))}. Point ({fmt(Fraction(-c,m))}, 0)."),
-         step("(c) Substitute x", f"y = {m}({xA}) + {c} = {yA}. A lies on L."),
-         step("(d) Parallel ⇒ same gradient", f"y = {m}x + 4.")],
-        section="A", kind="structured"))
-
-    # Q5 Statistics 9
-    scores = [rng.randint(2, 6) for _ in range(5)]
-    freqs = [rng.randint(3, 8) for _ in range(5)]
-    ntot = sum(freqs)
-    fx = sum(s * f for s, f in zip(scores, freqs))
-    mean = Fraction(fx, ntot)
-    rows = ", ".join(f"{s} ({f} pupils)" for s, f in zip(scores, freqs))
-    qs.append(qdict(5, 9, "Statistics",
-        f"The marks of {ntot} Form 4 pupils on a 6-mark quiz were:<br/>{rows}.<br/>"
-        f"(a) Find the modal mark.  [1]<br/>"
-        f"(b) Find the mean mark.  [4]<br/>"
-        f"(c) Find the range.  [2]<br/>"
-        f"(d) One extra pupil scores 6. Describe the effect on the mean.  [2]",
-        f"(a) {scores[freqs.index(max(freqs))]}; (b) {fmt(mean)}; (c) {max(scores)-min(scores)}; (d) mean increases because 6 is above the current mean"
-        if 6 > float(mean) else f"(a) {scores[freqs.index(max(freqs))]}; (b) {fmt(mean)}; (c) {max(scores)-min(scores)}; (d) compare 6 with mean",
-        [step("(a) Mode = highest frequency", f"Frequency {max(freqs)} occurs at mark {scores[freqs.index(max(freqs))]}."),
-         step("(b) Mean = Σfx / Σf", f"Σfx = {fx}, Σf = {ntot}, mean = {fmt(mean)}."),
-         step("(c) Range", f"{max(scores)} − {min(scores)} = {max(scores)-min(scores)}."),
-         step("(d) Compare new score with mean", "If the new mark is greater than the mean, the mean rises.")],
-        section="A", kind="structured"))
-
-    # Q6 Consumer 9  (10+8+8+8+9+9=52)
-    price = rng.choice([800, 1200, 1500, 2000])
-    disc = rng.choice([10, 15, 20])
-    vat = 15
-    discounted = price * (100 - disc) // 100
-    with_vat = discounted * (100 + vat) // 100
-    qs.append(qdict(6, 9, "Consumer arithmetic",
-        f"A solar pump is marked at ${price} in Harare.<br/>"
-        f"(a) A school gets a {disc}% discount. Calculate the discounted price.  [3]<br/>"
-        f"(b) VAT of {vat}% is then added. Calculate the final amount paid.  [3]<br/>"
-        f"(c) The school pays a deposit of 40% of the final amount. How much remains to be paid?  [3]",
-        f"(a) ${discounted}; (b) ${with_vat}; (c) ${with_vat - with_vat*40//100}",
-        [step("(a) Discount", f"{disc}% of {price} = {price*disc//100}. Price = {price} − {price*disc//100} = {discounted}."),
-         step("(b) Add VAT", f"1.15 × {discounted} = {with_vat}."),
-         step("(c) Remaining 60%", f"60% of {with_vat} = {with_vat - with_vat*40//100}.")],
-        section="A", kind="structured"))
-
-    # Section B — 7 questions of 12
-    # Q7 Quadratic
-    r1, r2 = 2, rng.choice([5, 6, 8])
-    qs.append(qdict(7, 12, "Quadratic equations",
-        f"(a) Solve  x² − {r1+r2}x + {r1*r2} = 0  by factorisation.  [4]<br/>"
-        f"(b) The length of a rectangular maize plot is {r2} m more than the width. The area is {r1*r2 + (r1+r2)*2} m²? "
-        f"Using width w, form an equation and solve to find possible dimensions, taking the quadratic "
-        f"(w + {r1})(w + {r2}) is NOT required — instead solve w(w + {r2}) = {r1*(r1+r2)}.  [5]<br/>"
-        f"(c) Sketch y = (x − {r1})(x − {r2}), showing intercepts.  [3]",
-        f"(a) x={r1} or x={r2}; (b) w² + {r2}w − {r1*(r1+r2)} = 0; (c) intercepts ({r1},0), ({r2},0), (0,{r1*r2})",
-        [step("(a) Factorise", f"(x − {r1})(x − {r2}) = 0 ⇒ x = {r1} or x = {r2}."),
-         step("(b) Area model", f"w(w + {r2}) = {r1*(r1+r2)}. Expand and solve with formula/factorise."),
-         step("(c) Intercepts", f"x-intercepts {r1}, {r2}; y-intercept {r1*r2}. U-shape (positive x²).")],
-        section="B", kind="structured"))
-
-    # Q8 Trig / bearings
-    hyp = rng.choice([20, 24, 30])
-    qs.append(qdict(8, 12, "Trigonometry and bearings",
-        f"A tree at Heroes Acre is observed from point A on level ground. The angle of elevation of the top is 30°. "
-        f"Distance from A to the foot of the tree is {hyp} m.<br/>"
-        f"(a) Calculate the height of the tree.  [3]<br/>"
-        f"(b) From B,  {hyp} m due East of A, the bearing of the tree foot is 300°. Sketch and mark the information.  [3]<br/>"
-        f"(c) Use tan 30° = 1/√3  or  sin 30° = 1/2  as appropriate. Leave √ in the answer if needed.  [3]<br/>"
-        f"(d) A bird sits halfway up the tree. Find the angle of elevation from A to the bird.  [3]",
-        f"(a) {hyp}/2 m if using 30° opposite/hyp with sin, or {fmt(Fraction(hyp, 3))}√3 using tan — see steps",
-        [step("(a) tan 30° = opp/adj = 1/√3", f"height / {hyp} = 1/√3 ⇒ height = {hyp}/√3 = {hyp}√3/3 m."),
-         step("Alternatively sin if hypotenuse given as slope — here adjacent is ground distance, so use tan."),
-         step("(d) Half height: tan θ = (h/2)/{hyp} = 1/(2√3) ⇒ θ = tan⁻¹(1/(2√3)).")],
-        section="B", kind="structured"))
-
-    # Q9 Circle theorems
-    ang = rng.choice([28, 32, 36, 40, 44])
-    qs.append(qdict(9, 12, "Circle geometry",
-        f"O is the centre of a circle. A, B and C are points on the circumference. Angle BAC = {ang}° "
-        f"and AB is a diameter.<br/>"
-        f"(a) Find angle ACB. Give a reason.  [3]<br/>"
-        f"(b) Find angle BOC (angle at the centre standing on arc BC).  [3]<br/>"
-        f"(c) If D is on the remaining circumference, find angle BDC. Reason.  [3]<br/>"
-        f"(d) State the theorem: angle in a semicircle.  [3]",
-        f"(a) 90° (angle in a semicircle); (b) {2*ang}° if at centre on same arc as BAC wait — see steps; (c) {ang}° (same segment)",
-        [step("(a) Angle in a semicircle", "Angle ACB = 90° because AB is a diameter."),
-         step("(b) Remaining angle at A in triangle ABC", f"Angle ABC = 90 − {ang} = {90-ang}°. Angle at centre BOC = 2 × angle BAC = {2*ang}° (same arc BC)."),
-         step("(c) Angles in the same segment", f"Angle BDC = angle BAC = {ang}°."),
-         step("(d) Theorem", "The angle subtended by a diameter at a point on the circumference is 90°.")],
-        section="B", kind="structured"))
-
-    # Q10 Vectors
-    a1, a2 = rng.randint(2, 6), rng.randint(1, 5)
-    b1, b2 = rng.randint(-2, 4), rng.randint(2, 6)
-    qs.append(qdict(10, 12, "Vectors",
-        f"Position vector OA = a = ({a1} ; {a2}),  OB = b = ({b1} ; {b2}). M is the midpoint of AB.<br/>"
-        f"(a) Find vector AB.  [3]<br/>"
-        f"(b) Find |AB|.  [3]<br/>"
-        f"(c) Find position vector OM.  [3]<br/>"
-        f"(d) Show that AM = MB.  [3]",
-        f"(a) ({b1-a1} ; {b2-a2}); (b) sqrt({(b1-a1)**2+(b2-a2)**2}); (c) (({a1+b1})/2 ; ({a2+b2})/2)",
-        [step("(a) AB = b − a", f"AB = ({b1} − {a1} ; {b2} − {a2}) = ({b1-a1} ; {b2-a2})."),
-         step("(b) Magnitude", f"|AB| = √[({b1-a1})² + ({b2-a2})²] = √{(b1-a1)**2 + (b2-a2)**2}."),
-         step("(c) Midpoint", f"OM = (a+b)/2 = ({fmt(Fraction(a1+b1,2))} ; {fmt(Fraction(a2+b2,2))})."),
-         step("(d) Equal segments", "M midpoint ⇒ AM = MB (same vector).")],
-        section="B", kind="structured"))
-
-    # Q11 Statistics ogive
-    n_st = rng.choice([40, 50, 60])
-    med_est = rng.choice([24, 28, 32, 36])
-    qs.append(qdict(11, 12, "Cumulative frequency",
-        f"{n_st} pupils sat a Mathematics test (marks 0–50). The cumulative frequency curve (ogive) is drawn.<br/>"
-        f"(a) Explain how to read the median from the ogive.  [3]<br/>"
-        f"(b) The median is estimated as {med_est}. What does this mean for a typical pupil?  [2]<br/>"
-        f"(c) Describe how to find the interquartile range from the graph.  [4]<br/>"
-        f"(d) Why is the IQR useful compared with the range?  [3]",
-        f"(a) read mark at cf = {n_st/2}; (b) half scored ≤ {med_est}; (c) Q3 at 3n/4 minus Q1 at n/4; (d) IQR resists outliers",
-        [step("(a) Median position", f"n/2 = {n_st/2}. Go across from cf = {n_st/2} to the curve, down to the mark axis."),
-         step("(b) Interpretation", f"50% of pupils scored {med_est} or less."),
-         step("(c) Quartiles", f"Q1 at n/4 = {n_st/4}, Q3 at 3n/4 = {3*n_st/4}. IQR = Q3 − Q1."),
-         step("(d) Why IQR", "Range uses extremes; IQR uses the middle 50% so outliers affect it less.")],
-        section="B", kind="structured"))
-
-    # Q12 Matrices / transformations
-    qs.append(qdict(12, 12, "Transformations and matrices",
-        f"Triangle P(1, 1), Q(3, 1), R(1, 4) is drawn on a grid.<br/>"
-        f"(a) Draw the image P'Q'R' after a reflection in the y-axis. State the coordinates of P'.  [4]<br/>"
-        f"(b) Translate PQR by vector (2 ; −1). Give Q''.  [3]<br/>"
-        f"(c) The matrix (0 −1 ; 1  0) represents a transformation. Describe it fully and find the image of (3, 1).  [5]",
-        "(a) P'(−1,1); (b) Q''(5,0); (c) rotation 90° anticlockwise about O; image (−1, 3)",
-        [step("(a) Reflection in y-axis", "(x, y) → (−x, y). P(1,1) → P'(−1, 1)."),
-         step("(b) Translation", "Q(3,1) + (2, −1) = (5, 0)."),
-         step("(c) Matrix", "(0 −1; 1 0)(x; y) = (−y; x), a 90° anticlockwise rotation about the origin. (3,1) → (−1, 3).")],
-        section="B", kind="structured"))
-
-    # Q13 Linear programming / variation
-    k_var = rng.choice([12, 24, 36, 48])
-    qs.append(qdict(13, 12, "Variation and linear programming",
-        f"(a) y varies directly as x. When x = 4, y = {k_var}. Find y when x = 10.  [4]<br/>"
-        f"(b) z varies inversely as x. When x = 3, z = 8. Find z when x = 6.  [4]<br/>"
-        f"(c) A farmer has at most 40 hours. Planting maize takes 2 hours per hectare and vegetables 1 hour. "
-        f"Write an inequality for hectares m and v.  [4]",
-        f"(a) {k_var*10//4}; (b) 4; (c) 2m + v ≤ 40, m≥0, v≥0",
-        [step("(a) y = kx", f"{k_var} = k×4 ⇒ k = {k_var//4}. y = {k_var//4}×10 = {k_var*10//4}."),
-         step("(b) z = k/x", "8 = k/3 ⇒ k = 24. z = 24/6 = 4."),
-         step("(c) Time constraint", "2m + v ≤ 40, with m ≥ 0, v ≥ 0.")],
-        section="B", kind="structured"))
-
-    return qs
+def olevel_p2(rng: random.Random, year: int, session: str = "November") -> list[dict]:
+    return _olevel_p2(rng, year, session)
 
 
 # ---------------------------------------------------------------------------
@@ -1158,9 +572,9 @@ def catalogue():
 def build_questions(level, subject, code, paper, year, session):
     rng = seed_rng(year, session, code, paper)
     if code == "4004" and paper == 1:
-        return olevel_p1(rng, year)
+        return olevel_p1(rng, year, session)
     if code == "4004" and paper == 2:
-        return olevel_p2(rng, year)
+        return olevel_p2(rng, year, session)
     if code == "702" and paper == 1:
         return grade7_p1(rng, year)
     if code == "702" and paper == 2:
@@ -1291,15 +705,20 @@ def build_pdf(paper, path: Path):
     story.append(Paragraph(f"<b>MATHEMATICS</b>  &nbsp;&nbsp; {paper['code']}", styles["center"]))
     story.append(Paragraph(paper["paper"].upper() + f"  &nbsp;  {paper['session']} {paper['year']}", styles["center2"]))
     story.append(Paragraph(paper["duration"], styles["center2"]))
+    if paper.get("paperNo") == 1:
+        story.append(Paragraph("<b>PAPER 1 — SHORT-ANSWER — CALCULATORS MUST NOT BE USED</b>", styles["center2"]))
+    elif paper.get("paperNo") == 2:
+        story.append(Paragraph("<b>PAPER 2 — STRUCTURED QUESTIONS — CALCULATOR ALLOWED</b>", styles["center2"]))
     story.append(Spacer(1, 2 * mm))
     story.append(Paragraph(
         "These are <b>original ACADEX questions</b> written to match ZIMSEC syllabus structure, "
-        "mark allocations and command words. They are <b>not</b> leaked or copied official papers.",
+        "mark allocations and command words. They are <b>not</b> leaked or copied official papers. "
+        f"This script is unique to {paper['session']} {paper['year']} {paper['code']}.",
         styles["smallc"],
     ))
     story.append(Spacer(1, 3 * mm))
-    story.append(Paragraph(f"<b>Additional materials:</b> {paper['extra']}", styles["meta"]))
-    story.append(Paragraph(f"<b>INSTRUCTIONS:</b> {paper['instructions']}", styles["meta"]))
+    story.append(Paragraph(f"<b>Additional materials:</b> {xml_safe(paper['extra'])}", styles["meta"]))
+    story.append(Paragraph(f"<b>INSTRUCTIONS:</b> {xml_safe(paper['instructions'])}", styles["meta"]))
     story.append(Spacer(1, 4 * mm))
 
     last_sec = None
@@ -1308,14 +727,16 @@ def build_pdf(paper, path: Path):
             if q["section"] != last_sec:
                 last_sec = q["section"]
                 if last_sec == "A":
-                    story.append(Paragraph("SECTION A  (52 marks)  —  Answer all questions", styles["sec"]))
+                    story.append(Paragraph("SECTION A  (52 marks)  —  Answer ALL questions", styles["sec"]))
                 else:
-                    story.append(Paragraph("SECTION B  (48 marks)  —  Answer any four questions", styles["sec"]))
+                    story.append(PageBreak())
+                    story.append(Paragraph("SECTION B  (48 marks)  —  Answer any FOUR of the seven questions", styles["sec"]))
         marks = q["marks"]
-        body = q["text"].replace("<br/>", "<br/>")
+        body = xml_safe(q["text"])
+        gap = 16 * mm if q.get("kind") == "short" else 12 * mm
         block = [
             Paragraph(f"<b>{q['n']}.</b>  {body}  &nbsp;&nbsp; <b>[{marks}]</b>", styles["q"]),
-            Spacer(1, 3.5 * mm),
+            Spacer(1, gap),
         ]
         story.append(KeepTogether(block))
 
@@ -1355,27 +776,17 @@ def featured_from(papers):
     """Pick 8 diverse O-Level questions for the solve grid."""
     p1 = next(p for p in papers if p["id"] == "4004-1-2024-November")
     p2 = next(p for p in papers if p["id"] == "4004-2-2024-November")
-    want_topics = [
-        "Number operations",
-        "Linear equations",
-        "Quadratic factorisation",
-        "Coordinate geometry",
-        "Volume of cylinder",
-        "Trigonometry",
-        "Algebra",
-        "Quadratic equations",
-    ]
     picked = []
-    for t in want_topics:
-        pool = p1["questions"] if t not in ("Algebra", "Quadratic equations") else p2["questions"]
-        hit = next((q for q in pool if q["topic"] == t), None)
-        if hit:
-            picked.append({**hit, "paperId": p1["id"] if hit in p1["questions"] else p2["id"],
-                           "tag": f"{'4004/1' if hit in p1['questions'] else '4004/2'} 2024 {hit['topic']}"})
-    # fill if needed
-    while len(picked) < 8:
-        q = p1["questions"][len(picked)]
-        picked.append({**q, "paperId": p1["id"], "tag": f"4004/1 2024 Q{q['n']}"})
+    seen = set()
+    for q in p1["questions"]:
+        if q["topic"] in seen:
+            continue
+        seen.add(q["topic"])
+        picked.append({**q, "paperId": p1["id"], "tag": f"4004/1 2024 Q{q['n']} · {q['topic']}"})
+        if len(picked) >= 6:
+            break
+    for q in (p2["questions"][0], p2["questions"][6]):
+        picked.append({**q, "paperId": p2["id"], "tag": f"4004/2 2024 Q{q['n']} · {q['topic']}"})
     return picked[:8]
 
 
@@ -1443,7 +854,7 @@ def main():
         js_papers.append({k: p[k] for k in p if k != "bytes"})
 
     payload = {
-        "version": 3,
+        "version": 4,
         "disclaimer": "Original ACADEX practice papers aligned to ZIMSEC Maths syllabuses 702, 4004, 6042, 9164 and 9187. Not official ZIMSEC past papers.",
         "counts": {
             "papers": len(papers),

@@ -376,14 +376,19 @@ function renderLibrary() {
   filtered.forEach(p => {
     const d = document.createElement("div");
     d.className = "paper";
+    const kind = p.paperNo === 1
+      ? "PAPER 1 · 30 short Qs · NO calculator"
+      : p.paperNo === 2
+        ? "PAPER 2 · Sec A + Sec B · calculator"
+        : p.paper;
     d.innerHTML = `<div class="paper-top"><span class="tag">${p.level} • ${p.code}</span><span class="tag" style="${p.hot ? "background:var(--gold);border-color:var(--gold)" : ""}">${p.session} ${p.year}</span></div>
       <h4>${p.year} ${p.subject} ${p.paper}</h4>
-      <p>${p.code} • ${p.qs} questions • ${p.pages} pages • ${p.calc ? "calculator allowed" : "non-calculator"} • ${p.duration}</p>
+      <p><b>${kind}</b><br>${p.qs} questions • ${p.pages} pages • ${p.duration}</p>
       <div class="paper-actions">
         <button class="btn-sm btn-view" onclick="viewPaper('${p.id}')">👁 View</button>
         <button class="btn-sm btn-extract" onclick="extractPaper('${p.id}')">✨ Extract & Study</button>
       </div>
-      <button class="btn-sm btn-dl" onclick="downloadPDF('${p.id}')">⬇ Download PDF</button>`;
+      <button class="btn-sm btn-dl" onclick="downloadPDF('${p.id}')">⬇ Download ${p.paper} PDF</button>`;
     grid.appendChild(d);
   });
 }
@@ -426,20 +431,34 @@ function studyQuestion(paperId, n) {
   showExplain(currentQ, questions[currentQ]);
   document.getElementById("tab-solve").scrollIntoView({ behavior: "smooth" });
 }
-function downloadPDF(id) {
+async function downloadPDF(id) {
   const p = paperById(id);
   if (!p) return;
-  const a = document.createElement("a");
-  a.href = p.realUrl;
-  a.download = p.realUrl.split("/").pop();
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  const fname = (p.realUrl || "").split("/").pop();
+  const url = "/download/pdfs/" + encodeURIComponent(fname);
   const v = document.getElementById("viewer");
   v.classList.add("show");
-  document.getElementById("viewerTitle").textContent = "Download";
-  document.getElementById("viewerBody").innerHTML = `<p>✅ ${esc(p.year + " " + p.subject + " " + p.paper)} — <a href="${p.realUrl}">${p.realUrl}</a></p>
-    <p class="notice">ACADEX practice paper in ZIMSEC format. Worked solutions are on Extract &amp; Study, not printed on the script (like a real exam).</p>`;
+  document.getElementById("viewerTitle").textContent = "Download " + p.paper;
+  document.getElementById("viewerBody").innerHTML = `<p>Saving <b>${esc(fname)}</b> (${esc(p.paper)} — ${p.calc ? "calculator allowed" : "non-calculator"})…</p>`;
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const blob = await r.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = fname;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    document.getElementById("viewerBody").innerHTML = `<p>✅ Downloaded <b>${esc(fname)}</b></p>
+      <p>${esc(p.year)} ${esc(p.session)} ${esc(p.code)} ${esc(p.paper)} · ${p.qs} questions</p>
+      <p><a href="${p.realUrl}" target="_blank" rel="noopener">Open in browser instead →</a></p>
+      <p class="notice">Paper 1 is short-answer / no calculator. Paper 2 is structured Section A + B / calculator. Different files, different questions.</p>`;
+  } catch (err) {
+    document.getElementById("viewerBody").innerHTML = `<p>Could not auto-save. <a href="${p.realUrl}" download="${esc(fname)}" target="_blank">Tap here to download ${esc(fname)}</a></p>`;
+    window.open(p.realUrl, "_blank");
+  }
 }
 
 /* ----- mock ----- */

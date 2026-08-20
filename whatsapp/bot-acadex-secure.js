@@ -23,6 +23,15 @@ app.use(express.json({
 app.use(express.urlencoded({ extended: true }));
 
 // --- Serve ACADEX PWA + audio + files from workspace root (so PWA works on same host) ---
+app.get('/download/pdfs/:file', (req, res) => {
+  const file = path.basename(req.params.file || '');
+  if (!/^[A-Za-z0-9_.-]+\.pdf$/.test(file)) return res.status(400).send('bad filename');
+  const fp = path.join(workspaceRoot, 'pdfs', file);
+  if (!fp.startsWith(path.join(workspaceRoot, 'pdfs'))) return res.sendStatus(400);
+  res.download(fp, file, err => {
+    if (err && !res.headersSent) res.status(404).send('PDF not found');
+  });
+});
 app.use(express.static(workspaceRoot));
 app.use('/audio', express.static(path.join(workspaceRoot, 'audio')));
 app.use('/manifest.json', (req,res)=>res.sendFile(path.join(workspaceRoot, 'manifest.json')));

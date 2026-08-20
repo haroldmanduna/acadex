@@ -1,5 +1,5 @@
 // ACADEX Service Worker v3 — Maths PWA
-const CACHE = 'acadex-v3';
+const CACHE = 'acadex-v4';
 const ASSETS = [
   './zimsec-super-tutor.html',
   './acadex-app.js',
