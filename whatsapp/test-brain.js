@@ -38,6 +38,7 @@ const cases = [
   ['15% of 80', r => /\b12\b/.test(firstText(r))],
   ['2x+3=11', r => /4/.test(firstText(r))],
   ['photosynthesis', r => /chlorophyll|glucose|CO/i.test(firstText(r))],
+  ['hi', r => !r.ignored && /acadex|working|today|hi|hey/i.test((r.replies||[]).map(x=>x.text||'').join(' ')) ],
   ['Download 2024 Maths Paper 1', r => (r.replies || []).some(x => x.type === 'document' && /4004/.test(x.filename))],
 ];
 

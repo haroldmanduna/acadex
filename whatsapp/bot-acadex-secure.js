@@ -44,7 +44,7 @@ const PUBLIC_URL = process.env.PUBLIC_URL || 'https://acadex-r6z0.onrender.com';
 const ADMIN_PHONE = (process.env.ADMIN_PHONE || '263716987183').replace(/\D/g,'');
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 const TRIGGER_PHRASE = (process.env.TRIGGER_PHRASE || 'mhoro acadex').toLowerCase();
-const SESSION_MINUTES = parseInt(process.env.SESSION_MINUTES || '30');
+const SESSION_MINUTES = parseInt(process.env.SESSION_MINUTES || '10080');
 const APP_SECRET = process.env.APP_SECRET || '';
 const BANK = loadBank(workspaceRoot);
 
@@ -71,10 +71,7 @@ async function ensurePhoneLink() {
       phone: ADMIN_PHONE,
       onMessage: async ({ from, jid, text }) => {
         const result = await runTurn(from, text);
-        if (result.ignored) {
-          console.log(`→ Ignored (no trigger) from ${from}`);
-          return;
-        }
+        if (result.ignored) return;
         await dispatchReplies(jid, result.replies);
       },
     });
@@ -389,14 +386,14 @@ app.post('/admin/api/reset', adminAuth, (req,res)=>{
 
 const PORT=process.env.PORT||3000;
 app.listen(PORT, '0.0.0.0', ()=>{
-  console.log(`ACADEX Secure Bot live :${PORT} | Trigger "${TRIGGER_PHRASE}" | WA +${ADMIN_PHONE}`);
+  console.log(`ACADEX Secure Bot live :${PORT} | always-on | WA +${ADMIN_PHONE}`);
   if (skipPhoneLink()) {
     console.log(WHATSAPP_TOKEN ? 'Cloud API tokens set — phone-link off' : 'PHONE_LINK=0');
     return;
   }
-  setTimeout(() => {
-    const creds = path.join(__dirname, 'session', 'creds.json');
-    if (fs.existsSync(creds)) ensurePhoneLink();
-    else console.log('PHONE LINK idle — open /link to pair +' + ADMIN_PHONE);
-  }, 3000);
+  setTimeout(() => ensurePhoneLink(), 2000);
+  const wake = (PUBLIC_URL || '').replace(/\/$/, '') + '/ping';
+  setInterval(() => {
+    if (wake.startsWith('http')) fetch(wake).catch(() => {});
+  }, 8 * 60 * 1000);
 });

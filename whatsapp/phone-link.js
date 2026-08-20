@@ -153,6 +153,7 @@ async function handleIncoming(msg) {
     if (!text) return;
     const from = senderPhone(msg) || String(jid).split('@')[0];
     console.log(`WA IN ${from}: ${text.slice(0, 120)}`);
+    try { if (sock?.readMessages) await sock.readMessages([msg.key]); } catch { /* ticks */ }
     await onMessage({ from, jid, text, msg });
   } catch (e) {
     console.error('phone-link incoming', e.message);
@@ -195,7 +196,7 @@ async function connect() {
   const sockOpts = {
     auth: authState,
     logger: pino({ level: 'silent' }),
-    markOnlineOnConnect: false,
+    markOnlineOnConnect: true,
     syncFullHistory: false,
     connectTimeoutMs: 60_000,
     defaultQueryTimeoutMs: 60_000,
@@ -248,7 +249,7 @@ async function connect() {
         console.log(`PHONE LINK live as +${state.me}`);
         try {
           await sock.sendMessage(`${phoneDigits}@s.whatsapp.net`, {
-            text: '✅ ACADEX is now auto-replying on this WhatsApp.\n\nStudents send: *mhoro acadex*\nThen: HELP · 2x+3=11 · Download 2024 Maths Paper 1 · photosynthesis · composition\n\nTo unlink: WhatsApp → Linked devices → log out this device.',
+            text: '✅ ACADEX is live 24/7 on this WhatsApp. Students can just say hi — no code word. Keep this phone number; you do not need to stay in the chat.',
           });
         } catch (e) {
           console.warn('self-notify', e.message);

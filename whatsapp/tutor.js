@@ -7,7 +7,7 @@ import {
 } from './brain.js';
 import { askTeacher } from './teacher.js';
 
-const FREE_LIMIT = 10;
+const FREE_LIMIT = 10000;
 const sessions = new Map();
 const users = new Map();
 
@@ -169,12 +169,22 @@ export function findQuestion(bank, text) {
   return searchBank(bank, text);
 }
 
+function personality(text) {
+  const t = String(text || '').toLowerCase();
+  if (/your name|who are you|who r u|who is this|zita rako|unonzi ani|comment tu t.?appelles|como te llamas|what.?s your name|whats your name|ninani|ngubani/.test(t)) {
+    return "I'm ACADEX — your ZIMSEC tutor on WhatsApp. Maths 4004, Combined Science 5006 and English 1122. Talk to me in any language. Send the question.";
+  }
+  if (/^(hi|hello|hey|hie|yo|mhoro|salut|bonjour|sawubona|hola|sup|morning|evening|good morning|good evening)\b/.test(t) && t.split(/\s+/).length <= 6) {
+    return "Hey — ACADEX here. What are we working on today? Maths, Science or English, any language.";
+  }
+  return null;
+}
+
 function helpText() {
-  return `I'm ACADEX — send the actual question and I'll work it with you like class.
+  return `I'm ACADEX — send the question and I'll work it with you like class.
 
 Maths, Combined Science 5006, English 1122. Any language.
-Papers: Download 2024 Maths Paper 1
-Type acadex exit to leave.`;
+Papers: Download 2024 Maths Paper 1`;
 }
 
 function predictorText(bank) {
@@ -238,10 +248,9 @@ export async function handleTurn({ from, text, bank, publicUrl, adminPhone, trig
     return { replies };
   }
 
-  if (tl.includes('acadex exit') || tl === 'exit' || tl === 'stop') {
-    exitBotMode(digits);
-    say(`Bye. Send "${trigger}" to start again.`);
-    return { replies, exit: true };
+  if (tl === 'acadex exit') {
+    say('I’m still here whenever you send a message. What should we do next?');
+    return { replies };
   }
 
   const sub = canUse(digits);
