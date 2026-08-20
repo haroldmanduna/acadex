@@ -1,15 +1,15 @@
 // ACADEX - SECURE WhatsApp Bot (Trigger-Only + Admin Locked)
-// - Works with YOUR personal number for TESTING (as user, not as bot host)
-// - Trigger phrase required to enter Bot Mode
-// - 24/7 hostable on Render/Railway
-// - Admin ONLY for you, no loopholes
-
 import express from 'express';
 import axios from 'axios';
 import dotenv from 'dotenv';
 import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import {
+  loadBank, handleTurn, solveLinear, incrementUse,
+  getUser, isPaid, canUse, listUsers, sessionPhones,
+  activateUser, resetFree, FREE_LIMIT,
+} from './tutor.js';
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -18,11 +18,10 @@ const workspaceRoot = path.join(__dirname, '..');
 
 const app = express();
 app.use(express.json({
-  verify: (req, res, buf) => { req.rawBody = buf; } // for signature check
+  verify: (req, res, buf) => { req.rawBody = buf; }
 }));
 app.use(express.urlencoded({ extended: true }));
 
-// --- Serve ACADEX PWA + audio + files from workspace root (so PWA works on same host) ---
 app.get('/download/pdfs/:file', (req, res) => {
   const file = path.basename(req.params.file || '');
   if (!/^[A-Za-z0-9_.-]+\.pdf$/.test(file)) return res.status(400).send('bad filename');
@@ -37,102 +36,22 @@ app.use('/audio', express.static(path.join(workspaceRoot, 'audio')));
 app.use('/manifest.json', (req,res)=>res.sendFile(path.join(workspaceRoot, 'manifest.json')));
 app.use('/sw.js', (req,res)=>res.sendFile(path.join(workspaceRoot, 'sw.js')));
 
-// ========= CONFIG (set in .env) =========
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || 'acadex-verify-2026';
-const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || ''; // leave empty = MOCK mode for testing
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || '';
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID || '';
-const PUBLIC_URL = process.env.PUBLIC_URL || '';
-const ADMIN_PHONE = (process.env.ADMIN_PHONE || '').replace(/\D/g,''); // e.g. 263771234567
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || ''; // MUST be set in env — no default secret
-const TRIGGER_PHRASE = (process.env.TRIGGER_PHRASE || 'mhoro acadex').toLowerCase(); // <--- THE GREETING
-const SESSION_MINUTES = parseInt(process.env.SESSION_MINUTES || '30'); // Bot Mode expires after 30min silence
-const APP_SECRET = process.env.APP_SECRET || ''; // from Meta for signature check
+const PUBLIC_URL = process.env.PUBLIC_URL || 'https://acadex-r6z0.onrender.com';
+const ADMIN_PHONE = (process.env.ADMIN_PHONE || '263716987183').replace(/\D/g,'');
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+const TRIGGER_PHRASE = (process.env.TRIGGER_PHRASE || 'mhoro acadex').toLowerCase();
+const SESSION_MINUTES = parseInt(process.env.SESSION_MINUTES || '30');
+const APP_SECRET = process.env.APP_SECRET || '';
+const BANK = loadBank(workspaceRoot);
 
-console.log(`Acadex Secure Bot | Trigger: "${TRIGGER_PHRASE}" | Session: ${SESSION_MINUTES}min | Admin: ${ADMIN_PHONE || 'NOT SET'}`);
+console.log(`Acadex Secure Bot | Trigger: "${TRIGGER_PHRASE}" | Session: ${SESSION_MINUTES}min | Admin: ${ADMIN_PHONE || 'NOT SET'} | Papers: ${(BANK.papers||[]).length}`);
 
-// ========= SIMPLE IN-MEMORY DB (swap to Supabase for prod) =========
-const sessions = new Map(); // phone -> { botModeUntil: timestamp, lang, free_used, expiry }
-const users = new Map(); // phone -> { expiry_date, free_used, parent }
-
-function isBotMode(phone){
-  const s = sessions.get(phone);
-  if(!s) return false;
-  if(Date.now() > s.botModeUntil) { sessions.delete(phone); return false; }
-  // refresh on activity
-  s.botModeUntil = Date.now() + SESSION_MINUTES*60*1000;
-  return true;
-}
-function enterBotMode(phone){
-  sessions.set(phone, { botModeUntil: Date.now() + SESSION_MINUTES*60*1000, at: new Date().toISOString() });
-}
-function checkTrigger(text){
-  const t = (text||'').toLowerCase().trim();
-  // Must CONTAIN trigger phrase to enter bot mode. e.g. "Mhoro Acadex" , "mhoro acadex ndibatsire"
-  if(t === TRIGGER_PHRASE || t.startsWith(TRIGGER_PHRASE) || t.includes(TRIGGER_PHRASE)) return true;
-  // Also allow exact "acadex" alone
-  if(t === 'acadex') return true;
-  return false;
-}
-
-// ========= PAYWALL (reuse) =========
-const FREE_LIMIT = 10;
-function getUser(phone){ return users.get(phone) || { free_used:0, expiry_date:null }; }
-function isPaid(phone){
-  const u = getUser(phone);
-  return u.expiry_date && new Date(u.expiry_date) > new Date();
-}
-function canUse(phone){
-  const u = getUser(phone);
-  if(isPaid(phone)) return { allowed:true, reason:'PAID' };
-  if((u.free_used||0) < FREE_LIMIT) return { allowed:true, reason:'FREE', left: FREE_LIMIT - (u.free_used||0) };
-  return { allowed:false, reason:'EXPIRED' };
-}
-function incrementUse(phone){
-  const u = getUser(phone);
-  if(isPaid(phone)) return;
-  u.free_used = (u.free_used||0)+1;
-  users.set(phone, u);
-}
-
-function solveLinear(input){
-  let t = String(input||'').toLowerCase().replace(/×/g,'*').replace(/−/g,'-');
-  t = t.replace(/x\s+(\d+)\s*=/g, 'x+$1=');
-  t = t.replace(/\s+/g,'');
-  let m = t.match(/^(-?\d+)\(x([+-]\d+)\)=(-?\d+)$/);
-  if(m){
-    const a=+m[1], b=+m[2], c=+m[3];
-    const ax = c - a*b;
-    if(!a) return null;
-    const x = ax/a;
-    return { answer: String(x), steps:[
-      {t:'Expand', d:`${a}x + ${a*b} = ${c}`},
-      {t:'Isolate', d:`${a}x = ${ax}`},
-      {t:'Divide', d:`x = ${x}`}
-    ]};
-  }
-  m = t.match(/^(-?\d*)x([+-]\d+)=(-?\d+)$/);
-  if(m){
-    const a = (m[1]===''||m[1]==='-') ? Number(m[1]+'1') : +m[1];
-    const b=+m[2], c=+m[3];
-    const x = (c-b)/a;
-    return { answer: String(x), steps:[
-      {t:`Subtract ${b}`, d:`${a}x = ${c-b}`},
-      {t:`Divide by ${a}`, d:`x = ${x}`}
-    ]};
-  }
-  m = t.match(/^(-?\d*)x=(-?\d+)$/);
-  if(m){
-    const a = (m[1]===''||m[1]==='-') ? Number(m[1]+'1') : +m[1];
-    const x = (+m[2])/a;
-    return { answer: String(x), steps:[{t:'Divide', d:`x = ${x}`}] };
-  }
-  return null;
-}
-
-// ========= WHATSAPP SENDERS =========
 async function sendText(to, text){
   if(!WHATSAPP_TOKEN || !PHONE_NUMBER_ID){
-    console.log(`[MOCK SEND to ${to}]: ${text.slice(0,120)}...`);
+    console.log(`[MOCK SEND to ${to}]: ${String(text).slice(0,120)}...`);
     return { mock:true };
   }
   await axios.post(`https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`, {
@@ -147,9 +66,8 @@ async function sendAudio(to, url){
 }
 async function sendDocument(to, url, filename, caption){
   if(!WHATSAPP_TOKEN || !PHONE_NUMBER_ID){
-    console.log(`[MOCK DOCUMENT to ${to}]: ${filename} -> ${url} | ${caption}`);
-    // For mock, also send text with link
-    await sendText(to, `📄 ${filename}\n${caption}\nDirect download: ${url} (one-tap, like Foondamate)`);
+    console.log(`[MOCK DOCUMENT to ${to}]: ${filename} -> ${url}`);
+    await sendText(to, `📄 ${filename}\n${caption}\nDirect download: ${url}`);
     return;
   }
   await axios.post(`https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`, {
@@ -157,31 +75,22 @@ async function sendDocument(to, url, filename, caption){
   }, { headers:{ Authorization:`Bearer ${WHATSAPP_TOKEN}` }});
 }
 
-// ========= SECURITY: Verify Meta Signature (no fake webhooks) =========
 function verifySignature(req){
-  if(!APP_SECRET) return true; // if not set, skip (testing)
+  if(!APP_SECRET) return true;
   const sig = req.headers['x-hub-signature-256'] || '';
   const expected = 'sha256='+crypto.createHmac('sha256', APP_SECRET).update(req.rawBody).digest('hex');
-  // use timingSafeEqual
   try { return crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected)); } catch { return false; }
 }
 
-// ========= SECURITY: Admin Auth Middleware (no loopholes) =========
 function adminAuth(req,res,next){
-  // 1. Must be your phone OR have password
   const fromPhone = (req.headers['x-admin-phone'] || '').replace(/\D/g,'');
   const pwd = req.headers['x-admin-password'] || req.query.pwd || req.body?.pwd;
   const isPhoneAdmin = ADMIN_PHONE && fromPhone===ADMIN_PHONE;
   const isPwdAdmin = Boolean(ADMIN_PASSWORD) && pwd && pwd===ADMIN_PASSWORD;
-  // Also allow if request comes from your WhatsApp admin command (phone === ADMIN_PHONE)
-  if(isPhoneAdmin || isPwdAdmin){
-    return next();
-  }
-  // No bypass via guessing ?admin=1 etc.
+  if(isPhoneAdmin || isPwdAdmin) return next();
   return res.status(401).json({ error:'Unauthorized - Acadex admin only' });
 }
 
-// Rate limit simple
 const hits = new Map();
 function rateLimit(req,res,next){
   const ip = req.ip || req.headers['x-forwarded-for'] || 'local';
@@ -189,25 +98,31 @@ function rateLimit(req,res,next){
   const arr = (hits.get(ip)||[]).filter(t=>now-t<60000);
   arr.push(now);
   hits.set(ip, arr);
-  if(arr.length>30) return res.status(429).json({error:'Too many requests'});
+  if(arr.length>60) return res.status(429).json({error:'Too many requests'});
   next();
 }
 app.use(rateLimit);
 
-// ========= ROUTES =========
-
-// PWA - Serve Acadex app on root (so https://acadex-r6z0.onrender.com works without filename)
 app.get('/', (req,res)=>res.sendFile(path.join(workspaceRoot, 'zimsec-super-tutor.html')));
-app.get('/health', (req,res)=>res.json({ status:'ACADEX live', trigger: TRIGGER_PHRASE, admin: ADMIN_PHONE ? 'set' : 'not set', time: new Date().toISOString() }));
+app.get('/health', (req,res)=>res.json({
+  status: 'ACADEX live',
+  trigger: TRIGGER_PHRASE,
+  admin: ADMIN_PHONE ? 'set' : 'not set',
+  whatsapp: WHATSAPP_TOKEN && PHONE_NUMBER_ID ? 'cloud-api' : 'mock',
+  wa: ADMIN_PHONE ? '+'+ADMIN_PHONE : null,
+  papers: (BANK.papers||[]).length,
+  time: new Date().toISOString()
+}));
 app.get('/bot', (req,res)=>res.send(`
   <h2>ACADEX Secure Bot Running</h2>
+  <p>WhatsApp: <b>+${ADMIN_PHONE}</b></p>
   <p>Trigger phrase: <b>${TRIGGER_PHRASE}</b></p>
   <p>Bot Mode: ${SESSION_MINUTES} min</p>
-  <p>Admin: ${ADMIN_PHONE ? ADMIN_PHONE.slice(0,6)+'***' : 'NOT SET - set ADMIN_PHONE in .env'}</p>
+  <p>Papers in bank: ${(BANK.papers||[]).length}</p>
+  <p>Cloud API: ${WHATSAPP_TOKEN && PHONE_NUMBER_ID ? 'ON' : 'MOCK (set WHATSAPP_TOKEN + PHONE_NUMBER_ID)'}</p>
   <p>Use <a href="/admin">/admin</a> with password</p>
 `));
 
-// Meta webhook verification
 app.get('/webhook', (req,res)=>{
   if(req.query['hub.mode']==='subscribe' && req.query['hub.verify_token']===VERIFY_TOKEN){
     console.log('WEBHOOK VERIFIED');
@@ -216,7 +131,25 @@ app.get('/webhook', (req,res)=>{
   res.sendStatus(403);
 });
 
-// WhatsApp incoming
+async function dispatchReplies(defaultTo, replies){
+  for (const r of replies || []) {
+    const to = r.to || defaultTo;
+    if (r.type === 'document') await sendDocument(to, r.url, r.filename, r.caption || '');
+    else if (r.type === 'audio') await sendAudio(to, r.url);
+    else await sendText(to, r.text);
+  }
+}
+
+function runTurn(from, text){
+  return handleTurn({
+    from, text, bank: BANK,
+    publicUrl: PUBLIC_URL,
+    adminPhone: ADMIN_PHONE,
+    trigger: TRIGGER_PHRASE,
+    sessionMinutes: SESSION_MINUTES,
+  });
+}
+
 app.post('/webhook', async (req,res)=>{
   if(!verifySignature(req)){
     console.warn('Bad signature - blocked fake webhook');
@@ -234,119 +167,28 @@ app.post('/webhook', async (req,res)=>{
     else text = `[${type}]`;
 
     console.log(`IN ${from}: ${text}`);
-
-    // ----- TRIGGER CHECK -----
-    const isTriggered = checkTrigger(text);
-    const inBotMode = isBotMode(from);
-
-    if(!isTriggered && !inBotMode){
-      // SILENT - do NOT reply to random chats. This is the spec: only trigger phrase activates.
-      // For testing, we log but don't reply, so your personal chats aren't spammed.
+    const result = runTurn(from, text);
+    if (result.ignored) {
       console.log(`→ Ignored (no trigger, not in bot mode) from ${from}`);
       return res.sendStatus(200);
     }
-    if(isTriggered && !inBotMode){
-      enterBotMode(from);
-      await sendText(from, `✅ Acadex activated! Mhoro! 🙏\nNdiri Acadex, mudzidzisi wako.\n\nTumira MUFANANIDZO wemubvunzo kana nyora mubvunzo wako.\nUnotaura mutauro upi? [Shona/Ndebele/English]\n\n_Reply "acadex exit" kuti ubude._`);
-      return res.sendStatus(200);
-    }
-    // If here, user is in Bot Mode → handle commands
-    // Refresh session
-    enterBotMode(from);
-
-    // Admin commands ONLY if from ADMIN_PHONE
-    if(from.replace(/\D/g,'')===ADMIN_PHONE && text.toLowerCase().startsWith('admin')){
-      // e.g. admin activate 263771234567 7
-      const parts = text.split(' ');
-      if(parts[1]==='activate' && parts[2]){
-        const target = parts[2].replace(/\D/g,'');
-        const days = parseInt(parts[3]||'7');
-        const exp = new Date(); exp.setDate(exp.getDate()+days);
-        const u = getUser(target); u.expiry_date = exp.toISOString(); users.set(target, u);
-        await sendText(from, `✅ Activated ${target} for ${days} days until ${exp.toDateString()}`);
-        await sendText(target, `✅ Acadex yatambirwa! Wava ne ${days} mazuva unlimited. Tumira mubvunzo.`);
-      } else if(parts[1]==='status'){
-        const target = parts[2]?.replace(/\D/g,'') || from;
-        const u = getUser(target);
-        await sendText(from, `Status ${target}: free_used=${u.free_used||0}/${FREE_LIMIT}, expiry=${u.expiry_date||'none'}, paid=${isPaid(target)}`);
-      } else {
-        await sendText(from, `Admin: admin activate <phone> <days>\nadmin status <phone>`);
-      }
-      return res.sendStatus(200);
-    }
-    if(text.toLowerCase().includes('acadex exit')){
-      sessions.delete(from);
-      await sendText(from, `👋 Bye! Acadex bot mode off. Send "${TRIGGER_PHRASE}" to start again.`);
-      return res.sendStatus(200);
-    }
-
-    // ----- PAYWALL CHECK -----
-    const sub = canUse(from);
-    if(!sub.allowed){
-      await sendText(from, `😊 Wapfuura 10 FREE. Bhadhara kuti uenderere:\n💰 $0.75/vhiki kana $3/mwedzi\nEcoCash: *151*2*1*12345*0.75#\nMushure mekubhadhara tumira *PAID*\n_Admin chete ndiye anokwanisa ku-activate._`);
-      return res.sendStatus(200);
-    }
-
-    // ----- DOWNLOAD PDF (Maths practice papers only) -----
-    const tl = text.toLowerCase();
-    if(tl.includes('download') || tl.includes('pdf') || tl.includes('paper 1') || tl.includes('paper 2') || tl.includes('past paper')){
-      const year = (tl.match(/20\d{2}/) || ['2024'])[0];
-      const paperNo = (tl.includes('paper 2') || tl.includes('p2')) ? 2 : 1;
-      let code = '4004';
-      if (tl.includes('grade 7') || tl.includes('702')) code = '702';
-      else if (tl.includes('further') || tl.includes('9187')) code = '9187';
-      else if (tl.includes('pure') || tl.includes('6042')) code = '6042';
-      else if (tl.includes('9164')) code = '9164';
-      const session = tl.includes('june') ? 'June' : 'November';
-      const fname = `${year}_${session}_${code}_Paper${paperNo}.pdf`;
-      const title = `${year} ${session} ${code} Paper ${paperNo} (ACADEX ZIMSEC-style)`;
-      const base = PUBLIC_URL || "https://acadex-r6z0.onrender.com";
-      const url = `${base}/pdfs/${fname}`;
-      await sendDocument(from, url, fname, title);
-      await sendText(from, `Maths only for now. Try: "Download 2024 Paper 1" or "Download Grade 7 702 Paper 2".`);
-      return res.sendStatus(200);
-    }
-
-    // ----- SOLVE linear / otherwise a bank item -----
-    let lang='sn';
-    if(text.toLowerCase().includes('ndebele')) lang='nd';
-    else if(text.toLowerCase().includes('english')) lang='en';
-    const solved = solveLinear(text);
-    let answers;
-    if (solved) {
-      const body = solved.steps.map((s,i)=>`${i+1}. ${s.t}: ${s.d}`).join('\n');
-      answers = {
-        sn: `Mhinduro: x = ${solved.answer}\n${body}`,
-        nd: `Impendulo: x = ${solved.answer}\n${body}`,
-        en: `Answer: x = ${solved.answer}\n${body}`
-      };
-    } else {
-      answers = {
-        sn: `Ndinogona linear equations (muenzaniso 2x+3=11). Tumira equation kana "Download 2024 Paper 1".`,
-        nd: `Ngingasiza i-linear (isibonelo 2x+3=11). Thumela i-equation noma "Download 2024 Paper 1".`,
-        en: `I solve linear equations like 2x+3=11. Send an equation or "Download 2024 Paper 1".`
-      };
-    }
-    await sendText(from, answers[lang] || answers.sn);
-    // Send voice note if you host audio
-    if(PUBLIC_URL){
-      const voiceMap = { sn:'audio/shona-solve.mp3', nd:'audio/ndebele-solve.mp3', en:'audio/english-solve.mp3' };
-      const url = `${PUBLIC_URL}/${voiceMap[lang]||voiceMap.sn}`;
-      await sendAudio(from, url);
-    }
-    incrementUse(from);
-    const left = sub.left ? ` (${sub.left-1} FREE left)` : '';
-    await sendText(from, `Next? Tumira mumwe mubvunzo.${left}\nType "acadex exit" to leave bot mode.`);
-
+    await dispatchReplies(from, result.replies);
   }catch(e){
     console.error('webhook err', e.message);
   }
   res.sendStatus(200);
 });
 
-// ========= USSD OFFLINE (same host, no data) - POST /ussd =========
+app.post('/bot/simulate', async (req,res)=>{
+  if (WHATSAPP_TOKEN) return res.status(403).json({ error: 'simulate off when Cloud API is live — use real WhatsApp' });
+  const from = String(req.body?.from || ADMIN_PHONE || '263716987183').replace(/\D/g,'');
+  const text = String(req.body?.text || '');
+  const result = runTurn(from, text);
+  res.json({ from, text, ignored: !!result.ignored, replies: result.replies || [] });
+});
+
 app.post('/ussd', (req,res)=>{
-  const { sessionId, phoneNumber, text } = req.body;
+  const { phoneNumber, text } = req.body;
   const parts = (text||'').split('*');
   const phone = (phoneNumber||'').replace(/\D/g,'');
   let response='';
@@ -358,9 +200,10 @@ app.post('/ussd', (req,res)=>{
     const q=parts[1];
     const can = canUse(phone);
     if(!can.allowed){
-      response=`END Wapfuura 10 FREE. Bhadhara $0.75:\nEcoCash merchant (set in production).\nMushure tumira PAID ku 5.`;
+      response=`END Wapfuura 10 FREE. Bhadhara $0.75.`;
     } else {
-      const u=getUser(phone); u.free_used=(u.free_used||0)+1; users.set(phone,u);
+      incrementUse(phone);
+      const u=getUser(phone);
       const solved = solveLinear(q);
       if(solved){
         response=`CON x=${solved.answer}\n${solved.steps.map(s=>s.t+': '+s.d).join('\n')}\nZasara ${FREE_LIMIT-u.free_used} FREE`;
@@ -369,26 +212,24 @@ app.post('/ussd', (req,res)=>{
       }
     }
   } else if(parts[0]==='2'){
-    response=`END 2024 Nov 4004/1 PDF:\n/pdfs/2024_November_4004_Paper1.pdf`;
+    response=`END Maths 4004/1:\n/pdfs/2024_November_4004_Paper1.pdf\nScience 5006/1:\n/pdfs/2024_November_5006_Paper1.pdf\nEnglish 1122/1:\n/pdfs/2024_November_1122_Paper1.pdf`;
   } else if(parts[0]==='3'){
-    response=`END Mock: open the website Mock Exam tab (4004/1, 30 Qs, 2h30).`;
+    response=`END Mock: open the website Mock Exam tab.`;
   } else if(parts[0]==='4'){
     response=`CON Sarudza: 1.Shona 2.Ndebele 3.English`;
   } else if(parts[0]==='5'){
     const u=getUser(phone);
     const paid=isPaid(phone)?`PAID kusvika ${new Date(u.expiry_date).toLocaleDateString()}`:`FREE ${u.free_used||0}/10`;
-    response=`CON Akaundi: ${phone}\n${paid}\n1. Ndatenda PAID`;
+    response=`CON Akaundi: ${phone}\n${paid}`;
   } else {
-    response=`END Ndatenda - Acadex. Dzvanya *384*12345# zvakare.`;
+    response=`END Ndatenda - Acadex.`;
   }
   res.set('Content-Type','text/plain');
   res.send(response);
 });
-app.get('/ussd/test', (req,res)=>res.send(`<form method="POST" action="/ussd"><input name="phoneNumber" value="263771234567"><input name="text" value=""><button>Send USSD</button></form>`));
+app.get('/ussd/test', (req,res)=>res.send(`<form method="POST" action="/ussd"><input name="phoneNumber" value="263716987183"><input name="text" value=""><button>Send USSD</button></form>`));
 
-// ========= ADMIN DASHBOARD (LOCKED) =========
 app.get('/admin', (req,res)=>{
-  // This page asks for password; API calls need header x-admin-password
   res.send(`
 <!DOCTYPE html>
 <html><head><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -401,7 +242,7 @@ button{background:#0a7a3c;color:white;font-weight:800;cursor:pointer}
 </style>
 </head><body>
 <h2>🔒 ACADEX Admin — ONLY YOU</h2>
-<p>Enter password to unlock. No password = no access. Brute force blocked.</p>
+<p>WhatsApp bot number: <b>+${ADMIN_PHONE}</b></p>
 <input id="pwd" type="password" placeholder="Admin password">
 <button onclick="load()">Unlock</button>
 <div id="out"></div>
@@ -423,7 +264,7 @@ async function load(){
       </div>
     </div>\`;
   });
-  document.getElementById('out').innerHTML = h || '<p>No users yet - send \"mhoro acadex\" from your phone to create one.</p>';
+  document.getElementById('out').innerHTML = h || '<p>No users yet - send "mhoro acadex" from WhatsApp.</p>';
 }
 async function activate(phone,days){
   const pwd=document.getElementById('pwd').value;
@@ -436,32 +277,28 @@ async function resetFree(phone){
   load();
 }
 </script>
-<p style="font-size:11px;color:#64748b">Security: Password + rate limit + no guessing. Admin phone ${ADMIN_PHONE ? ADMIN_PHONE.slice(0,6)+'***' : 'not set'} can also use WhatsApp: "admin activate 263... 7"</p>
+<p style="font-size:11px;color:#64748b">Admin WhatsApp: admin activate 263... 7</p>
 </body></html>
   `);
 });
 
 app.get('/admin/api/users', adminAuth, (req,res)=>{
-  const list = Array.from(users.entries()).map(([phone, v])=>({ phone, ...v }));
-  // also include sessions
-  res.json({ users: list, sessions: Array.from(sessions.keys()) });
+  res.json({ users: listUsers(), sessions: sessionPhones() });
 });
 app.post('/admin/api/activate', adminAuth, async (req,res)=>{
   const { phone, days } = req.body;
   const target = (phone||'').replace(/\D/g,'');
   if(!target) return res.status(400).send('phone required');
-  const exp = new Date(); exp.setDate(exp.getDate() + (parseInt(days)||7));
-  const u = getUser(target); u.expiry_date = exp.toISOString(); users.set(target, u);
-  // notify user
+  const exp = activateUser(target, parseInt(days)||7);
   await sendText(target, `✅ Acadex yatambirwa! Wava ne ${days} mazuva unlimited. Tumira mubvunzo.`);
-  res.send(`Activated ${target} for ${days} days`);
+  res.send(`Activated ${target} for ${days} days until ${exp.toDateString()}`);
 });
 app.post('/admin/api/reset', adminAuth, (req,res)=>{
   const { phone } = req.body;
   const target = (phone||'').replace(/\D/g,'');
-  const u = getUser(target); u.free_used=0; users.set(target, u);
+  resetFree(target);
   res.send('Reset free count');
 });
 
 const PORT=process.env.PORT||3000;
-app.listen(PORT, ()=>console.log(`ACADEX Secure Bot live :${PORT} | Trigger "${TRIGGER_PHRASE}" | Admin locked`));
+app.listen(PORT, ()=>console.log(`ACADEX Secure Bot live :${PORT} | Trigger "${TRIGGER_PHRASE}" | WA +${ADMIN_PHONE}`));
