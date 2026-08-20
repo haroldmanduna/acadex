@@ -619,7 +619,7 @@ function escAttr(s) { return esc(s).replace(/`/g, ""); }
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.getRegistrations().then(regs => {
     Promise.all(regs.map(r => r.update())).finally(() => {
-      navigator.serviceWorker.register("./sw.js?v=7").catch(() => {});
+      navigator.serviceWorker.register("./sw.js?v=8").catch(() => {});
     });
   });
 }
