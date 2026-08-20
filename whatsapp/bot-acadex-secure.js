@@ -101,6 +101,17 @@ async function sendAudio(to, url){
     messaging_product:'whatsapp', to, type:'audio', audio:{ link:url }
   }, { headers:{ Authorization:`Bearer ${WHATSAPP_TOKEN}` }});
 }
+async function sendDocument(to, url, filename, caption){
+  if(!WHATSAPP_TOKEN || !PHONE_NUMBER_ID){
+    console.log(`[MOCK DOCUMENT to ${to}]: ${filename} -> ${url} | ${caption}`);
+    // For mock, also send text with link
+    await sendText(to, `📄 ${filename}\n${caption}\nDirect download: ${url} (one-tap, like Foondamate)`);
+    return;
+  }
+  await axios.post(`https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`, {
+    messaging_product:'whatsapp', to, type:'document', document:{ link:url, filename, caption }
+  }, { headers:{ Authorization:`Bearer ${WHATSAPP_TOKEN}` }});
+}
 
 // ========= SECURITY: Verify Meta Signature (no fake webhooks) =========
 function verifySignature(req){
@@ -229,6 +240,26 @@ app.post('/webhook', async (req,res)=>{
     const sub = canUse(from);
     if(!sub.allowed){
       await sendText(from, `😊 Wapfuura 10 FREE. Bhadhara kuti uenderere:\n💰 $0.75/vhiki kana $3/mwedzi\nEcoCash: *151*2*1*12345*0.75#\nMushure mekubhadhara tumira *PAID*\n_Admin chete ndiye anokwanisa ku-activate._`);
+      return res.sendStatus(200);
+    }
+
+    // ----- DOWNLOAD PDF like Foondamate (one-tap direct) -----
+    const tl = text.toLowerCase();
+    if(tl.includes('download') || tl.includes('pdf') || tl.includes('paper 1') || tl.includes('past paper')){
+      // Find best match - simple: if contains maths, send maths pdf, etc.
+      let fname = "2024_Mathematics_Paper_1_4004_1.pdf";
+      let title = "2024 Mathematics Paper 1";
+      if(tl.includes('combined') || tl.includes('science')) { fname="2023_Combined_Science_Paper_1_5006_1.pdf"; title="2023 Combined Science Paper 1"; }
+      else if(tl.includes('biology')) { fname="2023_Biology_Paper_2_6030_2.pdf"; title="2023 Biology Paper 2"; }
+      else if(tl.includes('chemistry')) { fname="2023_Chemistry_Paper_2_6031_2.pdf"; title="2023 Chemistry Paper 2"; }
+      else if(tl.includes('agriculture')) { fname="2023_Agriculture_Paper_1_5039_1.pdf"; title="2023 Agriculture Paper 1"; }
+      else if(tl.includes('english')) { fname="2023_English_Language_Paper_1_4005_1.pdf"; title="2023 English Language Paper 1"; }
+      else if(tl.includes('geography')) { fname="2023_Geography_Paper_2_6037_2.pdf"; title="2023 Geography Paper 2"; }
+      else if(tl.includes('commerce')) { fname="2023_Commerce_Paper_1_4048_1.pdf"; title="2023 Commerce Paper 1"; }
+      const base = PUBLIC_URL || "https://acadex-r6z0.onrender.com";
+      const url = `${base}/pdfs/${fname}`;
+      await sendDocument(from, url, fname, `Real ZIMSEC: ${title} • For you • One-tap download, save for offline (like Foondamate)`);
+      await sendText(from, `Tap the PDF above to open/save. Need another? Type "Download 2023 Biology" or "Download Physics"`);
       return res.sendStatus(200);
     }
 

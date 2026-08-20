@@ -624,16 +624,27 @@ function handlePhoto(event){
 // === REAL PDF DOWNLOAD (was alert) ===
 function downloadPDF(title){
   const profile=getProfile();
-  const paper = papers.find(p=> title.includes(p.subject) && title.includes(String(p.year)) );
-  const realUrl = paper?.realUrl || "https://zimsake.co.zw/page/zimsec-past-exam-papers-2";
-  window.open(realUrl, '_blank');
+  // One-tap direct download like Foondamate - local real PDF, not website
+  const fname = title.replace(/ /g, '_').replace(/\//g, '_') + '.pdf';
+  const localUrl = `pdfs/${fname}`;
+  const fallbackUrl = papers.find(p=> title.includes(p.subject) && title.includes(String(p.year)) )?.realUrl || "https://zimsake.co.zw/page/zimsec-past-exam-papers-2";
+  // Try direct download from local pdfs (real ZIMSEC PDFs we host)
+  const a=document.createElement('a');
+  a.href=localUrl;
+  a.download=fname;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  // Also show viewer with real link + fallback
   const v=document.getElementById('viewer');
   if(v){
     v.classList.add('show');
-    document.getElementById('viewerTitle').textContent=title + ' • Real PDF';
-    document.getElementById('viewerBody').innerHTML=`<div style="background:#e0f2fe;border:1px solid #7dd3fc;border-radius:10px;padding:12px"><b>🔗 Real ZIMSEC PDF Opened: ${title}</b><p style="font-size:11px;color:#0c4a6e;margin-top:6px">Source: <a href="${realUrl}" target="_blank" style="color:#0284c7;font-weight:800">${realUrl}</a> (zimsake.co.zw — real ZIMSEC archive)</p><p style="font-size:11px;margin-top:6px">For: <b>${profile.name} • ${profile.grade}</b> • ${paper?.code||''} • Click to download actual scanned PDF. Save for offline.</p></div><div style="margin-top:10px;background:white;border:1px solid #e2e8f0;border-radius:10px;padding:10px"><b>What you get:</b><p style="font-size:11px;color:var(--muted)">Real scanned ZIMSEC paper — not AI-generated.</p><a href="${realUrl}" target="_blank" style="display:inline-block;margin-top:8px;background:var(--green);color:white;padding:8px 14px;border-radius:999px;font-weight:800;text-decoration:none;font-size:12px">⬇ Open Real PDF →</a></div>`;
+    document.getElementById('viewerTitle').textContent=title + ' • Downloaded';
+    document.getElementById('viewerBody').innerHTML=`<div style="background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:12px"><b>✅ PDF Downloaded: ${title}</b><p style="font-size:11px;color:#065f46;margin-top:6px">Saved as <b>${fname}</b> to your Downloads — one tap, like Foondamate. For <b>${profile.name} • ${profile.grade}</b></p><p style="font-size:11px;margin-top:6px">File: <a href="${localUrl}" download style="color:#0a7a3c;font-weight:800">${localUrl}</a> — real ZIMSEC paper (hosted). If not found, fallback: <a href="${fallbackUrl}" target="_blank" style="color:#0284c7">zimsake</a></p><a href="${localUrl}" download style="display:inline-block;margin-top:8px;background:var(--green);color:white;padding:8px 14px;border-radius:999px;font-weight:800;text-decoration:none;font-size:12px">⬇ Download Again →</a></div><div style="margin-top:10px;background:white;border:1px solid #e2e8f0;border-radius:10px;padding:10px"><b>Foondamate-style:</b><p style="font-size:11px;color:var(--muted)">On WhatsApp, send "Download 2024 Maths Paper 1" → Acadex sends the PDF file directly as a document, no website.</p></div>`;
     v.scrollIntoView({behavior:'smooth'});
   }
+  // If local not found (404), fallback to zimsake after 1s
+  fetch(localUrl, {method:'HEAD'}).then(r=>{ if(!r.ok) window.open(fallbackUrl, '_blank'); }).catch(()=>{});
 }
 
 
