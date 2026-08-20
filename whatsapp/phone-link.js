@@ -182,7 +182,10 @@ async function connect() {
   let version;
   try {
     if (typeof fetchLatestBaileysVersion === 'function') {
-      const v = await fetchLatestBaileysVersion();
+      const v = await Promise.race([
+        fetchLatestBaileysVersion(),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('version-timeout')), 8000)),
+      ]);
       version = v.version;
     }
   } catch (e) {
@@ -262,9 +265,9 @@ async function connect() {
           state.status = 'logged-out';
           state.pairingCode = null;
           wipeSessionKeepQr();
-          scheduleRestart(3000);
+          scheduleRestart(8000);
         } else {
-          scheduleRestart(5000);
+          scheduleRestart(code === 408 ? 20000 : 8000);
         }
       }
     } catch (e) {

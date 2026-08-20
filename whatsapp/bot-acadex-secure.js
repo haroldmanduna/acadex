@@ -11,10 +11,6 @@ import {
   getUser, isPaid, canUse, listUsers, sessionPhones,
   activateUser, resetFree, FREE_LIMIT,
 } from './tutor.js';
-import {
-  startPhoneLink, getLinkStatus, isLinked,
-  sendPhoneText, sendPhoneDocument, sendPhoneAudio,
-} from './phone-link.js';
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -54,6 +50,41 @@ const BANK = loadBank(workspaceRoot);
 
 console.log(`Acadex Secure Bot | Trigger: "${TRIGGER_PHRASE}" | Session: ${SESSION_MINUTES}min | Admin: ${ADMIN_PHONE || 'NOT SET'} | Papers: ${(BANK.papers||[]).length}`);
 
+let phoneLink = null;
+let linkStarted = false;
+function skipPhoneLink() {
+  return process.env.PHONE_LINK === '0' || Boolean(WHATSAPP_TOKEN && PHONE_NUMBER_ID);
+}
+function getLinkStatus() {
+  return phoneLink ? phoneLink.getLinkStatus() : { status: 'idle', connected: false, pairingCode: null, qrDataUrl: null, me: null, error: null, since: null };
+}
+function isLinked() {
+  return !!(phoneLink && phoneLink.isLinked());
+}
+async function ensurePhoneLink() {
+  if (skipPhoneLink() || linkStarted) return phoneLink;
+  linkStarted = true;
+  try {
+    phoneLink = await import('./phone-link.js');
+    await phoneLink.startPhoneLink({
+      authDir: path.join(__dirname, 'session'),
+      phone: ADMIN_PHONE,
+      onMessage: async ({ from, jid, text }) => {
+        const result = runTurn(from, text);
+        if (result.ignored) {
+          console.log(`→ Ignored (no trigger) from ${from}`);
+          return;
+        }
+        await dispatchReplies(jid, result.replies);
+      },
+    });
+  } catch (e) {
+    console.error('phone-link failed', e.message);
+    linkStarted = false;
+  }
+  return phoneLink;
+}
+
 function localPdf(filename){
   const file = path.basename(filename || '');
   if (!/^[A-Za-z0-9_.-]+\.pdf$/.test(file)) return null;
@@ -74,7 +105,7 @@ function localFromPublicUrl(url){
 
 async function sendText(to, text){
   if (isLinked()) {
-    await sendPhoneText(to, text);
+    await phoneLink.sendPhoneText(to, text);
     return { phone: true };
   }
   if(!WHATSAPP_TOKEN || !PHONE_NUMBER_ID){
@@ -88,7 +119,7 @@ async function sendText(to, text){
 async function sendAudio(to, url){
   if (isLinked()) {
     const fp = localFromPublicUrl(url);
-    if (fp) { await sendPhoneAudio(to, fp); return; }
+    if (fp) { await phoneLink.sendPhoneAudio(to, fp); return; }
     console.log(`[PHONE LINK skip audio, no local file] ${url}`);
     return;
   }
@@ -100,8 +131,8 @@ async function sendAudio(to, url){
 async function sendDocument(to, url, filename, caption){
   const fp = localPdf(filename);
   if (isLinked()) {
-    if (fp) { await sendPhoneDocument(to, fp, filename, caption); return; }
-    await sendPhoneText(to, `📄 ${filename}\n${caption || ''}\n${url}`);
+    if (fp) { await phoneLink.sendPhoneDocument(to, fp, filename, caption); return; }
+    await phoneLink.sendPhoneText(to, `📄 ${filename}\n${caption || ''}\n${url}`);
     return;
   }
   if(!WHATSAPP_TOKEN || !PHONE_NUMBER_ID){
@@ -160,15 +191,22 @@ app.get('/health', (req,res)=>res.json({
   link: getLinkStatus().status,
   time: new Date().toISOString()
 }));
-app.get('/link', (req,res)=>res.sendFile(path.join(__dirname, 'link.html')));
-app.get('/link/status', (req,res)=>res.json(getLinkStatus()));
+app.get('/link', (req,res)=>{
+  ensurePhoneLink();
+  res.sendFile(path.join(__dirname, 'link.html'));
+});
+app.get('/link/status', (req,res)=>{
+  ensurePhoneLink();
+  res.json(getLinkStatus());
+});
 app.get('/bot', (req,res)=>res.send(`
   <h2>ACADEX Secure Bot Running</h2>
   <p>WhatsApp: <b>+${ADMIN_PHONE}</b></p>
   <p>Trigger phrase: <b>${TRIGGER_PHRASE}</b></p>
   <p>Bot Mode: ${SESSION_MINUTES} min</p>
   <p>Papers in bank: ${(BANK.papers||[]).length}</p>
-  <p>Cloud API: ${WHATSAPP_TOKEN && PHONE_NUMBER_ID ? 'ON' : 'MOCK (set WHATSAPP_TOKEN + PHONE_NUMBER_ID)'}</p>
+  <p>WhatsApp mode: <b>${whatsappMode()}</b></p>
+  <p>Link the phone (no Facebook): <a href="/link">/link</a></p>
   <p>Use <a href="/admin">/admin</a> with password</p>
 `));
 
@@ -352,21 +390,13 @@ app.post('/admin/api/reset', adminAuth, (req,res)=>{
 const PORT=process.env.PORT||3000;
 app.listen(PORT, '0.0.0.0', ()=>{
   console.log(`ACADEX Secure Bot live :${PORT} | Trigger "${TRIGGER_PHRASE}" | WA +${ADMIN_PHONE}`);
-  const skipLink = process.env.PHONE_LINK === '0' || (WHATSAPP_TOKEN && PHONE_NUMBER_ID);
-  if (skipLink) {
+  if (skipPhoneLink()) {
     console.log(WHATSAPP_TOKEN ? 'Cloud API tokens set — phone-link off' : 'PHONE_LINK=0');
     return;
   }
-  startPhoneLink({
-    authDir: path.join(__dirname, 'session'),
-    phone: ADMIN_PHONE,
-    onMessage: async ({ from, jid, text }) => {
-      const result = runTurn(from, text);
-      if (result.ignored) {
-        console.log(`→ Ignored (no trigger) from ${from}`);
-        return;
-      }
-      await dispatchReplies(jid, result.replies);
-    },
-  }).catch((e) => console.error('phone-link failed', e.message));
+  setTimeout(() => {
+    const creds = path.join(__dirname, 'session', 'creds.json');
+    if (fs.existsSync(creds)) ensurePhoneLink();
+    else console.log('PHONE LINK idle — open /link to pair +' + ADMIN_PHONE);
+  }, 3000);
 });
