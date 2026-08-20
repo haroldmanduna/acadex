@@ -30,6 +30,17 @@ export const VOICE = {
   pt: { tts: 'pt', file: 'english-solve.mp3', name: 'Portuguese' },
 };
 
+export function wantsVoice(text) {
+  return /\b(voice|voice[- ]?note|audio|speak|read it|read out|send voice|itaizwi|verza|play voice)\b/i.test(String(text || ''));
+}
+
+export function stripVoiceAsk(text) {
+  return String(text || '')
+    .replace(/\b(voice[- ]?note|send voice|read it out|read it|read out|play voice|itaizwi|verza|audio|speak|voice)\b/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function detectLang(text, fallback = 'sn') {
   const t = String(text || '');
   if (/\b(bonjour|salut|merci|je suis)\b/i.test(t)) return 'fr';

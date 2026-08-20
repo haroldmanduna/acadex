@@ -1,7 +1,10 @@
-import { loadBank, handleTurn, resetFree } from './tutor.js';
-import { solveMath, explainScience, helpEnglish } from './brain.js';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { loadBank, handleTurn, resetFree } from './tutor.js';
+import { solveMath, explainScience, helpEnglish } from './brain.js';
+import { wantsVoice, ttsFile } from './voice.js';
+import { commandWord } from './zimsec.js';
 
 process.env.DISABLE_LLM = '1';
 process.env.DISABLE_VOICE = '1';
@@ -63,9 +66,17 @@ const essay = 'Once upon a time in Mbare the tomatoes were too expensive and the
 const er = await handleTurn({ from: '263771000004', text: essay, bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
 expect('essay mark', /1122|word count|composition/i.test(firstText(er)), firstText(er).slice(0, 120));
 
+const silent = await turn('2+2');
+expect('no auto audio', !(silent.replies || []).some(x => x.type === 'audio'), (silent.replies || []).map(x => x.type).join(','));
+
 expect('solveMath Help 2+2', solveMath('Help 2+2')?.answer === '4', '');
 expect('science', !!explainScience('photosynthesis'), '');
 expect('english', !!helpEnglish('composition about drought'), '');
+
+expect('wantsVoice', wantsVoice('voice') && !wantsVoice('2x+3=11'), '');
+expect('explain lock', /because/i.test(commandWord('Explain why destarching is used')), commandWord('Explain why destarching is used'));
+const mp3 = await ttsFile(root, 'Calculate x equals four. Show working.', 'en');
+expect('tts mp3', fs.existsSync(mp3) && fs.statSync(mp3).size > 500, mp3);
 
 if (fail.length) {
   console.error('FAIL', fail.length);

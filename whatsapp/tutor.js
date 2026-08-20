@@ -12,7 +12,8 @@ import {
 } from './learner.js';
 import { startMock, formatMockQ, scoreAnswer, finishMock } from './mock.js';
 import { parseNumbered, markAgainstPaper, markComposition, looksLikeEssay } from './marker.js';
-import { detectLang, ttsFile, stockVoice } from './voice.js';
+import { detectLang, ttsFile, stockVoice, wantsVoice, stripVoiceAsk } from './voice.js';
+import { examLock } from './zimsec.js';
 
 const FREE_LIMIT = 10000;
 const sessions = new Map();
@@ -119,18 +120,35 @@ function buildContext(text, bank, phone) {
   if (eng) bits.push('ENGLISH 1122 NOTES:\n' + eng.title + '\n' + eng.answer);
   const hit = searchBank(bank, text);
   if (hit) bits.push('SIMILAR ACADEX PAPER ITEM (practice, not a leaked ZIMSEC script):\n' + formatHit(hit).slice(0, 1100));
+  bits.push(examLock(text));
   return bits.join('\n\n');
 }
 
-async function maybeVoice(replies, phone, spoken) {
-  if (process.env.DISABLE_VOICE === '1') return;
+function storeLast(phone, text) {
+  const s = sessions.get(phone) || {};
+  s.lastReply = String(text || '').slice(0, 2000);
+  sessions.set(phone, s);
+}
+
+async function attachVoice(replies, phone, spoken) {
+  if (process.env.DISABLE_VOICE === '1') return false;
   const lang = getLang(phone);
+  const root = workspaceRoot || path.join(path.dirname(new URL(import.meta.url).pathname), '..');
   try {
-    const fp = await ttsFile(workspaceRoot || path.join(process.cwd()), spoken, lang);
-    if (fp && fs.existsSync(fp)) replies.push({ type: 'audio', filePath: fp, url: fp });
+    const fp = await ttsFile(root, spoken, lang);
+    if (fp && fs.existsSync(fp) && fs.statSync(fp).size > 400) {
+      replies.push({ type: 'audio', filePath: fp, url: fp });
+      return true;
+    }
   } catch (e) {
     console.warn('voice', e.message);
   }
+  const stock = stockVoice(root, lang);
+  if (stock && fs.existsSync(stock)) {
+    replies.push({ type: 'audio', filePath: stock, url: stock });
+    return true;
+  }
+  return false;
 }
 
 async function teach(digits, text, bank, say, replies) {
@@ -148,7 +166,6 @@ async function teach(digits, text, bank, say, replies) {
   incrementUse(digits);
   const topic = (explainScience(text) || helpEnglish(text) || {}).title || (solveMath(text) ? 'Algebra' : '');
   if (topic) rememberTopic(digits, topic, true);
-  await maybeVoice(replies, digits, taught);
   return true;
 }
 
@@ -217,16 +234,12 @@ function personality(text, phone) {
 }
 
 function helpText() {
-  return `ACADEX — your tutor, marker and mock invigilator.
+  return `ACADEX — ZIMSEC teacher. I answer the way the marker wants (command word → working → final answer).
 
-Just talk. Or:
-• mock / full mock / mock science
-• mark 1. 50%  2. x=4
-• parent 2637…   then  report
-• Download 2024 Maths Paper 1
-• voice shona / ndebele / english / chewa / xhosa…
+Send the question. Say VOICE only if you want a voice note of that working.
+mock / full mock / mark 1. … / Download 2024 Maths Paper 1
 
-Papers are original ACADEX practice, not leaked ZIMSEC scripts.`;
+Original ACADEX practice — not leaked scripts.`;
 }
 
 function predictorText(bank) {
@@ -249,11 +262,35 @@ function pushMockQ(mock, say) {
   return { ok: true };
 }
 
-export async function handleTurn({ from, text, bank, publicUrl, adminPhone, trigger, sessionMinutes }) {
+export async function handleTurn({ from, text: incoming, bank, publicUrl, adminPhone, trigger, sessionMinutes }) {
+  let text = incoming;
   const replies = [];
-  const say = (t) => replies.push({ type: 'text', text: t });
-  const tl = (text || '').toLowerCase().trim();
   const digits = String(from || '').replace(/\D/g, '');
+  const say = (t) => {
+    replies.push({ type: 'text', text: t });
+    storeLast(digits, t);
+  };
+  let work = String(text || '');
+  const askVoice = wantsVoice(work);
+  if (askVoice) {
+    const stripped = stripVoiceAsk(work);
+    const langOnly = work.toLowerCase().match(/^voice\s+(\w+)$/);
+    if (langOnly) setLang(digits, langOnly[1].toLowerCase());
+    if (!stripped || langOnly) {
+      enterBotMode(digits, sessionMinutes);
+      const last = (sessions.get(digits) || {}).lastReply;
+      if (!last) {
+        say('Send the exam question first. Then say VOICE and I will speak that working only.');
+        return { replies };
+      }
+      const ok = await attachVoice(replies, digits, last);
+      say(ok ? 'Voice note of the last working.' : 'Audio failed — say VOICE again in a moment.');
+      return { replies };
+    }
+    work = stripped;
+  }
+  const tl = work.toLowerCase().trim();
+  text = work;
 
   if (!tl) return { replies: [], ignored: true };
   enterBotMode(digits, sessionMinutes);
@@ -262,13 +299,6 @@ export async function handleTurn({ from, text, bank, publicUrl, adminPhone, trig
   if (prof.name || prof.grade || prof.parent) touchLearner(digits, prof);
   const guessed = detectLang(text, getLang(digits));
   if (guessed) setLang(digits, guessed);
-
-  const voiceSet = tl.match(/^voice\s+(\w+)/i);
-  if (voiceSet) {
-    setLang(digits, voiceSet[1].toLowerCase());
-    say(`Voice: ${voiceSet[1]}. I’ll speak short workings as a voice note.`);
-    return { replies };
-  }
 
   if (tl.startsWith('admin') && adminPhone && digits === adminPhone) {
     const parts = text.trim().split(/\s+/);
@@ -385,7 +415,7 @@ export async function handleTurn({ from, text, bank, publicUrl, adminPhone, trig
     say(m.text);
     rememberTopic(digits, 'Composition', m.words >= 280);
     incrementUse(digits);
-    await maybeVoice(replies, digits, m.text);
+    if (askVoice) await attachVoice(replies, digits, m.text);
     return { replies, increment: true };
   }
 
@@ -429,6 +459,10 @@ export async function handleTurn({ from, text, bank, publicUrl, adminPhone, trig
   }
 
   if (await teach(digits, text, bank, say, replies)) {
+    if (askVoice) {
+      const last = (sessions.get(digits) || {}).lastReply;
+      if (last) await attachVoice(replies, digits, last);
+    }
     return { replies, increment: true };
   }
 
@@ -437,8 +471,6 @@ export async function handleTurn({ from, text, bank, publicUrl, adminPhone, trig
     say(person);
     pushChat(digits, 'user', text);
     pushChat(digits, 'assistant', person);
-    const stock = stockVoice(workspaceRoot || process.cwd(), getLang(digits));
-    if (stock && fs.existsSync(stock)) replies.push({ type: 'audio', filePath: stock, url: stock });
     return { replies };
   }
 
@@ -449,7 +481,7 @@ export async function handleTurn({ from, text, bank, publicUrl, adminPhone, trig
     say(body);
     rememberTopic(digits, 'Algebra', true);
     incrementUse(digits);
-    await maybeVoice(replies, digits, body);
+    if (askVoice) await attachVoice(replies, digits, body);
     return { replies, increment: true };
   }
   const sci = explainScience(text);
@@ -457,7 +489,7 @@ export async function handleTurn({ from, text, bank, publicUrl, adminPhone, trig
     say(`${sci.title}\n\n${sci.answer}`);
     rememberTopic(digits, sci.title, true);
     incrementUse(digits);
-    await maybeVoice(replies, digits, sci.answer);
+    if (askVoice) await attachVoice(replies, digits, sci.answer);
     return { replies, increment: true };
   }
   const eng = helpEnglish(text);

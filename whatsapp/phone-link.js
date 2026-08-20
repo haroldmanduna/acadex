@@ -64,11 +64,15 @@ export async function sendPhoneDocument(to, filePath, filename, caption) {
 
 export async function sendPhoneAudio(to, filePath) {
   if (!sock) throw new Error('WhatsApp not linked');
+  if (!fs.existsSync(filePath)) throw new Error('audio missing ' + filePath);
   const buf = fs.readFileSync(filePath);
+  if (buf.length < 400) throw new Error('audio too small');
+  // ptt:true + mpeg-24kHz often shows as a silent/grey note on WhatsApp. Send as a normal audio clip.
   await sock.sendMessage(toJid(to), {
     audio: buf,
     mimetype: 'audio/mpeg',
-    ptt: true,
+    ptt: false,
+    fileName: 'ACADEX.mp3',
   });
 }
 
