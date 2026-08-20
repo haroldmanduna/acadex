@@ -4,3 +4,5 @@ node_modules/
 *.log
 .npm/
 .arena/
+__pycache__/
+*.pyc
