@@ -1,0 +1,9 @@
+{
+  "name": "acadex",
+  "private": true,
+  "description": "ACADEX — ZIMSEC-style Maths tutor (PWA + WhatsApp + USSD)",
+  "scripts": {
+    "start": "node whatsapp/bot-acadex-secure.js",
+    "build:maths": "python3 scripts/build_maths.py"
+  }
+}

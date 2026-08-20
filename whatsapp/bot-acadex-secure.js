@@ -34,7 +34,7 @@ const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || ''; // leave empty = MOCK m
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID || '';
 const PUBLIC_URL = process.env.PUBLIC_URL || '';
 const ADMIN_PHONE = (process.env.ADMIN_PHONE || '').replace(/\D/g,''); // e.g. 263771234567
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Acadex#2026!Secure';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || ''; // MUST be set in env — no default secret
 const TRIGGER_PHRASE = (process.env.TRIGGER_PHRASE || 'mhoro acadex').toLowerCase(); // <--- THE GREETING
 const SESSION_MINUTES = parseInt(process.env.SESSION_MINUTES || '30'); // Bot Mode expires after 30min silence
 const APP_SECRET = process.env.APP_SECRET || ''; // from Meta for signature check
@@ -85,6 +85,41 @@ function incrementUse(phone){
   users.set(phone, u);
 }
 
+function solveLinear(input){
+  let t = String(input||'').toLowerCase().replace(/×/g,'*').replace(/−/g,'-');
+  t = t.replace(/x\s+(\d+)\s*=/g, 'x+$1=');
+  t = t.replace(/\s+/g,'');
+  let m = t.match(/^(-?\d+)\(x([+-]\d+)\)=(-?\d+)$/);
+  if(m){
+    const a=+m[1], b=+m[2], c=+m[3];
+    const ax = c - a*b;
+    if(!a) return null;
+    const x = ax/a;
+    return { answer: String(x), steps:[
+      {t:'Expand', d:`${a}x + ${a*b} = ${c}`},
+      {t:'Isolate', d:`${a}x = ${ax}`},
+      {t:'Divide', d:`x = ${x}`}
+    ]};
+  }
+  m = t.match(/^(-?\d*)x([+-]\d+)=(-?\d+)$/);
+  if(m){
+    const a = (m[1]===''||m[1]==='-') ? Number(m[1]+'1') : +m[1];
+    const b=+m[2], c=+m[3];
+    const x = (c-b)/a;
+    return { answer: String(x), steps:[
+      {t:`Subtract ${b}`, d:`${a}x = ${c-b}`},
+      {t:`Divide by ${a}`, d:`x = ${x}`}
+    ]};
+  }
+  m = t.match(/^(-?\d*)x=(-?\d+)$/);
+  if(m){
+    const a = (m[1]===''||m[1]==='-') ? Number(m[1]+'1') : +m[1];
+    const x = (+m[2])/a;
+    return { answer: String(x), steps:[{t:'Divide', d:`x = ${x}`}] };
+  }
+  return null;
+}
+
 // ========= WHATSAPP SENDERS =========
 async function sendText(to, text){
   if(!WHATSAPP_TOKEN || !PHONE_NUMBER_ID){
@@ -128,7 +163,7 @@ function adminAuth(req,res,next){
   const fromPhone = (req.headers['x-admin-phone'] || '').replace(/\D/g,'');
   const pwd = req.headers['x-admin-password'] || req.query.pwd || req.body?.pwd;
   const isPhoneAdmin = ADMIN_PHONE && fromPhone===ADMIN_PHONE;
-  const isPwdAdmin = pwd && pwd===ADMIN_PASSWORD;
+  const isPwdAdmin = Boolean(ADMIN_PASSWORD) && pwd && pwd===ADMIN_PASSWORD;
   // Also allow if request comes from your WhatsApp admin command (phone === ADMIN_PHONE)
   if(isPhoneAdmin || isPwdAdmin){
     return next();
@@ -243,36 +278,46 @@ app.post('/webhook', async (req,res)=>{
       return res.sendStatus(200);
     }
 
-    // ----- DOWNLOAD PDF like Foondamate (one-tap direct) -----
+    // ----- DOWNLOAD PDF (Maths practice papers only) -----
     const tl = text.toLowerCase();
-    if(tl.includes('download') || tl.includes('pdf') || tl.includes('paper 1') || tl.includes('past paper')){
-      // Find best match - simple: if contains maths, send maths pdf, etc.
-      let fname = "2024_Mathematics_Paper_1_4004_1.pdf";
-      let title = "2024 Mathematics Paper 1";
-      if(tl.includes('combined') || tl.includes('science')) { fname="2023_Combined_Science_Paper_1_5006_1.pdf"; title="2023 Combined Science Paper 1"; }
-      else if(tl.includes('biology')) { fname="2023_Biology_Paper_2_6030_2.pdf"; title="2023 Biology Paper 2"; }
-      else if(tl.includes('chemistry')) { fname="2023_Chemistry_Paper_2_6031_2.pdf"; title="2023 Chemistry Paper 2"; }
-      else if(tl.includes('agriculture')) { fname="2023_Agriculture_Paper_1_5039_1.pdf"; title="2023 Agriculture Paper 1"; }
-      else if(tl.includes('english')) { fname="2023_English_Language_Paper_1_4005_1.pdf"; title="2023 English Language Paper 1"; }
-      else if(tl.includes('geography')) { fname="2023_Geography_Paper_2_6037_2.pdf"; title="2023 Geography Paper 2"; }
-      else if(tl.includes('commerce')) { fname="2023_Commerce_Paper_1_4048_1.pdf"; title="2023 Commerce Paper 1"; }
+    if(tl.includes('download') || tl.includes('pdf') || tl.includes('paper 1') || tl.includes('paper 2') || tl.includes('past paper')){
+      const year = (tl.match(/20\d{2}/) || ['2024'])[0];
+      const paperNo = (tl.includes('paper 2') || tl.includes('p2')) ? 2 : 1;
+      let code = '4004';
+      if (tl.includes('grade 7') || tl.includes('702')) code = '702';
+      else if (tl.includes('further') || tl.includes('9187')) code = '9187';
+      else if (tl.includes('pure') || tl.includes('6042')) code = '6042';
+      else if (tl.includes('9164')) code = '9164';
+      const session = tl.includes('june') ? 'June' : 'November';
+      const fname = `${year}_${session}_${code}_Paper${paperNo}.pdf`;
+      const title = `${year} ${session} ${code} Paper ${paperNo} (ACADEX ZIMSEC-style)`;
       const base = PUBLIC_URL || "https://acadex-r6z0.onrender.com";
       const url = `${base}/pdfs/${fname}`;
-      await sendDocument(from, url, fname, `Real ZIMSEC: ${title} • For you • One-tap download, save for offline (like Foondamate)`);
-      await sendText(from, `Tap the PDF above to open/save. Need another? Type "Download 2023 Biology" or "Download Physics"`);
+      await sendDocument(from, url, fname, title);
+      await sendText(from, `Maths only for now. Try: "Download 2024 Paper 1" or "Download Grade 7 702 Paper 2".`);
       return res.sendStatus(200);
     }
 
-    // ----- SOLVE (demo) -----
-    // Detect lang quickly
+    // ----- SOLVE linear / otherwise a bank item -----
     let lang='sn';
     if(text.toLowerCase().includes('ndebele')) lang='nd';
     else if(text.toLowerCase().includes('english')) lang='en';
-    const answers = {
-      sn: `Danho 1: Bvisa 3 → 2x=8\nDanho 2: Govanisa na 2 → x=4 ✅\nWanzwisisa?`,
-      nd: `Isinyathelo 1: Susa u-3 → 2x=8\nIsinyathelo 2: Hlukanisa ngo-2 → x=4 ✅\nUzwile?`,
-      en: `Step 1: Subtract 3 → 2x=8\nStep 2: Divide by 2 → x=4 ✅\nGot it?`
-    };
+    const solved = solveLinear(text);
+    let answers;
+    if (solved) {
+      const body = solved.steps.map((s,i)=>`${i+1}. ${s.t}: ${s.d}`).join('\n');
+      answers = {
+        sn: `Mhinduro: x = ${solved.answer}\n${body}`,
+        nd: `Impendulo: x = ${solved.answer}\n${body}`,
+        en: `Answer: x = ${solved.answer}\n${body}`
+      };
+    } else {
+      answers = {
+        sn: `Ndinogona linear equations (muenzaniso 2x+3=11). Tumira equation kana "Download 2024 Paper 1".`,
+        nd: `Ngingasiza i-linear (isibonelo 2x+3=11). Thumela i-equation noma "Download 2024 Paper 1".`,
+        en: `I solve linear equations like 2x+3=11. Send an equation or "Download 2024 Paper 1".`
+      };
+    }
     await sendText(from, answers[lang] || answers.sn);
     // Send voice note if you host audio
     if(PUBLIC_URL){
@@ -304,11 +349,20 @@ app.post('/ussd', (req,res)=>{
     const q=parts[1];
     const can = canUse(phone);
     if(!can.allowed){
-      response=`END Wapfuura 10 FREE. Bhadhara $0.75:\n*151*2*1*12345*0.75#\nMushure tumira PAID ku 5.`;
+      response=`END Wapfuura 10 FREE. Bhadhara $0.75:\nEcoCash merchant (set in production).\nMushure tumira PAID ku 5.`;
     } else {
       const u=getUser(phone); u.free_used=(u.free_used||0)+1; users.set(phone,u);
-      response=`CON Danho1 Bvisa3→2x=8\nDanho2 /2→x=4\nMhinduro ndi 4\nZasara ${FREE_LIMIT-u.free_used} FREE\n1. Next`;
+      const solved = solveLinear(q);
+      if(solved){
+        response=`CON x=${solved.answer}\n${solved.steps.map(s=>s.t+': '+s.d).join('\n')}\nZasara ${FREE_LIMIT-u.free_used} FREE`;
+      } else {
+        response=`CON Handina kuzvinzwisisa. Nyora se 2x+3=11\nZasara ${FREE_LIMIT-u.free_used} FREE`;
+      }
     }
+  } else if(parts[0]==='2'){
+    response=`END 2024 Nov 4004/1 PDF:\n/pdfs/2024_November_4004_Paper1.pdf`;
+  } else if(parts[0]==='3'){
+    response=`END Mock: open the website Mock Exam tab (4004/1, 30 Qs, 2h30).`;
   } else if(parts[0]==='4'){
     response=`CON Sarudza: 1.Shona 2.Ndebele 3.English`;
   } else if(parts[0]==='5'){

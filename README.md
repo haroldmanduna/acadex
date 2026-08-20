@@ -1,30 +1,52 @@
-# ACADEX — Pass ZIMSEC Offline 🇿🇼
-**Live Demo:** `https://acadex.onrender.com/zimsec-super-tutor.html` (after deploy)
-**WhatsApp:** Trigger `mhoro acadex` → Bot Mode 30min → 16 languages
-**Offline:** USSD `*384*12345#` + PWA (airplane mode) + SMS
+# ACADEX — Pass ZIMSEC Maths in your language 🇿🇼
 
-## One-Click Deploy 24/7
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/HaroldManduna/acadex)
+**Maths only (for now):** Grade 7 (702), O-Level (4004), A-Level Pure / Maths / Further.
 
-Or manual:
-1. Fork this repo
-2. Render.com → New → Blueprint → select repo (uses `render.yaml`)
-3. Add env vars: `ADMIN_PHONE`, `ADMIN_PASSWORD`, `WHATSAPP_TOKEN`, `PHONE_NUMBER_ID`
-4. Deploy → get `https://acadex.onrender.com`
+52 original **ZIMSEC-style practice papers** (not official copyrighted scripts) with matching worked solutions.
 
-## Local Test
+- Paper 1 (4004/1): 30 short questions, **100 marks**, 2h30, **non-calculator**
+- Paper 2 (4004/2): Section A 52 (all) + Section B 7×12 choose 4
+- App, PDFs, mock exam, and WhatsApp all use the same question bank
+
+## Deploy (Render)
+
+1. Push this repo
+2. Render → New → Blueprint (`render.yaml`) **or** Web Service, start command:
+
 ```bash
-npm install --prefix whatsapp
-ADMIN_PHONE=263771234567 ADMIN_PASSWORD='Acadex#2026!Secure' PORT=3000 node whatsapp/bot-acadex-secure.js
-# PWA: http://localhost:3000/zimsec-super-tutor.html
-# USSD: POST http://localhost:3000/ussd
-# Webhook: http://localhost:3000/webhook
+node whatsapp/bot-acadex-secure.js
 ```
 
-## Structure
-- `zimsec-super-tutor.html` — PWA frontend (16 languages, voice, library)
-- `audio/` — 15 real fluent MP3s
-- `whatsapp/bot-acadex-secure.js` — Unified server (WhatsApp + USSD + PWA + Admin)
-- `manifest.json` + `sw.js` — Offline PWA
+3. Set env vars in the dashboard (do **not** put secrets in git):
 
-Built for HaroldManduna — Zimbabwe, 2026
+- `ADMIN_PHONE` — your number, digits only e.g. `26377…`
+- `ADMIN_PASSWORD` — strong unique password
+- `WHATSAPP_TOKEN`, `PHONE_NUMBER_ID`, `VERIFY_TOKEN`, `PUBLIC_URL`
+
+## Local
+
+```bash
+npm install --prefix whatsapp
+ADMIN_PHONE=26377xxxxxxx ADMIN_PASSWORD='choose-a-strong-password' PORT=3000 node whatsapp/bot-acadex-secure.js
+```
+
+- App: http://localhost:3000/
+- Health: http://localhost:3000/health
+- USSD test: http://localhost:3000/ussd/test
+
+## Rebuild papers
+
+```bash
+python3 scripts/build_maths.py
+```
+
+Writes `pdfs/*.pdf`, `acadex-data.js`, `acadex-question-bank.json`.
+
+## Structure
+
+- `zimsec-super-tutor.html` + `acadex-app.js` — PWA
+- `acadex-data.js` — 52 papers + solutions
+- `scripts/build_maths.py` — generator
+- `whatsapp/bot-acadex-secure.js` — Express (static + WhatsApp + USSD + admin)
+
+WhatsApp trigger: `mhoro acadex`

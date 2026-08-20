@@ -1,7 +1,7 @@
 {
-  "name": "ACADEX - Pass ZIMSEC Offline",
+  "name": "ACADEX - ZIMSEC Maths",
   "short_name": "ACADEX",
-  "description": "Solve ZIMSEC in Shona/Ndebele + 16 langs - works offline, no data needed after install",
+  "description": "ZIMSEC-style Maths papers and worked solutions in 16 languages. Works offline after install.",
   "start_url": "/zimsec-super-tutor.html",
   "display": "standalone",
   "background_color": "#0a7a3c",
