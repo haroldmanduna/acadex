@@ -180,7 +180,8 @@ function whatsappMode(){
 }
 app.get('/health', (req,res)=>res.json({
   status: 'ACADEX live',
-  trigger: TRIGGER_PHRASE,
+  alwaysOn: true,
+  replyTo: 'any message',
   admin: ADMIN_PHONE ? 'set' : 'not set',
   whatsapp: whatsappMode(),
   wa: ADMIN_PHONE ? '+'+ADMIN_PHONE : null,
@@ -188,6 +189,7 @@ app.get('/health', (req,res)=>res.json({
   link: getLinkStatus().status,
   time: new Date().toISOString()
 }));
+app.get('/ping', (req,res)=>res.type('text').send('ok'));
 app.get('/link', (req,res)=>{
   ensurePhoneLink();
   res.sendFile(path.join(__dirname, 'link.html'));
