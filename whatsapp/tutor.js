@@ -280,6 +280,14 @@ export async function handleTurn({ from, text, bank, publicUrl, adminPhone, trig
     return { replies, increment: true };
   }
 
+  const person = personality(text);
+  if (person) {
+    say(person);
+    pushChat(digits, 'user', text);
+    pushChat(digits, 'assistant', person);
+    return { replies };
+  }
+
   // Offline fallback if the teacher network is down
   const lang = getLang(digits);
   const solved = solveMath(text);
