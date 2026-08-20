@@ -32,7 +32,7 @@ const g = await say('mhoro acadex');
 ok('greet name', /acadex/i.test(g) && !/PAPERS/.test(g));
 
 const n = await say("What's your name?");
-ok('identity', /acadex/i.test(n) && !/claude|chatgpt|gemini|deepseek|language model/i.test(n));
+ok('identity', /acadex/i.test(n) && !/claude|chatgpt|gemini|deepseek|language model|harold|manduna/i.test(n));
 
 const m = await say('Help 2+2');
 ok('2+2', /\b4\b/.test(m) && !/Download 2024 Maths Paper 1\n•/.test(m));
