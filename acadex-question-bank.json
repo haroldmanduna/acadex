@@ -723,25 +723,29 @@
     "question_number": "1",
     "marks": 10,
     "topic_tags": [
-      "formulae_and_fractions"
+      "algebra"
     ],
-    "question_text": "(a) Make t the subject of  v = u + at.  [3] (b) Simplify  (3x/4) + (x/6).  [3] (c) Solve  2/x = 5/(15).  [4]",
-    "answer": "see steps",
+    "question_text": "(a) Expand and simplify  (4x − 1)(x + 1).  [3] (b) Factorise completely  4x² + 8x.  [2] (c) Solve  4(x − 1) = 20.  [3] (d) Simplify  (x² − 9)/(x − 3).  [2]",
+    "answer": "(a) 4x² + 3x − 1; (b) 2x(2x + 4); (c) x = 6; (d) x + 3",
     "steps": [
       {
-        "t": "(a)",
-        "d": "t = (v − u)/a"
+        "t": "(a) FOIL",
+        "d": "4x² + 4x − 1x − 1 = 4x² + 3x − 1"
       },
       {
-        "t": "(b) LCD 12",
-        "d": "9x/12 + 2x/12 = 11x/12"
+        "t": "(b) common factor",
+        "d": "2x(2x + 4)"
       },
       {
-        "t": "(c) cross multiply",
-        "d": ""
+        "t": "(c) divide by 4",
+        "d": "x − 1 = 5 ⇒ x = 6"
+      },
+      {
+        "t": "(d) difference of squares",
+        "d": "(x−3)(x+3)/(x−3) = x+3, x≠3"
       }
     ],
-    "markscheme": "10 marks. Answer: see steps",
+    "markscheme": "(a) 3 (b) 2 (c) 3 (d) 2 = 10",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -752,27 +756,31 @@
     "year": 2018,
     "session": "November",
     "question_number": "2",
-    "marks": 9,
+    "marks": 8,
     "topic_tags": [
-      "statistics"
+      "geometry"
     ],
-    "question_text": "29 Form 4 pupils at Fletcher High scored: 6 (7 pupils), 3 (7 pupils), 2 (5 pupils), 4 (5 pupils), 3 (5 pupils). (a) Modal mark.  [1] (b) Mean mark.  [4] (c) Range.  [2] (d) One extra pupil scores 6. Effect on the mean?  [2]",
-    "answer": "(a) 6; (b) 3 21/29; (c) 4",
+    "question_text": "AB is parallel to CD. Transversal PQ meets AB at X and CD at Y. (a) Angle AXY = 44°. Find the corresponding angle at Y. Give a reason.  [2] (b) Find the co-interior (allied) angle to 44°. Give a reason.  [2] (c) In triangle PQR, P̂ = 44° and Q̂ = 57°. Calculate R̂.  [2] (d) State whether triangle PQR is acute, right-angled or obtuse. Give a reason.  [2]",
+    "answer": "(a) 44° corresponding angles, AB ∥ CD; (b) 136° co-interior; (c) 79°",
     "steps": [
       {
-        "t": "(a) highest frequency",
-        "d": "6"
+        "t": "(a) corresponding angles",
+        "d": "44°, AB ∥ CD"
       },
       {
-        "t": "(b) Σfx/Σf",
-        "d": "108/29"
+        "t": "(b) co-interior sum to 180°",
+        "d": "136°"
       },
       {
-        "t": "(c)",
-        "d": "4"
+        "t": "(c) angle sum of a triangle",
+        "d": "180 − 44 − 57 = 79°"
+      },
+      {
+        "t": "(d) compare with 90°",
+        "d": "acute if all < 90°, obtuse if one > 90°"
       }
     ],
-    "markscheme": "9 marks. Answer: (a) 6; (b) 3 21/29; (c) 4",
+    "markscheme": "8 marks. Answer: (a) 44° corresponding angles, AB ∥ CD; (b) 136° co-interior; (c) 79°",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -785,25 +793,25 @@
     "question_number": "3",
     "marks": 8,
     "topic_tags": [
-      "geometry_(angles)"
+      "mensuration"
     ],
-    "question_text": "AB ∥ CD with transversal EF in a street plan of Bulawayo. (a) Angle APQ = 59°. State the corresponding angle at Q, with a reason.  [2] (b) Find the co-interior angle to 59°.  [2] (c) A triangle has angles 59°, 44° and x°. Find x.  [2] (d) Classify the triangle (acute / right / obtuse).  [2]",
-    "answer": "(a) 59° corresponding; (b) 121°; (c) 77°",
+    "question_text": "A triangular prism has cross-section a right-angled triangle with sides 6 cm, 8 cm and 10 cm. The length of the prism is 12 cm. (a) Area of the triangular cross-section.  [3] (b) Volume of the prism.  [3] (c) Total length of the edges of the prism.  [2]",
+    "answer": "(a) 24 cm²; (b) 288 cm³; (c) 84 cm",
     "steps": [
       {
-        "t": "(a) corresponding, AB ∥ CD",
-        "d": "59°"
+        "t": "(a) ½ab",
+        "d": "½×6×8 = 24"
       },
       {
-        "t": "(b) co-interior",
-        "d": "121°"
+        "t": "(b) area × length",
+        "d": "24×12 = 288"
       },
       {
-        "t": "(c)",
-        "d": "77°"
+        "t": "(c) 3 lengths + 2 of each triangle side",
+        "d": ""
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 59° corresponding; (b) 121°; (c) 77°",
+    "markscheme": "8 marks. Answer: (a) 24 cm²; (b) 288 cm³; (c) 84 cm",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -816,25 +824,29 @@
     "question_number": "4",
     "marks": 8,
     "topic_tags": [
-      "geometrical_construction"
+      "coordinate_geometry"
     ],
-    "question_text": "(a) Using ruler and compasses only, construct triangle ABC with AB = 8 cm, BC = 7 cm and AC = 9 cm.  [4] (b) Construct the perpendicular bisector of BC.  [2] (c) Mark the circumcentre and describe its property.  [2]",
-    "answer": "Construction — equal arcs; circumcentre equidistant from A,B,C",
+    "question_text": "The line L has equation  y = -2x + 6. (a) Write down the gradient of L and the coordinates of the y-intercept.  [2] (b) Find the coordinates of the point where L meets the x-axis.  [2] (c) Find the gradient of the line joining A(3, 2) and B(6, 4).  [2] (d) Write the equation of the line parallel to L that passes through (0, 1).  [2]",
+    "answer": "(a) gradient -2, (0, 6); (b) (3, 0); (c) 2/3; (d) y = -2x + 1",
     "steps": [
       {
-        "t": "(a) base + two arcs",
-        "d": "SSS construction"
+        "t": "(a) y = mx + c",
+        "d": "m = -2, intercept (0, 6)"
       },
       {
-        "t": "(b) arcs from B and C",
-        "d": ""
+        "t": "(b) y = 0",
+        "d": "0 = -2x + 6 ⇒ x = 3"
       },
       {
-        "t": "(c) intersection of perpendicular bisectors",
-        "d": ""
+        "t": "(c) m = (y2−y1)/(x2−x1)",
+        "d": "2/3"
+      },
+      {
+        "t": "(d) same gradient",
+        "d": "y = -2x + 1"
       }
     ],
-    "markscheme": "8 marks. Answer: Construction — equal arcs; circumcentre equidistant from A,B,C",
+    "markscheme": "8 marks. Answer: (a) gradient -2, (0, 6); (b) (3, 0); (c) 2/3; (d) y = -2x + 1",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -845,27 +857,31 @@
     "year": 2018,
     "session": "November",
     "question_number": "5",
-    "marks": 8,
+    "marks": 9,
     "topic_tags": [
-      "mensuration_(cylinder)"
+      "statistics"
     ],
-    "question_text": "A cylindrical tank at Fletcher High has radius 7 cm and height 20 cm. π = 22/7. (a) Volume.  [3] (b) Curved surface area.  [3] (c) Total surface area including the base only (open top).  [2]",
-    "answer": "(a) 3080 cm³; (b) 880 cm²",
+    "question_text": "The table shows values of x with frequencies f: x=1, f=6, x=4, f=4, x=4, f=4, x=4, f=4, x=7, f=6. (a) State the modal value of x.  [1] (b) Calculate Σf and Σfx.  [3] (c) Calculate the mean of x.  [3] (d) Find the range of x.  [2]",
+    "answer": "(a) 1; (b) Σf=24, Σfx=96; (c) 4; (d) 6",
     "steps": [
       {
-        "t": "(a) πr²h",
-        "d": ""
+        "t": "(a) highest frequency",
+        "d": "1"
       },
       {
-        "t": "(b) 2πrh",
-        "d": ""
+        "t": "(b)",
+        "d": "Σf = 24, Σfx = 96"
       },
       {
-        "t": "(c) 2πrh + πr²",
-        "d": ""
+        "t": "(c) mean = Σfx/Σf",
+        "d": "96/24 = 4"
+      },
+      {
+        "t": "(d) max − min",
+        "d": "7 − 1 = 6"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 3080 cm³; (b) 880 cm²",
+    "markscheme": "9 marks. Answer: (a) 1; (b) Σf=24, Σfx=96; (c) 4; (d) 6",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -876,27 +892,31 @@
     "year": 2018,
     "session": "November",
     "question_number": "6",
-    "marks": 8,
+    "marks": 9,
     "topic_tags": [
-      "graphs_and_coordinates"
+      "matrices"
     ],
-    "question_text": "Line L: y = 3x + 5. (a) Gradient and y-intercept.  [2] (b) Coordinates where L meets the x-axis.  [2] (c) Show A(0, 5) lies on L.  [2] (d) Equation of the line parallel to L through (0, 4).  [2]",
-    "answer": "(a) 3, (0,5); (b) (-1 2/3, 0); (d) y = 3x + 4",
+    "question_text": "A = (4  3 ; 1  0)  and  column vector u = (1 ; 2). (a) Calculate Au.  [3] (b) Find det A.  [2] (c) Describe fully the transformation represented by (0 −1 ; 1  0).  [2] (d) Find the image of the point (1, 2) under a reflection in the y-axis.  [2]",
+    "answer": "(a) (10 ; 1); (b) -3; (c) rotation 90° anticlockwise about O; (d) (-1, 2)",
     "steps": [
       {
-        "t": "(a) y = mx + c",
-        "d": ""
+        "t": "(a) row × column",
+        "d": "(10 ; 1)"
       },
       {
-        "t": "(b) y = 0",
-        "d": "x = -1 2/3"
+        "t": "(b) ad − bc",
+        "d": "4×0 − 3×1 = -3"
       },
       {
-        "t": "(d) same m",
-        "d": "y = 3x + 4"
+        "t": "(c)",
+        "d": "(x,y) → (−y, x), 90° anticlockwise about O"
+      },
+      {
+        "t": "(d) (x,y) → (−x, y)",
+        "d": "(-1, 2)"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 3, (0,5); (b) (-1 2/3, 0); (d) y = 3x + 4",
+    "markscheme": "9 marks. Answer: (a) (10 ; 1); (b) -3; (c) rotation 90° anticlockwise about O; (d) (-1, 2)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -909,25 +929,29 @@
     "question_number": "7",
     "marks": 12,
     "topic_tags": [
-      "vectors"
+      "quadratic_equations"
     ],
-    "question_text": "OA = a = (2 ; 1), OB = b = (-1 ; 5). M midpoint of AB. (a) Vector AB.  [3] (b) |AB|.  [3] (c) Position vector OM.  [3] (d) Show AM = MB.  [3]",
-    "answer": "(a) (-3 ; 4); (b) √25",
+    "question_text": "(a) Factorise  x² − 11x + 24.  [3] (b) Hence solve  x² − 11x + 24 = 0.  [2] (c) Write down the roots of  (x − 3)(x − 8) = 0.  [1] (d) Sketch y = (x − 3)(x − 8), showing the intercepts with both axes.  [3] (e) State the coordinates of the turning point.  [3]",
+    "answer": "(a) (x−3)(x−8); (b) x=3 or x=8; (e) (5 1/2, -7)",
     "steps": [
       {
-        "t": "(a) b − a",
-        "d": "(-3 ; 4)"
+        "t": "(a)",
+        "d": "(x − 3)(x − 8)"
       },
       {
-        "t": "(b) magnitude",
-        "d": ""
+        "t": "(b)",
+        "d": "x = 3 or x = 8"
       },
       {
-        "t": "(c) (a+b)/2",
-        "d": ""
+        "t": "(d) x-intercepts and y-intercept {r1*r2}",
+        "d": "U-shape (positive x²)"
+      },
+      {
+        "t": "(e) midpoint of roots, substitute",
+        "d": "x = 5 1/2"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) (-3 ; 4); (b) √25",
+    "markscheme": "12 marks. Answer: (a) (x−3)(x−8); (b) x=3 or x=8; (e) (5 1/2, -7)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -940,25 +964,29 @@
     "question_number": "8",
     "marks": 12,
     "topic_tags": [
-      "trigonometry_and_bearings"
+      "trigonometry"
     ],
-    "question_text": "A grain silo is observed from A on level ground in Bulawayo. Angle of elevation of the top is 30°. Distance A to the foot is 24 m. (a) Height of the object. Use tan 30° = 1/√3.  [4] (b) From B, 24 m due East of A, the bearing of the foot is 300°. Sketch.  [3] (c) A bird sits halfway up. Angle of elevation from A.  [5]",
-    "answer": "(a) 24/√3 = 24√3/3 m",
+    "question_text": "In triangle ABC, Ĉ = 90°, Â = 30° and AC = 20 cm (hypotenuse). (a) Write down sin 30° and cos 60°.  [2] (b) Calculate BC (opposite 30°).  [3] (c) Calculate AB (adjacent to 30°).  [3] (d) Show that tan 30° = 1/√3 and hence find BC/AB.  [4]",
+    "answer": "(a) 1/2, 1/2; (b) 10 cm; (c) 20√3/2 cm",
     "steps": [
       {
-        "t": "(a) tan 30° = opp/adj",
-        "d": "h = 24/√3 = 24√3/3 m"
+        "t": "(a)",
+        "d": "sin 30° = 1/2, cos 60° = 1/2"
       },
       {
-        "t": "(b) bearings sketch",
-        "d": "North lines at A and B"
+        "t": "(b) sin 30° = BC/AC",
+        "d": "BC = 20/2 = 10 cm"
       },
       {
-        "t": "(c) tan θ = (h/2)/adj",
-        "d": ""
+        "t": "(c) cos 30° = √3/2 = AB/AC",
+        "d": "AB = 20√3/2 cm"
+      },
+      {
+        "t": "(d) opp/adj",
+        "d": "BC/AB = 1/√3"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 24/√3 = 24√3/3 m",
+    "markscheme": "12 marks. Answer: (a) 1/2, 1/2; (b) 10 cm; (c) 20√3/2 cm",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -971,25 +999,29 @@
     "question_number": "9",
     "marks": 12,
     "topic_tags": [
-      "quadratic_equations"
+      "circle_theorems"
     ],
-    "question_text": "(a) Solve x² − 9x + 18 = 0 by factorisation.  [4] (b) A rectangular plot in Bulawayo is 6 m longer than it is wide. If the area is 27 m², form and solve an equation for the width w.  [5] (c) Sketch y = (x − 3)(x − 6), showing intercepts.  [3]",
-    "answer": "(a) x=3 or 6; (b) w(w+6) = 27",
+    "question_text": "O is the centre of a circle. A, B and C lie on the circumference. AB is a diameter. Angle BAC = 40°. (a) Find angle ACB. Give a reason.  [3] (b) Find angle ABC.  [2] (c) Find angle BOC (angle at the centre standing on arc BC). Give a reason.  [4] (d) Point D lies on the remaining circumference. Find angle BDC. Give a reason.  [3]",
+    "answer": "(a) 90° (angle in a semicircle); (b) 50°; (c) 80° (angle at centre = 2 × angle at circumference); (d) 40° (angles in the same segment)",
     "steps": [
       {
-        "t": "(a)",
-        "d": "(x−3)(x−6)=0"
+        "t": "(a) angle in a semicircle",
+        "d": "ACB = 90° because AB is a diameter"
       },
       {
-        "t": "(b)",
-        "d": "w² + 6w − 27 = 0"
+        "t": "(b) angle sum in triangle ABC",
+        "d": "ABC = 90 − 40 = 50°"
       },
       {
-        "t": "(c) intercepts",
-        "d": "3, 6"
+        "t": "(c) angle at the centre is twice the angle at the circumference, same arc BC",
+        "d": "BOC = 2 × 40 = 80°"
+      },
+      {
+        "t": "(d) angles in the same segment",
+        "d": "BDC = BAC = 40°"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) x=3 or 6; (b) w(w+6) = 27",
+    "markscheme": "12 marks. Answer: (a) 90° (angle in a semicircle); (b) 50°; (c) 80° (angle at centre = 2 × angle at circumference); (d) 40° (angles in the same segment)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -1002,25 +1034,29 @@
     "question_number": "10",
     "marks": 12,
     "topic_tags": [
-      "circle_geometry"
+      "vectors"
     ],
-    "question_text": "O is the centre. A, B, C on the circumference. AB is a diameter. Angle BAC = 36°. (a) Angle ACB. Reason.  [3] (b) Angle BOC (centre, same arc BC).  [3] (c) D on the remaining circumference. Angle BDC. Reason.  [3] (d) State the angle-in-a-semicircle theorem.  [3]",
-    "answer": "(a) 90°; (b) 72°; (c) 36° same segment",
+    "question_text": "The position vectors of A and B are a = (5 ; 3) and b = (3 ; 4). M is the midpoint of AB. (a) Find vector AB.  [3] (b) Find |AB|.  [3] (c) Find the position vector of M.  [3] (d) Show that AM = ½ AB.  [3]",
+    "answer": "(a) (-2 ; 1); (b) √5; (c) (4 ; 3 1/2)",
     "steps": [
       {
-        "t": "(a) angle in a semicircle",
-        "d": "90°"
+        "t": "(a) AB = b − a",
+        "d": "(3−5 ; 4−3) = (-2 ; 1)"
       },
       {
-        "t": "(b) angle at centre = 2 at circumference",
-        "d": "72°"
+        "t": "(b) |AB| = √(x²+y²)",
+        "d": "√5"
       },
       {
-        "t": "(c) same segment",
-        "d": "36°"
+        "t": "(c) OM = (a+b)/2",
+        "d": ""
+      },
+      {
+        "t": "(d) M midpoint ⇒ AM = ½ AB",
+        "d": ""
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 90°; (b) 72°; (c) 36° same segment",
+    "markscheme": "12 marks. Answer: (a) (-2 ; 1); (b) √5; (c) (4 ; 3 1/2)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -1033,25 +1069,29 @@
     "question_number": "11",
     "marks": 12,
     "topic_tags": [
-      "variation_and_linear_programming"
+      "cumulative_frequency"
     ],
-    "question_text": "(a) y varies directly as x. When x = 4, y = 48. Find y when x = 10.  [4] (b) z varies inversely as x. When x = 3, z = 8. Find z when x = 6.  [4] (c) A farmer near Bulawayo has at most 40 hours. Maize takes 3 h/ha, vegetables 1 h/ha. Inequality for hectares m and v.  [4]",
-    "answer": "(a) 120; (b) 4; (c) 3m + v ≤ 40",
+    "question_text": "60 candidates sat a Mathematics paper marked out of 50. A cumulative frequency curve (ogive) is drawn. (a) State the median position on the cumulative-frequency axis.  [2] (b) Describe how to read the median mark from the ogive.  [3] (c) The lower quartile is at position n/4 and the upper quartile at 3n/4. Write these positions as numbers.  [3] (d) Define the interquartile range and state one advantage of the IQR over the range.  [4]",
+    "answer": "(a) 30.0; (c) Q1 at 15.0, Q3 at 45.0; (d) IQR = Q3 − Q1, less affected by outliers",
     "steps": [
       {
-        "t": "(a) y = kx",
-        "d": "k = 12, y = 120"
+        "t": "(a) n/2",
+        "d": "60/2 = 30.0"
       },
       {
-        "t": "(b) z = k/x",
-        "d": "k = 24, z = 4"
+        "t": "(b)",
+        "d": "from cf = n/2 across to the curve, down to the mark axis"
       },
       {
         "t": "(c)",
-        "d": "3m + v ≤ 40, m≥0, v≥0"
+        "d": "Q1: 15.0, Q3: 45.0"
+      },
+      {
+        "t": "(d)",
+        "d": "IQR = Q3 − Q1; uses the middle 50%, so extreme values have less effect"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 120; (b) 4; (c) 3m + v ≤ 40",
+    "markscheme": "12 marks. Answer: (a) 30.0; (c) Q1 at 15.0, Q3 at 45.0; (d) IQR = Q3 − Q1, less affected by outliers",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -1064,25 +1104,29 @@
     "question_number": "12",
     "marks": 12,
     "topic_tags": [
-      "transformations_and_matrices"
+      "transformations"
     ],
-    "question_text": "Triangle P(1,2), Q(4,2), R(1,4). (a) Reflect in the y-axis. Coordinates of P'.  [4] (b) Translate PQR by (3 ; 1). Give Q''.  [3] (c) Matrix (0 −1 ; 1  0) maps (x;y). Describe fully and find the image of Q.  [5]",
-    "answer": "(a) P'(-1,2); (b) Q''(7,3); (c) 90° anticlockwise about O",
+    "question_text": "Triangle PQR has P(1, 2), Q(4, 2) and R(1, 4). (a) P' is the image of P under reflection in the y-axis. Write down the coordinates of P'.  [2] (b) Q is translated by the vector (-1 ; 2). Find the image Q''.  [3] (c) The matrix (0 −1 ; 1  0) represents a transformation T. Describe T fully.  [4] (d) Find T(Q), the image of Q under T.  [3]",
+    "answer": "(a) (-1, 2); (b) (3, 4); (c) rotation 90° anticlockwise about O; (d) (-2, 4)",
     "steps": [
       {
-        "t": "(a) (x,y)→(−x,y)",
-        "d": "P'(-1,2)"
+        "t": "(a) (x, y) → (−x, y)",
+        "d": "P'(-1, 2)"
       },
       {
-        "t": "(b)",
-        "d": "Q(4,2)+(3,1)"
+        "t": "(b) add the vector",
+        "d": "(4+-1, 2+2)"
       },
       {
-        "t": "(c) (−y, x)",
-        "d": "rotation 90° anticlockwise about O"
+        "t": "(c) (x, y) → (−y, x)",
+        "d": "rotation 90° anticlockwise about the origin"
+      },
+      {
+        "t": "(d)",
+        "d": "(4, 2) → (-2, 4)"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) P'(-1,2); (b) Q''(7,3); (c) 90° anticlockwise about O",
+    "markscheme": "12 marks. Answer: (a) (-1, 2); (b) (3, 4); (c) rotation 90° anticlockwise about O; (d) (-2, 4)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -1095,25 +1139,25 @@
     "question_number": "13",
     "marks": 12,
     "topic_tags": [
-      "cumulative_frequency"
+      "variation"
     ],
-    "question_text": "80 pupils at Fletcher High sat a test (0–50). An ogive is drawn. (a) How to read the median from the ogive.  [3] (b) Median estimated as 22. Meaning?  [2] (c) How to find the IQR from the graph.  [4] (d) Why IQR is better than the range here.  [3]",
-    "answer": "(a) read at cf = 40.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "question_text": "(a) y varies directly as x. When x = 3, y = 36. &nbsp;&nbsp;&nbsp;(i) Find the equation connecting y and x.  [3] &nbsp;&nbsp;&nbsp;(ii) Find y when x = 8.  [2] (b) z varies inversely as x. When x = 3, z = 4. Let this value of z be z₀. &nbsp;&nbsp;&nbsp;(i) Find z when x = 6.  [4] &nbsp;&nbsp;&nbsp;(ii) Describe what happens to z when x is doubled.  [3]",
+    "answer": "(a) y = 12x; y(8) = 96; (b) inverse: product constant, doubling x halves z",
     "steps": [
       {
-        "t": "(a)",
-        "d": "n/2 = 40.0"
+        "t": "(a)(i) y = kx",
+        "d": "36 = k×3 ⇒ k = 12"
       },
       {
-        "t": "(c)",
-        "d": "Q1 = 20.0, Q3 = 60.0"
+        "t": "(a)(ii)",
+        "d": "y = 12×8 = 96"
       },
       {
-        "t": "(d) outliers",
-        "d": "IQR uses middle 50%"
+        "t": "(b) z = c/x",
+        "d": "if x doubles, z is halved"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) read at cf = 40.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "markscheme": "12 marks. Answer: (a) y = 12x; y(8) = 96; (b) inverse: product constant, doubling x halves z",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -1838,27 +1882,31 @@
     "year": 2019,
     "session": "November",
     "question_number": "1",
-    "marks": 8,
+    "marks": 10,
     "topic_tags": [
-      "mensuration"
+      "algebra"
     ],
-    "question_text": "A rectangular garden in Sakubva measures 14 m by 10 m. A path of width 1 m runs all around the outside. (a) Area of the garden.  [2] (b) Area of the path.  [3] (c) A circular bed of radius 7 m is later dug. Area of the bed, π = 22/7.  [3]",
-    "answer": "(a) 140 m²; (b) 52 m²; (c) 154 m²",
+    "question_text": "(a) Expand and simplify  (4x − 1)(x + 1).  [3] (b) Factorise completely  12x² + 9x.  [2] (c) Solve  4(x − 1) = 16.  [3] (d) Simplify  (x² − 9)/(x − 3).  [2]",
+    "answer": "(a) 4x² + 3x − 1; (b) 3x(4x + 3); (c) x = 5; (d) x + 3",
     "steps": [
       {
-        "t": "(a)",
-        "d": "14×10 = 140"
+        "t": "(a) FOIL",
+        "d": "4x² + 4x − 1x − 1 = 4x² + 3x − 1"
       },
       {
-        "t": "(b) outer − inner",
-        "d": "192 − 140 = 52"
+        "t": "(b) common factor",
+        "d": "3x(4x + 3)"
       },
       {
-        "t": "(c) πr²",
-        "d": ""
+        "t": "(c) divide by 4",
+        "d": "x − 1 = 4 ⇒ x = 5"
+      },
+      {
+        "t": "(d) difference of squares",
+        "d": "(x−3)(x+3)/(x−3) = x+3, x≠3"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 140 m²; (b) 52 m²; (c) 154 m²",
+    "markscheme": "(a) 3 (b) 2 (c) 3 (d) 2 = 10",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -1869,27 +1917,31 @@
     "year": 2019,
     "session": "November",
     "question_number": "2",
-    "marks": 10,
+    "marks": 8,
     "topic_tags": [
-      "formulae_and_fractions"
+      "geometry"
     ],
-    "question_text": "(a) Make t the subject of  v = u + at.  [3] (b) Simplify  (3x/4) + (x/6).  [3] (c) Solve  2/x = 5/(12).  [4]",
-    "answer": "see steps",
+    "question_text": "AB is parallel to CD. Transversal PQ meets AB at X and CD at Y. (a) Angle AXY = 46°. Find the corresponding angle at Y. Give a reason.  [2] (b) Find the co-interior (allied) angle to 46°. Give a reason.  [2] (c) In triangle PQR, P̂ = 46° and Q̂ = 32°. Calculate R̂.  [2] (d) State whether triangle PQR is acute, right-angled or obtuse. Give a reason.  [2]",
+    "answer": "(a) 46° corresponding angles, AB ∥ CD; (b) 134° co-interior; (c) 102°",
     "steps": [
       {
-        "t": "(a)",
-        "d": "t = (v − u)/a"
+        "t": "(a) corresponding angles",
+        "d": "46°, AB ∥ CD"
       },
       {
-        "t": "(b) LCD 12",
-        "d": "9x/12 + 2x/12 = 11x/12"
+        "t": "(b) co-interior sum to 180°",
+        "d": "134°"
       },
       {
-        "t": "(c) cross multiply",
-        "d": ""
+        "t": "(c) angle sum of a triangle",
+        "d": "180 − 46 − 32 = 102°"
+      },
+      {
+        "t": "(d) compare with 90°",
+        "d": "acute if all < 90°, obtuse if one > 90°"
       }
     ],
-    "markscheme": "10 marks. Answer: see steps",
+    "markscheme": "8 marks. Answer: (a) 46° corresponding angles, AB ∥ CD; (b) 134° co-interior; (c) 102°",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -1900,27 +1952,27 @@
     "year": 2019,
     "session": "November",
     "question_number": "3",
-    "marks": 9,
+    "marks": 8,
     "topic_tags": [
-      "statistics"
+      "mensuration"
     ],
-    "question_text": "25 Form 4 pupils at Moleli scored: 6 (3 pupils), 6 (5 pupils), 2 (5 pupils), 4 (5 pupils), 3 (7 pupils). (a) Modal mark.  [1] (b) Mean mark.  [4] (c) Range.  [2] (d) One extra pupil scores 6. Effect on the mean?  [2]",
-    "answer": "(a) 3; (b) 3 24/25; (c) 4",
+    "question_text": "A rectangle measures 14 cm by 9 cm. A border of width 1 cm is drawn around the outside. (a) Find the area of the rectangle.  [2] (b) Find the area of the outer rectangle.  [3] (c) Hence find the area of the border.  [3]",
+    "answer": "(a) 126 cm²; (b) 176 cm²; (c) 50 cm²",
     "steps": [
       {
-        "t": "(a) highest frequency",
-        "d": "3"
+        "t": "(a) lw",
+        "d": "14×9 = 126"
       },
       {
-        "t": "(b) Σfx/Σf",
-        "d": "99/25"
+        "t": "(b) (l+2w)(w+2w)",
+        "d": "16×11 = 176"
       },
       {
-        "t": "(c)",
-        "d": "4"
+        "t": "(c) outer − inner",
+        "d": "50"
       }
     ],
-    "markscheme": "9 marks. Answer: (a) 3; (b) 3 24/25; (c) 4",
+    "markscheme": "8 marks. Answer: (a) 126 cm²; (b) 176 cm²; (c) 50 cm²",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -1933,25 +1985,29 @@
     "question_number": "4",
     "marks": 8,
     "topic_tags": [
-      "geometry_(angles)"
+      "coordinate_geometry"
     ],
-    "question_text": "AB ∥ CD with transversal EF in a street plan of Mutare. (a) Angle APQ = 52°. State the corresponding angle at Q, with a reason.  [2] (b) Find the co-interior angle to 52°.  [2] (c) A triangle has angles 52°, 49° and x°. Find x.  [2] (d) Classify the triangle (acute / right / obtuse).  [2]",
-    "answer": "(a) 52° corresponding; (b) 128°; (c) 79°",
+    "question_text": "The line L has equation  y = 3x + 4. (a) Write down the gradient of L and the coordinates of the y-intercept.  [2] (b) Find the coordinates of the point where L meets the x-axis.  [2] (c) Find the gradient of the line joining A(1, 3) and B(5, 5).  [2] (d) Write the equation of the line parallel to L that passes through (0, 1).  [2]",
+    "answer": "(a) gradient 3, (0, 4); (b) (-1 1/3, 0); (c) 1/2; (d) y = 3x + 1",
     "steps": [
       {
-        "t": "(a) corresponding, AB ∥ CD",
-        "d": "52°"
+        "t": "(a) y = mx + c",
+        "d": "m = 3, intercept (0, 4)"
       },
       {
-        "t": "(b) co-interior",
-        "d": "128°"
+        "t": "(b) y = 0",
+        "d": "0 = 3x + 4 ⇒ x = -1 1/3"
       },
       {
-        "t": "(c)",
-        "d": "79°"
+        "t": "(c) m = (y2−y1)/(x2−x1)",
+        "d": "2/4"
+      },
+      {
+        "t": "(d) same gradient",
+        "d": "y = 3x + 1"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 52° corresponding; (b) 128°; (c) 79°",
+    "markscheme": "8 marks. Answer: (a) gradient 3, (0, 4); (b) (-1 1/3, 0); (c) 1/2; (d) y = 3x + 1",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -1962,27 +2018,31 @@
     "year": 2019,
     "session": "November",
     "question_number": "5",
-    "marks": 8,
+    "marks": 9,
     "topic_tags": [
-      "graphs_and_coordinates"
+      "statistics"
     ],
-    "question_text": "Line L: y = 3x + 5. (a) Gradient and y-intercept.  [2] (b) Coordinates where L meets the x-axis.  [2] (c) Show A(2, 11) lies on L.  [2] (d) Equation of the line parallel to L through (0, 4).  [2]",
-    "answer": "(a) 3, (0,5); (b) (-1 2/3, 0); (d) y = 3x + 4",
+    "question_text": "The table shows values of x with frequencies f: x=2, f=4, x=2, f=6, x=3, f=4, x=5, f=8, x=6, f=8. (a) State the modal value of x.  [1] (b) Calculate Σf and Σfx.  [3] (c) Calculate the mean of x.  [3] (d) Find the range of x.  [2]",
+    "answer": "(a) 5; (b) Σf=30, Σfx=120; (c) 4; (d) 4",
     "steps": [
       {
-        "t": "(a) y = mx + c",
-        "d": ""
+        "t": "(a) highest frequency",
+        "d": "5"
       },
       {
-        "t": "(b) y = 0",
-        "d": "x = -1 2/3"
+        "t": "(b)",
+        "d": "Σf = 30, Σfx = 120"
       },
       {
-        "t": "(d) same m",
-        "d": "y = 3x + 4"
+        "t": "(c) mean = Σfx/Σf",
+        "d": "120/30 = 4"
+      },
+      {
+        "t": "(d) max − min",
+        "d": "6 − 2 = 4"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 3, (0,5); (b) (-1 2/3, 0); (d) y = 3x + 4",
+    "markscheme": "9 marks. Answer: (a) 5; (b) Σf=30, Σfx=120; (c) 4; (d) 4",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -1993,27 +2053,31 @@
     "year": 2019,
     "session": "November",
     "question_number": "6",
-    "marks": 8,
+    "marks": 9,
     "topic_tags": [
-      "geometrical_construction"
+      "matrices"
     ],
-    "question_text": "(a) Using ruler and compasses only, construct triangle ABC with AB = 8 cm, BC = 7 cm and AC = 7 cm.  [4] (b) Construct the perpendicular bisector of BC.  [2] (c) Mark the circumcentre and describe its property.  [2]",
-    "answer": "Construction — equal arcs; circumcentre equidistant from A,B,C",
+    "question_text": "A = (2  3 ; 3  1)  and  column vector u = (2 ; 1). (a) Calculate Au.  [3] (b) Find det A.  [2] (c) Describe fully the transformation represented by (0 −1 ; 1  0).  [2] (d) Find the image of the point (2, 1) under a reflection in the y-axis.  [2]",
+    "answer": "(a) (7 ; 7); (b) -7; (c) rotation 90° anticlockwise about O; (d) (-2, 1)",
     "steps": [
       {
-        "t": "(a) base + two arcs",
-        "d": "SSS construction"
+        "t": "(a) row × column",
+        "d": "(7 ; 7)"
       },
       {
-        "t": "(b) arcs from B and C",
-        "d": ""
+        "t": "(b) ad − bc",
+        "d": "2×1 − 3×3 = -7"
       },
       {
-        "t": "(c) intersection of perpendicular bisectors",
-        "d": ""
+        "t": "(c)",
+        "d": "(x,y) → (−y, x), 90° anticlockwise about O"
+      },
+      {
+        "t": "(d) (x,y) → (−x, y)",
+        "d": "(-2, 1)"
       }
     ],
-    "markscheme": "8 marks. Answer: Construction — equal arcs; circumcentre equidistant from A,B,C",
+    "markscheme": "9 marks. Answer: (a) (7 ; 7); (b) -7; (c) rotation 90° anticlockwise about O; (d) (-2, 1)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -2026,25 +2090,29 @@
     "question_number": "7",
     "marks": 12,
     "topic_tags": [
-      "vectors"
+      "quadratic_equations"
     ],
-    "question_text": "OA = a = (5 ; 3), OB = b = (-1 ; 3). M midpoint of AB. (a) Vector AB.  [3] (b) |AB|.  [3] (c) Position vector OM.  [3] (d) Show AM = MB.  [3]",
-    "answer": "(a) (-6 ; 0); (b) √36",
+    "question_text": "(a) Factorise  x² − 6x + 8.  [3] (b) Hence solve  x² − 6x + 8 = 0.  [2] (c) Write down the roots of  (x − 2)(x − 4) = 0.  [1] (d) Sketch y = (x − 2)(x − 4), showing the intercepts with both axes.  [3] (e) State the coordinates of the turning point.  [3]",
+    "answer": "(a) (x−2)(x−4); (b) x=2 or x=4; (e) (3, -1)",
     "steps": [
       {
-        "t": "(a) b − a",
-        "d": "(-6 ; 0)"
+        "t": "(a)",
+        "d": "(x − 2)(x − 4)"
       },
       {
-        "t": "(b) magnitude",
-        "d": ""
+        "t": "(b)",
+        "d": "x = 2 or x = 4"
       },
       {
-        "t": "(c) (a+b)/2",
-        "d": ""
+        "t": "(d) x-intercepts and y-intercept {r1*r2}",
+        "d": "U-shape (positive x²)"
+      },
+      {
+        "t": "(e) midpoint of roots, substitute",
+        "d": "x = 3"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) (-6 ; 0); (b) √36",
+    "markscheme": "12 marks. Answer: (a) (x−2)(x−4); (b) x=2 or x=4; (e) (3, -1)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -2057,25 +2125,29 @@
     "question_number": "8",
     "marks": 12,
     "topic_tags": [
-      "travel_graphs"
+      "trigonometry"
     ],
-    "question_text": "A kombi leaves Mutare at 08:00 and travels 120 km at constant speed, arriving after 3 hours. It stops 30 minutes, then returns at 80 km/h. (a) Outward speed.  [3] (b) Time for the return.  [3] (c) Sketch a distance–time graph, labelling axes.  [4] (d) Average speed for the whole trip including the stop.  [2]",
-    "answer": "(a) 40 km/h; (b) 1.5 h",
+    "question_text": "In triangle ABC, Ĉ = 90°, Â = 30° and AC = 16 cm (hypotenuse). (a) Write down sin 30° and cos 60°.  [2] (b) Calculate BC (opposite 30°).  [3] (c) Calculate AB (adjacent to 30°).  [3] (d) Show that tan 30° = 1/√3 and hence find BC/AB.  [4]",
+    "answer": "(a) 1/2, 1/2; (b) 8 cm; (c) 16√3/2 cm",
     "steps": [
       {
-        "t": "(a) s = d/t",
-        "d": "120/3"
+        "t": "(a)",
+        "d": "sin 30° = 1/2, cos 60° = 1/2"
       },
       {
-        "t": "(b) t = d/s",
-        "d": "120/80"
+        "t": "(b) sin 30° = BC/AC",
+        "d": "BC = 16/2 = 8 cm"
       },
       {
-        "t": "(d) total distance 2d / total time",
-        "d": ""
+        "t": "(c) cos 30° = √3/2 = AB/AC",
+        "d": "AB = 16√3/2 cm"
+      },
+      {
+        "t": "(d) opp/adj",
+        "d": "BC/AB = 1/√3"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 40 km/h; (b) 1.5 h",
+    "markscheme": "12 marks. Answer: (a) 1/2, 1/2; (b) 8 cm; (c) 16√3/2 cm",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -2088,25 +2160,29 @@
     "question_number": "9",
     "marks": 12,
     "topic_tags": [
-      "quadratic_equations"
+      "circle_theorems"
     ],
-    "question_text": "(a) Solve x² − 10x + 16 = 0 by factorisation.  [4] (b) A rectangular plot in Mutare is 8 m longer than it is wide. If the area is 20 m², form and solve an equation for the width w.  [5] (c) Sketch y = (x − 2)(x − 8), showing intercepts.  [3]",
-    "answer": "(a) x=2 or 8; (b) w(w+8) = 20",
+    "question_text": "O is the centre of a circle. A, B and C lie on the circumference. AB is a diameter. Angle BAC = 32°. (a) Find angle ACB. Give a reason.  [3] (b) Find angle ABC.  [2] (c) Find angle BOC (angle at the centre standing on arc BC). Give a reason.  [4] (d) Point D lies on the remaining circumference. Find angle BDC. Give a reason.  [3]",
+    "answer": "(a) 90° (angle in a semicircle); (b) 58°; (c) 64° (angle at centre = 2 × angle at circumference); (d) 32° (angles in the same segment)",
     "steps": [
       {
-        "t": "(a)",
-        "d": "(x−2)(x−8)=0"
+        "t": "(a) angle in a semicircle",
+        "d": "ACB = 90° because AB is a diameter"
       },
       {
-        "t": "(b)",
-        "d": "w² + 8w − 20 = 0"
+        "t": "(b) angle sum in triangle ABC",
+        "d": "ABC = 90 − 32 = 58°"
       },
       {
-        "t": "(c) intercepts",
-        "d": "2, 8"
+        "t": "(c) angle at the centre is twice the angle at the circumference, same arc BC",
+        "d": "BOC = 2 × 32 = 64°"
+      },
+      {
+        "t": "(d) angles in the same segment",
+        "d": "BDC = BAC = 32°"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) x=2 or 8; (b) w(w+8) = 20",
+    "markscheme": "12 marks. Answer: (a) 90° (angle in a semicircle); (b) 58°; (c) 64° (angle at centre = 2 × angle at circumference); (d) 32° (angles in the same segment)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -2119,25 +2195,29 @@
     "question_number": "10",
     "marks": 12,
     "topic_tags": [
-      "variation_and_linear_programming"
+      "vectors"
     ],
-    "question_text": "(a) y varies directly as x. When x = 4, y = 24. Find y when x = 10.  [4] (b) z varies inversely as x. When x = 3, z = 8. Find z when x = 6.  [4] (c) A farmer near Mutare has at most 40 hours. Maize takes 2 h/ha, vegetables 1 h/ha. Inequality for hectares m and v.  [4]",
-    "answer": "(a) 60; (b) 4; (c) 2m + v ≤ 40",
+    "question_text": "The position vectors of A and B are a = (5 ; 1) and b = (0 ; 5). M is the midpoint of AB. (a) Find vector AB.  [3] (b) Find |AB|.  [3] (c) Find the position vector of M.  [3] (d) Show that AM = ½ AB.  [3]",
+    "answer": "(a) (-5 ; 4); (b) √41; (c) (2 1/2 ; 3)",
     "steps": [
       {
-        "t": "(a) y = kx",
-        "d": "k = 6, y = 60"
+        "t": "(a) AB = b − a",
+        "d": "(0−5 ; 5−1) = (-5 ; 4)"
       },
       {
-        "t": "(b) z = k/x",
-        "d": "k = 24, z = 4"
+        "t": "(b) |AB| = √(x²+y²)",
+        "d": "√41"
       },
       {
-        "t": "(c)",
-        "d": "2m + v ≤ 40, m≥0, v≥0"
+        "t": "(c) OM = (a+b)/2",
+        "d": ""
+      },
+      {
+        "t": "(d) M midpoint ⇒ AM = ½ AB",
+        "d": ""
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 60; (b) 4; (c) 2m + v ≤ 40",
+    "markscheme": "12 marks. Answer: (a) (-5 ; 4); (b) √41; (c) (2 1/2 ; 3)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -2150,25 +2230,29 @@
     "question_number": "11",
     "marks": 12,
     "topic_tags": [
-      "transformations_and_matrices"
+      "cumulative_frequency"
     ],
-    "question_text": "Triangle P(2,1), Q(4,1), R(2,4). (a) Reflect in the y-axis. Coordinates of P'.  [4] (b) Translate PQR by (3 ; 1). Give Q''.  [3] (c) Matrix (0 −1 ; 1  0) maps (x;y). Describe fully and find the image of Q.  [5]",
-    "answer": "(a) P'(-2,1); (b) Q''(7,2); (c) 90° anticlockwise about O",
+    "question_text": "60 candidates sat a Mathematics paper marked out of 50. A cumulative frequency curve (ogive) is drawn. (a) State the median position on the cumulative-frequency axis.  [2] (b) Describe how to read the median mark from the ogive.  [3] (c) The lower quartile is at position n/4 and the upper quartile at 3n/4. Write these positions as numbers.  [3] (d) Define the interquartile range and state one advantage of the IQR over the range.  [4]",
+    "answer": "(a) 30.0; (c) Q1 at 15.0, Q3 at 45.0; (d) IQR = Q3 − Q1, less affected by outliers",
     "steps": [
       {
-        "t": "(a) (x,y)→(−x,y)",
-        "d": "P'(-2,1)"
+        "t": "(a) n/2",
+        "d": "60/2 = 30.0"
       },
       {
         "t": "(b)",
-        "d": "Q(4,1)+(3,1)"
+        "d": "from cf = n/2 across to the curve, down to the mark axis"
       },
       {
-        "t": "(c) (−y, x)",
-        "d": "rotation 90° anticlockwise about O"
+        "t": "(c)",
+        "d": "Q1: 15.0, Q3: 45.0"
+      },
+      {
+        "t": "(d)",
+        "d": "IQR = Q3 − Q1; uses the middle 50%, so extreme values have less effect"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) P'(-2,1); (b) Q''(7,2); (c) 90° anticlockwise about O",
+    "markscheme": "12 marks. Answer: (a) 30.0; (c) Q1 at 15.0, Q3 at 45.0; (d) IQR = Q3 − Q1, less affected by outliers",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -2181,25 +2265,29 @@
     "question_number": "12",
     "marks": 12,
     "topic_tags": [
-      "trigonometry_and_bearings"
+      "transformations"
     ],
-    "question_text": "A msasa tree is observed from A on level ground in Mutare. Angle of elevation of the top is 30°. Distance A to the foot is 30 m. (a) Height of the object. Use tan 30° = 1/√3.  [4] (b) From B, 30 m due East of A, the bearing of the foot is 300°. Sketch.  [3] (c) A bird sits halfway up. Angle of elevation from A.  [5]",
-    "answer": "(a) 30/√3 = 30√3/3 m",
+    "question_text": "Triangle PQR has P(1, 2), Q(3, 2) and R(1, 4). (a) P' is the image of P under reflection in the y-axis. Write down the coordinates of P'.  [2] (b) Q is translated by the vector (-1 ; -2). Find the image Q''.  [3] (c) The matrix (0 −1 ; 1  0) represents a transformation T. Describe T fully.  [4] (d) Find T(Q), the image of Q under T.  [3]",
+    "answer": "(a) (-1, 2); (b) (2, 0); (c) rotation 90° anticlockwise about O; (d) (-2, 3)",
     "steps": [
       {
-        "t": "(a) tan 30° = opp/adj",
-        "d": "h = 30/√3 = 30√3/3 m"
+        "t": "(a) (x, y) → (−x, y)",
+        "d": "P'(-1, 2)"
       },
       {
-        "t": "(b) bearings sketch",
-        "d": "North lines at A and B"
+        "t": "(b) add the vector",
+        "d": "(3+-1, 2+-2)"
       },
       {
-        "t": "(c) tan θ = (h/2)/adj",
-        "d": ""
+        "t": "(c) (x, y) → (−y, x)",
+        "d": "rotation 90° anticlockwise about the origin"
+      },
+      {
+        "t": "(d)",
+        "d": "(3, 2) → (-2, 3)"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 30/√3 = 30√3/3 m",
+    "markscheme": "12 marks. Answer: (a) (-1, 2); (b) (2, 0); (c) rotation 90° anticlockwise about O; (d) (-2, 3)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -2212,25 +2300,25 @@
     "question_number": "13",
     "marks": 12,
     "topic_tags": [
-      "circle_geometry"
+      "variation"
     ],
-    "question_text": "O is the centre. A, B, C on the circumference. AB is a diameter. Angle BAC = 40°. (a) Angle ACB. Reason.  [3] (b) Angle BOC (centre, same arc BC).  [3] (c) D on the remaining circumference. Angle BDC. Reason.  [3] (d) State the angle-in-a-semicircle theorem.  [3]",
-    "answer": "(a) 90°; (b) 80°; (c) 40° same segment",
+    "question_text": "(a) y varies directly as x. When x = 6, y = 24. &nbsp;&nbsp;&nbsp;(i) Find the equation connecting y and x.  [3] &nbsp;&nbsp;&nbsp;(ii) Find y when x = 8.  [2] (b) z varies inversely as x. When x = 3, z = 4. Let this value of z be z₀. &nbsp;&nbsp;&nbsp;(i) Find z when x = 6.  [4] &nbsp;&nbsp;&nbsp;(ii) Describe what happens to z when x is doubled.  [3]",
+    "answer": "(a) y = 4x; y(8) = 32; (b) inverse: product constant, doubling x halves z",
     "steps": [
       {
-        "t": "(a) angle in a semicircle",
-        "d": "90°"
+        "t": "(a)(i) y = kx",
+        "d": "24 = k×6 ⇒ k = 4"
       },
       {
-        "t": "(b) angle at centre = 2 at circumference",
-        "d": "80°"
+        "t": "(a)(ii)",
+        "d": "y = 4×8 = 32"
       },
       {
-        "t": "(c) same segment",
-        "d": "40°"
+        "t": "(b) z = c/x",
+        "d": "if x doubles, z is halved"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 90°; (b) 80°; (c) 40° same segment",
+    "markscheme": "12 marks. Answer: (a) y = 4x; y(8) = 32; (b) inverse: product constant, doubling x halves z",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -2953,25 +3041,29 @@
     "question_number": "1",
     "marks": 10,
     "topic_tags": [
-      "formulae_and_fractions"
+      "algebra"
     ],
-    "question_text": "(a) Make t the subject of  v = u + at.  [3] (b) Simplify  (3x/4) + (x/6).  [3] (c) Solve  2/x = 5/(12).  [4]",
-    "answer": "see steps",
+    "question_text": "(a) Expand and simplify  (4x − 1)(x + 1).  [3] (b) Factorise completely  8x² + 8x.  [2] (c) Solve  4(x − 1) = 12.  [3] (d) Simplify  (x² − 4)/(x − 2).  [2]",
+    "answer": "(a) 4x² + 3x − 1; (b) 4x(2x + 2); (c) x = 4; (d) x + 2",
     "steps": [
       {
-        "t": "(a)",
-        "d": "t = (v − u)/a"
+        "t": "(a) FOIL",
+        "d": "4x² + 4x − 1x − 1 = 4x² + 3x − 1"
       },
       {
-        "t": "(b) LCD 12",
-        "d": "9x/12 + 2x/12 = 11x/12"
+        "t": "(b) common factor",
+        "d": "4x(2x + 2)"
       },
       {
-        "t": "(c) cross multiply",
-        "d": ""
+        "t": "(c) divide by 4",
+        "d": "x − 1 = 3 ⇒ x = 4"
+      },
+      {
+        "t": "(d) difference of squares",
+        "d": "(x−2)(x+2)/(x−2) = x+2, x≠2"
       }
     ],
-    "markscheme": "10 marks. Answer: see steps",
+    "markscheme": "(a) 3 (b) 2 (c) 3 (d) 2 = 10",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -2984,25 +3076,29 @@
     "question_number": "2",
     "marks": 8,
     "topic_tags": [
-      "geometry_(angles)"
+      "geometry"
     ],
-    "question_text": "AB ∥ CD with transversal EF in a street plan of Gweru. (a) Angle APQ = 61°. State the corresponding angle at Q, with a reason.  [2] (b) Find the co-interior angle to 61°.  [2] (c) A triangle has angles 61°, 42° and x°. Find x.  [2] (d) Classify the triangle (acute / right / obtuse).  [2]",
-    "answer": "(a) 61° corresponding; (b) 119°; (c) 77°",
+    "question_text": "AB is parallel to CD. Transversal PQ meets AB at X and CD at Y. (a) Angle AXY = 61°. Find the corresponding angle at Y. Give a reason.  [2] (b) Find the co-interior (allied) angle to 61°. Give a reason.  [2] (c) In triangle PQR, P̂ = 61° and Q̂ = 37°. Calculate R̂.  [2] (d) State whether triangle PQR is acute, right-angled or obtuse. Give a reason.  [2]",
+    "answer": "(a) 61° corresponding angles, AB ∥ CD; (b) 119° co-interior; (c) 82°",
     "steps": [
       {
-        "t": "(a) corresponding, AB ∥ CD",
-        "d": "61°"
+        "t": "(a) corresponding angles",
+        "d": "61°, AB ∥ CD"
       },
       {
-        "t": "(b) co-interior",
+        "t": "(b) co-interior sum to 180°",
         "d": "119°"
       },
       {
-        "t": "(c)",
-        "d": "77°"
+        "t": "(c) angle sum of a triangle",
+        "d": "180 − 61 − 37 = 82°"
+      },
+      {
+        "t": "(d) compare with 90°",
+        "d": "acute if all < 90°, obtuse if one > 90°"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 61° corresponding; (b) 119°; (c) 77°",
+    "markscheme": "8 marks. Answer: (a) 61° corresponding angles, AB ∥ CD; (b) 119° co-interior; (c) 82°",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -3017,23 +3113,23 @@
     "topic_tags": [
       "mensuration"
     ],
-    "question_text": "A rectangular garden in Mkoba measures 12 m by 11 m. A path of width 1 m runs all around the outside. (a) Area of the garden.  [2] (b) Area of the path.  [3] (c) A circular bed of radius 7 m is later dug. Area of the bed, π = 22/7.  [3]",
-    "answer": "(a) 132 m²; (b) 50 m²; (c) 154 m²",
+    "question_text": "A closed cylinder has radius 7 cm and height 8 cm. Take π = 22/7. (a) Calculate the volume.  [3] (b) Calculate the curved surface area.  [3] (c) Calculate the total surface area.  [2]",
+    "answer": "(a) 1232 cm³; (b) 352 cm²; (c) 660 cm²",
     "steps": [
       {
-        "t": "(a)",
-        "d": "12×11 = 132"
+        "t": "(a) V = πr²h",
+        "d": "22/7 × 7² × 8 = 1232 cm³"
       },
       {
-        "t": "(b) outer − inner",
-        "d": "182 − 132 = 50"
+        "t": "(b) CSA = 2πrh",
+        "d": "352 cm²"
       },
       {
-        "t": "(c) πr²",
+        "t": "(c) TSA = 2πrh + 2πr²",
         "d": ""
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 132 m²; (b) 50 m²; (c) 154 m²",
+    "markscheme": "8 marks. Answer: (a) 1232 cm³; (b) 352 cm²; (c) 660 cm²",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -3044,27 +3140,31 @@
     "year": 2020,
     "session": "November",
     "question_number": "4",
-    "marks": 9,
+    "marks": 8,
     "topic_tags": [
-      "statistics"
+      "coordinate_geometry"
     ],
-    "question_text": "30 Form 4 pupils at Moleli scored: 4 (6 pupils), 3 (6 pupils), 2 (4 pupils), 3 (6 pupils), 6 (8 pupils). (a) Modal mark.  [1] (b) Mean mark.  [4] (c) Range.  [2] (d) One extra pupil scores 6. Effect on the mean?  [2]",
-    "answer": "(a) 6; (b) 3 13/15; (c) 4",
+    "question_text": "The line L has equation  y = -2x + -5. (a) Write down the gradient of L and the coordinates of the y-intercept.  [2] (b) Find the coordinates of the point where L meets the x-axis.  [2] (c) Find the gradient of the line joining A(3, 3) and B(7, 7).  [2] (d) Write the equation of the line parallel to L that passes through (0, 1).  [2]",
+    "answer": "(a) gradient -2, (0, -5); (b) (-2 1/2, 0); (c) 1; (d) y = -2x + 1",
     "steps": [
       {
-        "t": "(a) highest frequency",
-        "d": "6"
+        "t": "(a) y = mx + c",
+        "d": "m = -2, intercept (0, -5)"
       },
       {
-        "t": "(b) Σfx/Σf",
-        "d": "116/30"
+        "t": "(b) y = 0",
+        "d": "0 = -2x + -5 ⇒ x = -2 1/2"
       },
       {
-        "t": "(c)",
-        "d": "4"
+        "t": "(c) m = (y2−y1)/(x2−x1)",
+        "d": "4/4"
+      },
+      {
+        "t": "(d) same gradient",
+        "d": "y = -2x + 1"
       }
     ],
-    "markscheme": "9 marks. Answer: (a) 6; (b) 3 13/15; (c) 4",
+    "markscheme": "8 marks. Answer: (a) gradient -2, (0, -5); (b) (-2 1/2, 0); (c) 1; (d) y = -2x + 1",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -3075,27 +3175,31 @@
     "year": 2020,
     "session": "November",
     "question_number": "5",
-    "marks": 8,
+    "marks": 9,
     "topic_tags": [
-      "geometrical_construction"
+      "statistics"
     ],
-    "question_text": "(a) Using ruler and compasses only, construct triangle ABC with AB = 6 cm, BC = 5 cm and AC = 8 cm.  [4] (b) Construct the perpendicular bisector of BC.  [2] (c) Mark the circumcentre and describe its property.  [2]",
-    "answer": "Construction — equal arcs; circumcentre equidistant from A,B,C",
+    "question_text": "The table shows values of x with frequencies f: x=1, f=2, x=3, f=7, x=3, f=3, x=5, f=6, x=5, f=5. (a) State the modal value of x.  [1] (b) Calculate Σf and Σfx.  [3] (c) Calculate the mean of x.  [3] (d) Find the range of x.  [2]",
+    "answer": "(a) 3; (b) Σf=23, Σfx=87; (c) 3 18/23; (d) 4",
     "steps": [
       {
-        "t": "(a) base + two arcs",
-        "d": "SSS construction"
+        "t": "(a) highest frequency",
+        "d": "3"
       },
       {
-        "t": "(b) arcs from B and C",
-        "d": ""
+        "t": "(b)",
+        "d": "Σf = 23, Σfx = 87"
       },
       {
-        "t": "(c) intersection of perpendicular bisectors",
-        "d": ""
+        "t": "(c) mean = Σfx/Σf",
+        "d": "87/23 = 3 18/23"
+      },
+      {
+        "t": "(d) max − min",
+        "d": "5 − 1 = 4"
       }
     ],
-    "markscheme": "8 marks. Answer: Construction — equal arcs; circumcentre equidistant from A,B,C",
+    "markscheme": "9 marks. Answer: (a) 3; (b) Σf=23, Σfx=87; (c) 3 18/23; (d) 4",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -3106,27 +3210,31 @@
     "year": 2020,
     "session": "November",
     "question_number": "6",
-    "marks": 8,
+    "marks": 9,
     "topic_tags": [
-      "graphs_and_coordinates"
+      "matrices"
     ],
-    "question_text": "Line L: y = 2x + -2. (a) Gradient and y-intercept.  [2] (b) Coordinates where L meets the x-axis.  [2] (c) Show A(0, -2) lies on L.  [2] (d) Equation of the line parallel to L through (0, 4).  [2]",
-    "answer": "(a) 2, (0,-2); (b) (1, 0); (d) y = 2x + 4",
+    "question_text": "A = (4  1 ; 4  1)  and  column vector u = (2 ; 3). (a) Calculate Au.  [3] (b) Find det A.  [2] (c) Describe fully the transformation represented by (0 −1 ; 1  0).  [2] (d) Find the image of the point (2, 3) under a reflection in the y-axis.  [2]",
+    "answer": "(a) (11 ; 11); (b) 0; (c) rotation 90° anticlockwise about O; (d) (-2, 3)",
     "steps": [
       {
-        "t": "(a) y = mx + c",
-        "d": ""
+        "t": "(a) row × column",
+        "d": "(11 ; 11)"
       },
       {
-        "t": "(b) y = 0",
-        "d": "x = 1"
+        "t": "(b) ad − bc",
+        "d": "4×1 − 1×4 = 0"
       },
       {
-        "t": "(d) same m",
-        "d": "y = 2x + 4"
+        "t": "(c)",
+        "d": "(x,y) → (−y, x), 90° anticlockwise about O"
+      },
+      {
+        "t": "(d) (x,y) → (−x, y)",
+        "d": "(-2, 3)"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 2, (0,-2); (b) (1, 0); (d) y = 2x + 4",
+    "markscheme": "9 marks. Answer: (a) (11 ; 11); (b) 0; (c) rotation 90° anticlockwise about O; (d) (-2, 3)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -3139,25 +3247,29 @@
     "question_number": "7",
     "marks": 12,
     "topic_tags": [
-      "vectors"
+      "quadratic_equations"
     ],
-    "question_text": "OA = a = (3 ; 3), OB = b = (1 ; 6). M midpoint of AB. (a) Vector AB.  [3] (b) |AB|.  [3] (c) Position vector OM.  [3] (d) Show AM = MB.  [3]",
-    "answer": "(a) (-2 ; 3); (b) √13",
+    "question_text": "(a) Factorise  x² − 7x + 10.  [3] (b) Hence solve  x² − 7x + 10 = 0.  [2] (c) Write down the roots of  (x − 2)(x − 5) = 0.  [1] (d) Sketch y = (x − 2)(x − 5), showing the intercepts with both axes.  [3] (e) State the coordinates of the turning point.  [3]",
+    "answer": "(a) (x−2)(x−5); (b) x=2 or x=5; (e) (3 1/2, -3)",
     "steps": [
       {
-        "t": "(a) b − a",
-        "d": "(-2 ; 3)"
+        "t": "(a)",
+        "d": "(x − 2)(x − 5)"
       },
       {
-        "t": "(b) magnitude",
-        "d": ""
+        "t": "(b)",
+        "d": "x = 2 or x = 5"
       },
       {
-        "t": "(c) (a+b)/2",
-        "d": ""
+        "t": "(d) x-intercepts and y-intercept {r1*r2}",
+        "d": "U-shape (positive x²)"
+      },
+      {
+        "t": "(e) midpoint of roots, substitute",
+        "d": "x = 3 1/2"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) (-2 ; 3); (b) √13",
+    "markscheme": "12 marks. Answer: (a) (x−2)(x−5); (b) x=2 or x=5; (e) (3 1/2, -3)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -3170,25 +3282,29 @@
     "question_number": "8",
     "marks": 12,
     "topic_tags": [
-      "travel_graphs"
+      "trigonometry"
     ],
-    "question_text": "A kombi leaves Gweru at 08:00 and travels 180 km at constant speed, arriving after 2 hours. It stops 30 minutes, then returns at 80 km/h. (a) Outward speed.  [3] (b) Time for the return.  [3] (c) Sketch a distance–time graph, labelling axes.  [4] (d) Average speed for the whole trip including the stop.  [2]",
-    "answer": "(a) 90 km/h; (b) 2.25 h",
+    "question_text": "In triangle ABC, Ĉ = 90°, Â = 30° and AC = 12 cm (hypotenuse). (a) Write down sin 30° and cos 60°.  [2] (b) Calculate BC (opposite 30°).  [3] (c) Calculate AB (adjacent to 30°).  [3] (d) Show that tan 30° = 1/√3 and hence find BC/AB.  [4]",
+    "answer": "(a) 1/2, 1/2; (b) 6 cm; (c) 12√3/2 cm",
     "steps": [
       {
-        "t": "(a) s = d/t",
-        "d": "180/2"
+        "t": "(a)",
+        "d": "sin 30° = 1/2, cos 60° = 1/2"
       },
       {
-        "t": "(b) t = d/s",
-        "d": "180/80"
+        "t": "(b) sin 30° = BC/AC",
+        "d": "BC = 12/2 = 6 cm"
       },
       {
-        "t": "(d) total distance 2d / total time",
-        "d": ""
+        "t": "(c) cos 30° = √3/2 = AB/AC",
+        "d": "AB = 12√3/2 cm"
+      },
+      {
+        "t": "(d) opp/adj",
+        "d": "BC/AB = 1/√3"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 90 km/h; (b) 2.25 h",
+    "markscheme": "12 marks. Answer: (a) 1/2, 1/2; (b) 6 cm; (c) 12√3/2 cm",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -3201,25 +3317,29 @@
     "question_number": "9",
     "marks": 12,
     "topic_tags": [
-      "cumulative_frequency"
+      "circle_theorems"
     ],
-    "question_text": "60 pupils at Moleli sat a test (0–50). An ogive is drawn. (a) How to read the median from the ogive.  [3] (b) Median estimated as 30. Meaning?  [2] (c) How to find the IQR from the graph.  [4] (d) Why IQR is better than the range here.  [3]",
-    "answer": "(a) read at cf = 30.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "question_text": "O is the centre of a circle. A, B and C lie on the circumference. AB is a diameter. Angle BAC = 36°. (a) Find angle ACB. Give a reason.  [3] (b) Find angle ABC.  [2] (c) Find angle BOC (angle at the centre standing on arc BC). Give a reason.  [4] (d) Point D lies on the remaining circumference. Find angle BDC. Give a reason.  [3]",
+    "answer": "(a) 90° (angle in a semicircle); (b) 54°; (c) 72° (angle at centre = 2 × angle at circumference); (d) 36° (angles in the same segment)",
     "steps": [
       {
-        "t": "(a)",
-        "d": "n/2 = 30.0"
+        "t": "(a) angle in a semicircle",
+        "d": "ACB = 90° because AB is a diameter"
       },
       {
-        "t": "(c)",
-        "d": "Q1 = 15.0, Q3 = 45.0"
+        "t": "(b) angle sum in triangle ABC",
+        "d": "ABC = 90 − 36 = 54°"
       },
       {
-        "t": "(d) outliers",
-        "d": "IQR uses middle 50%"
+        "t": "(c) angle at the centre is twice the angle at the circumference, same arc BC",
+        "d": "BOC = 2 × 36 = 72°"
+      },
+      {
+        "t": "(d) angles in the same segment",
+        "d": "BDC = BAC = 36°"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) read at cf = 30.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "markscheme": "12 marks. Answer: (a) 90° (angle in a semicircle); (b) 54°; (c) 72° (angle at centre = 2 × angle at circumference); (d) 36° (angles in the same segment)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -3232,25 +3352,29 @@
     "question_number": "10",
     "marks": 12,
     "topic_tags": [
-      "quadratic_equations"
+      "vectors"
     ],
-    "question_text": "(a) Solve x² − 11x + 24 = 0 by factorisation.  [4] (b) A rectangular plot in Gweru is 8 m longer than it is wide. If the area is 33 m², form and solve an equation for the width w.  [5] (c) Sketch y = (x − 3)(x − 8), showing intercepts.  [3]",
-    "answer": "(a) x=3 or 8; (b) w(w+8) = 33",
+    "question_text": "The position vectors of A and B are a = (5 ; 5) and b = (2 ; 2). M is the midpoint of AB. (a) Find vector AB.  [3] (b) Find |AB|.  [3] (c) Find the position vector of M.  [3] (d) Show that AM = ½ AB.  [3]",
+    "answer": "(a) (-3 ; -3); (b) √18; (c) (3 1/2 ; 3 1/2)",
     "steps": [
       {
-        "t": "(a)",
-        "d": "(x−3)(x−8)=0"
+        "t": "(a) AB = b − a",
+        "d": "(2−5 ; 2−5) = (-3 ; -3)"
       },
       {
-        "t": "(b)",
-        "d": "w² + 8w − 33 = 0"
+        "t": "(b) |AB| = √(x²+y²)",
+        "d": "√18"
       },
       {
-        "t": "(c) intercepts",
-        "d": "3, 8"
+        "t": "(c) OM = (a+b)/2",
+        "d": ""
+      },
+      {
+        "t": "(d) M midpoint ⇒ AM = ½ AB",
+        "d": ""
       }
     ],
-    "markscheme": "12 marks. Answer: (a) x=3 or 8; (b) w(w+8) = 33",
+    "markscheme": "12 marks. Answer: (a) (-3 ; -3); (b) √18; (c) (3 1/2 ; 3 1/2)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -3263,25 +3387,29 @@
     "question_number": "11",
     "marks": 12,
     "topic_tags": [
-      "variation_and_linear_programming"
+      "cumulative_frequency"
     ],
-    "question_text": "(a) y varies directly as x. When x = 4, y = 36. Find y when x = 10.  [4] (b) z varies inversely as x. When x = 3, z = 8. Find z when x = 6.  [4] (c) A farmer near Gweru has at most 30 hours. Maize takes 2 h/ha, vegetables 1 h/ha. Inequality for hectares m and v.  [4]",
-    "answer": "(a) 90; (b) 4; (c) 2m + v ≤ 30",
+    "question_text": "60 candidates sat a Mathematics paper marked out of 50. A cumulative frequency curve (ogive) is drawn. (a) State the median position on the cumulative-frequency axis.  [2] (b) Describe how to read the median mark from the ogive.  [3] (c) The lower quartile is at position n/4 and the upper quartile at 3n/4. Write these positions as numbers.  [3] (d) Define the interquartile range and state one advantage of the IQR over the range.  [4]",
+    "answer": "(a) 30.0; (c) Q1 at 15.0, Q3 at 45.0; (d) IQR = Q3 − Q1, less affected by outliers",
     "steps": [
       {
-        "t": "(a) y = kx",
-        "d": "k = 9, y = 90"
+        "t": "(a) n/2",
+        "d": "60/2 = 30.0"
       },
       {
-        "t": "(b) z = k/x",
-        "d": "k = 24, z = 4"
+        "t": "(b)",
+        "d": "from cf = n/2 across to the curve, down to the mark axis"
       },
       {
         "t": "(c)",
-        "d": "2m + v ≤ 30, m≥0, v≥0"
+        "d": "Q1: 15.0, Q3: 45.0"
+      },
+      {
+        "t": "(d)",
+        "d": "IQR = Q3 − Q1; uses the middle 50%, so extreme values have less effect"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 90; (b) 4; (c) 2m + v ≤ 30",
+    "markscheme": "12 marks. Answer: (a) 30.0; (c) Q1 at 15.0, Q3 at 45.0; (d) IQR = Q3 − Q1, less affected by outliers",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -3294,25 +3422,29 @@
     "question_number": "12",
     "marks": 12,
     "topic_tags": [
-      "trigonometry_and_bearings"
+      "transformations"
     ],
-    "question_text": "A cellphone tower is observed from A on level ground in Gweru. Angle of elevation of the top is 30°. Distance A to the foot is 20 m. (a) Height of the object. Use tan 30° = 1/√3.  [4] (b) From B, 20 m due East of A, the bearing of the foot is 300°. Sketch.  [3] (c) A bird sits halfway up. Angle of elevation from A.  [5]",
-    "answer": "(a) 20/√3 = 20√3/3 m",
+    "question_text": "Triangle PQR has P(2, 4), Q(5, 4) and R(2, 7). (a) P' is the image of P under reflection in the y-axis. Write down the coordinates of P'.  [2] (b) Q is translated by the vector (1 ; -2). Find the image Q''.  [3] (c) The matrix (0 −1 ; 1  0) represents a transformation T. Describe T fully.  [4] (d) Find T(Q), the image of Q under T.  [3]",
+    "answer": "(a) (-2, 4); (b) (6, 2); (c) rotation 90° anticlockwise about O; (d) (-4, 5)",
     "steps": [
       {
-        "t": "(a) tan 30° = opp/adj",
-        "d": "h = 20/√3 = 20√3/3 m"
+        "t": "(a) (x, y) → (−x, y)",
+        "d": "P'(-2, 4)"
       },
       {
-        "t": "(b) bearings sketch",
-        "d": "North lines at A and B"
+        "t": "(b) add the vector",
+        "d": "(5+1, 4+-2)"
       },
       {
-        "t": "(c) tan θ = (h/2)/adj",
-        "d": ""
+        "t": "(c) (x, y) → (−y, x)",
+        "d": "rotation 90° anticlockwise about the origin"
+      },
+      {
+        "t": "(d)",
+        "d": "(5, 4) → (-4, 5)"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 20/√3 = 20√3/3 m",
+    "markscheme": "12 marks. Answer: (a) (-2, 4); (b) (6, 2); (c) rotation 90° anticlockwise about O; (d) (-4, 5)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -3325,25 +3457,25 @@
     "question_number": "13",
     "marks": 12,
     "topic_tags": [
-      "circle_geometry"
+      "variation"
     ],
-    "question_text": "O is the centre. A, B, C on the circumference. AB is a diameter. Angle BAC = 28°. (a) Angle ACB. Reason.  [3] (b) Angle BOC (centre, same arc BC).  [3] (c) D on the remaining circumference. Angle BDC. Reason.  [3] (d) State the angle-in-a-semicircle theorem.  [3]",
-    "answer": "(a) 90°; (b) 56°; (c) 28° same segment",
+    "question_text": "(a) y varies directly as x. When x = 3, y = 12. &nbsp;&nbsp;&nbsp;(i) Find the equation connecting y and x.  [3] &nbsp;&nbsp;&nbsp;(ii) Find y when x = 12.  [2] (b) z varies inversely as x. When x = 3, z = 4. Let this value of z be z₀. &nbsp;&nbsp;&nbsp;(i) Find z when x = 6.  [4] &nbsp;&nbsp;&nbsp;(ii) Describe what happens to z when x is doubled.  [3]",
+    "answer": "(a) y = 4x; y(12) = 48; (b) inverse: product constant, doubling x halves z",
     "steps": [
       {
-        "t": "(a) angle in a semicircle",
-        "d": "90°"
+        "t": "(a)(i) y = kx",
+        "d": "12 = k×3 ⇒ k = 4"
       },
       {
-        "t": "(b) angle at centre = 2 at circumference",
-        "d": "56°"
+        "t": "(a)(ii)",
+        "d": "y = 4×12 = 48"
       },
       {
-        "t": "(c) same segment",
-        "d": "28°"
+        "t": "(b) z = c/x",
+        "d": "if x doubles, z is halved"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 90°; (b) 56°; (c) 28° same segment",
+    "markscheme": "12 marks. Answer: (a) y = 4x; y(12) = 48; (b) inverse: product constant, doubling x halves z",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -4068,27 +4200,31 @@
     "year": 2021,
     "session": "November",
     "question_number": "1",
-    "marks": 9,
+    "marks": 10,
     "topic_tags": [
-      "consumer_arithmetic"
+      "algebra"
     ],
-    "question_text": "A irrigation kit is marked at $1000 in Masvingo. (a) 20% discount. Discounted price.  [3] (b) Then add VAT 15%. Amount paid.  [3] (c) Deposit 40% of the final amount. Balance remaining.  [3]",
-    "answer": "(a) $800; (b) $920; (c) $552",
+    "question_text": "(a) Expand and simplify  (3x − 1)(x + 1).  [3] (b) Factorise completely  20x² + 4x.  [2] (c) Solve  3(x − 1) = 15.  [3] (d) Simplify  (x² − 4)/(x − 2).  [2]",
+    "answer": "(a) 3x² + 2x − 1; (b) 4x(5x + 1); (c) x = 6; (d) x + 2",
     "steps": [
       {
-        "t": "(a)",
-        "d": "1000×80/100 = 800"
+        "t": "(a) FOIL",
+        "d": "3x² + 3x − 1x − 1 = 3x² + 2x − 1"
       },
       {
-        "t": "(b) ×1.15",
-        "d": "920"
+        "t": "(b) common factor",
+        "d": "4x(5x + 1)"
       },
       {
-        "t": "(c) 60%",
-        "d": "552"
+        "t": "(c) divide by 3",
+        "d": "x − 1 = 5 ⇒ x = 6"
+      },
+      {
+        "t": "(d) difference of squares",
+        "d": "(x−2)(x+2)/(x−2) = x+2, x≠2"
       }
     ],
-    "markscheme": "9 marks. Answer: (a) $800; (b) $920; (c) $552",
+    "markscheme": "(a) 3 (b) 2 (c) 3 (d) 2 = 10",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -4101,25 +4237,29 @@
     "question_number": "2",
     "marks": 8,
     "topic_tags": [
-      "mensuration"
+      "geometry"
     ],
-    "question_text": "A rectangular garden in Mucheke measures 18 m by 8 m. A path of width 2 m runs all around the outside. (a) Area of the garden.  [2] (b) Area of the path.  [3] (c) A circular bed of radius 7 m is later dug. Area of the bed, π = 22/7.  [3]",
-    "answer": "(a) 144 m²; (b) 120 m²; (c) 154 m²",
+    "question_text": "AB is parallel to CD. Transversal PQ meets AB at X and CD at Y. (a) Angle AXY = 40°. Find the corresponding angle at Y. Give a reason.  [2] (b) Find the co-interior (allied) angle to 40°. Give a reason.  [2] (c) In triangle PQR, P̂ = 40° and Q̂ = 55°. Calculate R̂.  [2] (d) State whether triangle PQR is acute, right-angled or obtuse. Give a reason.  [2]",
+    "answer": "(a) 40° corresponding angles, AB ∥ CD; (b) 140° co-interior; (c) 85°",
     "steps": [
       {
-        "t": "(a)",
-        "d": "18×8 = 144"
+        "t": "(a) corresponding angles",
+        "d": "40°, AB ∥ CD"
       },
       {
-        "t": "(b) outer − inner",
-        "d": "264 − 144 = 120"
+        "t": "(b) co-interior sum to 180°",
+        "d": "140°"
       },
       {
-        "t": "(c) πr²",
-        "d": ""
+        "t": "(c) angle sum of a triangle",
+        "d": "180 − 40 − 55 = 85°"
+      },
+      {
+        "t": "(d) compare with 90°",
+        "d": "acute if all < 90°, obtuse if one > 90°"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 144 m²; (b) 120 m²; (c) 154 m²",
+    "markscheme": "8 marks. Answer: (a) 40° corresponding angles, AB ∥ CD; (b) 140° co-interior; (c) 85°",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -4132,25 +4272,25 @@
     "question_number": "3",
     "marks": 8,
     "topic_tags": [
-      "geometry_(angles)"
+      "mensuration"
     ],
-    "question_text": "AB ∥ CD with transversal EF in a street plan of Masvingo. (a) Angle APQ = 65°. State the corresponding angle at Q, with a reason.  [2] (b) Find the co-interior angle to 65°.  [2] (c) A triangle has angles 65°, 54° and x°. Find x.  [2] (d) Classify the triangle (acute / right / obtuse).  [2]",
-    "answer": "(a) 65° corresponding; (b) 115°; (c) 61°",
+    "question_text": "A rectangle measures 18 cm by 8 cm. A border of width 2 cm is drawn around the outside. (a) Find the area of the rectangle.  [2] (b) Find the area of the outer rectangle.  [3] (c) Hence find the area of the border.  [3]",
+    "answer": "(a) 144 cm²; (b) 264 cm²; (c) 120 cm²",
     "steps": [
       {
-        "t": "(a) corresponding, AB ∥ CD",
-        "d": "65°"
+        "t": "(a) lw",
+        "d": "18×8 = 144"
       },
       {
-        "t": "(b) co-interior",
-        "d": "115°"
+        "t": "(b) (l+2w)(w+2w)",
+        "d": "22×12 = 264"
       },
       {
-        "t": "(c)",
-        "d": "61°"
+        "t": "(c) outer − inner",
+        "d": "120"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 65° corresponding; (b) 115°; (c) 61°",
+    "markscheme": "8 marks. Answer: (a) 144 cm²; (b) 264 cm²; (c) 120 cm²",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -4161,31 +4301,31 @@
     "year": 2021,
     "session": "November",
     "question_number": "4",
-    "marks": 10,
+    "marks": 8,
     "topic_tags": [
-      "algebra"
+      "coordinate_geometry"
     ],
-    "question_text": "(a) Expand and simplify (2x − 4)(x + 4).  [3] (b) Factorise x² + 5x + 4.  [2] (c) Solve (x + 4)/2 = 4.  [3] (d) Simplify (x² − 16)/(x − 4).  [2]",
-    "answer": "(a) 2x² + 4x − 16; (b) (x+4)(x+1); (c) x = 4; (d) x+4",
+    "question_text": "The line L has equation  y = 3x + 4. (a) Write down the gradient of L and the coordinates of the y-intercept.  [2] (b) Find the coordinates of the point where L meets the x-axis.  [2] (c) Find the gradient of the line joining A(1, 5) and B(3, 7).  [2] (d) Write the equation of the line parallel to L that passes through (0, 1).  [2]",
+    "answer": "(a) gradient 3, (0, 4); (b) (-1 1/3, 0); (c) 1; (d) y = 3x + 1",
     "steps": [
       {
-        "t": "(a) FOIL",
-        "d": "2x² + 4x − 16"
+        "t": "(a) y = mx + c",
+        "d": "m = 3, intercept (0, 4)"
       },
       {
-        "t": "(b)",
-        "d": "(x+4)(x+1)"
+        "t": "(b) y = 0",
+        "d": "0 = 3x + 4 ⇒ x = -1 1/3"
       },
       {
-        "t": "(c)",
-        "d": "x = 4"
+        "t": "(c) m = (y2−y1)/(x2−x1)",
+        "d": "2/2"
       },
       {
-        "t": "(d) difference of squares",
-        "d": "x + 4"
+        "t": "(d) same gradient",
+        "d": "y = 3x + 1"
       }
     ],
-    "markscheme": "10 marks. Answer: (a) 2x² + 4x − 16; (b) (x+4)(x+1); (c) x = 4; (d) x+4",
+    "markscheme": "8 marks. Answer: (a) gradient 3, (0, 4); (b) (-1 1/3, 0); (c) 1; (d) y = 3x + 1",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -4196,27 +4336,31 @@
     "year": 2021,
     "session": "November",
     "question_number": "5",
-    "marks": 8,
+    "marks": 9,
     "topic_tags": [
-      "graphs_and_coordinates"
+      "statistics"
     ],
-    "question_text": "Line L: y = 3x + 5. (a) Gradient and y-intercept.  [2] (b) Coordinates where L meets the x-axis.  [2] (c) Show A(0, 5) lies on L.  [2] (d) Equation of the line parallel to L through (0, 4).  [2]",
-    "answer": "(a) 3, (0,5); (b) (-1 2/3, 0); (d) y = 3x + 4",
+    "question_text": "The table shows values of x with frequencies f: x=2, f=2, x=3, f=5, x=5, f=7, x=5, f=8, x=7, f=2. (a) State the modal value of x.  [1] (b) Calculate Σf and Σfx.  [3] (c) Calculate the mean of x.  [3] (d) Find the range of x.  [2]",
+    "answer": "(a) 5; (b) Σf=24, Σfx=108; (c) 4 1/2; (d) 5",
     "steps": [
       {
-        "t": "(a) y = mx + c",
-        "d": ""
+        "t": "(a) highest frequency",
+        "d": "5"
       },
       {
-        "t": "(b) y = 0",
-        "d": "x = -1 2/3"
+        "t": "(b)",
+        "d": "Σf = 24, Σfx = 108"
       },
       {
-        "t": "(d) same m",
-        "d": "y = 3x + 4"
+        "t": "(c) mean = Σfx/Σf",
+        "d": "108/24 = 4 1/2"
+      },
+      {
+        "t": "(d) max − min",
+        "d": "7 − 2 = 5"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 3, (0,5); (b) (-1 2/3, 0); (d) y = 3x + 4",
+    "markscheme": "9 marks. Answer: (a) 5; (b) Σf=24, Σfx=108; (c) 4 1/2; (d) 5",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -4227,27 +4371,31 @@
     "year": 2021,
     "session": "November",
     "question_number": "6",
-    "marks": 8,
+    "marks": 9,
     "topic_tags": [
-      "mensuration_(cylinder)"
+      "matrices"
     ],
-    "question_text": "A cylindrical tank at Prince Edward has radius 7 cm and height 12 cm. π = 22/7. (a) Volume.  [3] (b) Curved surface area.  [3] (c) Total surface area including the base only (open top).  [2]",
-    "answer": "(a) 1848 cm³; (b) 528 cm²",
+    "question_text": "A = (4  0 ; 2  1)  and  column vector u = (2 ; 5). (a) Calculate Au.  [3] (b) Find det A.  [2] (c) Describe fully the transformation represented by (0 −1 ; 1  0).  [2] (d) Find the image of the point (2, 5) under a reflection in the y-axis.  [2]",
+    "answer": "(a) (8 ; 9); (b) 4; (c) rotation 90° anticlockwise about O; (d) (-2, 5)",
     "steps": [
       {
-        "t": "(a) πr²h",
-        "d": ""
+        "t": "(a) row × column",
+        "d": "(8 ; 9)"
       },
       {
-        "t": "(b) 2πrh",
-        "d": ""
+        "t": "(b) ad − bc",
+        "d": "4×1 − 0×2 = 4"
       },
       {
-        "t": "(c) 2πrh + πr²",
-        "d": ""
+        "t": "(c)",
+        "d": "(x,y) → (−y, x), 90° anticlockwise about O"
+      },
+      {
+        "t": "(d) (x,y) → (−x, y)",
+        "d": "(-2, 5)"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 1848 cm³; (b) 528 cm²",
+    "markscheme": "9 marks. Answer: (a) (8 ; 9); (b) 4; (c) rotation 90° anticlockwise about O; (d) (-2, 5)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -4260,25 +4408,29 @@
     "question_number": "7",
     "marks": 12,
     "topic_tags": [
-      "trigonometry_and_bearings"
+      "quadratic_equations"
     ],
-    "question_text": "A cellphone tower is observed from A on level ground in Masvingo. Angle of elevation of the top is 30°. Distance A to the foot is 24 m. (a) Height of the object. Use tan 30° = 1/√3.  [4] (b) From B, 24 m due East of A, the bearing of the foot is 300°. Sketch.  [3] (c) A bird sits halfway up. Angle of elevation from A.  [5]",
-    "answer": "(a) 24/√3 = 24√3/3 m",
+    "question_text": "(a) Factorise  x² − 6x + 5.  [3] (b) Hence solve  x² − 6x + 5 = 0.  [2] (c) Write down the roots of  (x − 1)(x − 5) = 0.  [1] (d) Sketch y = (x − 1)(x − 5), showing the intercepts with both axes.  [3] (e) State the coordinates of the turning point.  [3]",
+    "answer": "(a) (x−1)(x−5); (b) x=1 or x=5; (e) (3, -4)",
     "steps": [
       {
-        "t": "(a) tan 30° = opp/adj",
-        "d": "h = 24/√3 = 24√3/3 m"
+        "t": "(a)",
+        "d": "(x − 1)(x − 5)"
       },
       {
-        "t": "(b) bearings sketch",
-        "d": "North lines at A and B"
+        "t": "(b)",
+        "d": "x = 1 or x = 5"
       },
       {
-        "t": "(c) tan θ = (h/2)/adj",
-        "d": ""
+        "t": "(d) x-intercepts and y-intercept {r1*r2}",
+        "d": "U-shape (positive x²)"
+      },
+      {
+        "t": "(e) midpoint of roots, substitute",
+        "d": "x = 3"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 24/√3 = 24√3/3 m",
+    "markscheme": "12 marks. Answer: (a) (x−1)(x−5); (b) x=1 or x=5; (e) (3, -4)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -4291,25 +4443,29 @@
     "question_number": "8",
     "marks": 12,
     "topic_tags": [
-      "transformations_and_matrices"
+      "trigonometry"
     ],
-    "question_text": "Triangle P(1,1), Q(4,1), R(1,4). (a) Reflect in the y-axis. Coordinates of P'.  [4] (b) Translate PQR by (2 ; -2). Give Q''.  [3] (c) Matrix (0 −1 ; 1  0) maps (x;y). Describe fully and find the image of Q.  [5]",
-    "answer": "(a) P'(-1,1); (b) Q''(6,-1); (c) 90° anticlockwise about O",
+    "question_text": "In triangle ABC, Ĉ = 90°, Â = 30° and AC = 20 cm (hypotenuse). (a) Write down sin 30° and cos 60°.  [2] (b) Calculate BC (opposite 30°).  [3] (c) Calculate AB (adjacent to 30°).  [3] (d) Show that tan 30° = 1/√3 and hence find BC/AB.  [4]",
+    "answer": "(a) 1/2, 1/2; (b) 10 cm; (c) 20√3/2 cm",
     "steps": [
       {
-        "t": "(a) (x,y)→(−x,y)",
-        "d": "P'(-1,1)"
+        "t": "(a)",
+        "d": "sin 30° = 1/2, cos 60° = 1/2"
       },
       {
-        "t": "(b)",
-        "d": "Q(4,1)+(2,-2)"
+        "t": "(b) sin 30° = BC/AC",
+        "d": "BC = 20/2 = 10 cm"
       },
       {
-        "t": "(c) (−y, x)",
-        "d": "rotation 90° anticlockwise about O"
+        "t": "(c) cos 30° = √3/2 = AB/AC",
+        "d": "AB = 20√3/2 cm"
+      },
+      {
+        "t": "(d) opp/adj",
+        "d": "BC/AB = 1/√3"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) P'(-1,1); (b) Q''(6,-1); (c) 90° anticlockwise about O",
+    "markscheme": "12 marks. Answer: (a) 1/2, 1/2; (b) 10 cm; (c) 20√3/2 cm",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -4322,25 +4478,29 @@
     "question_number": "9",
     "marks": 12,
     "topic_tags": [
-      "cumulative_frequency"
+      "circle_theorems"
     ],
-    "question_text": "40 pupils at Prince Edward sat a test (0–50). An ogive is drawn. (a) How to read the median from the ogive.  [3] (b) Median estimated as 34. Meaning?  [2] (c) How to find the IQR from the graph.  [4] (d) Why IQR is better than the range here.  [3]",
-    "answer": "(a) read at cf = 20.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "question_text": "O is the centre of a circle. A, B and C lie on the circumference. AB is a diameter. Angle BAC = 44°. (a) Find angle ACB. Give a reason.  [3] (b) Find angle ABC.  [2] (c) Find angle BOC (angle at the centre standing on arc BC). Give a reason.  [4] (d) Point D lies on the remaining circumference. Find angle BDC. Give a reason.  [3]",
+    "answer": "(a) 90° (angle in a semicircle); (b) 46°; (c) 88° (angle at centre = 2 × angle at circumference); (d) 44° (angles in the same segment)",
     "steps": [
       {
-        "t": "(a)",
-        "d": "n/2 = 20.0"
+        "t": "(a) angle in a semicircle",
+        "d": "ACB = 90° because AB is a diameter"
       },
       {
-        "t": "(c)",
-        "d": "Q1 = 10.0, Q3 = 30.0"
+        "t": "(b) angle sum in triangle ABC",
+        "d": "ABC = 90 − 44 = 46°"
       },
       {
-        "t": "(d) outliers",
-        "d": "IQR uses middle 50%"
+        "t": "(c) angle at the centre is twice the angle at the circumference, same arc BC",
+        "d": "BOC = 2 × 44 = 88°"
+      },
+      {
+        "t": "(d) angles in the same segment",
+        "d": "BDC = BAC = 44°"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) read at cf = 20.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "markscheme": "12 marks. Answer: (a) 90° (angle in a semicircle); (b) 46°; (c) 88° (angle at centre = 2 × angle at circumference); (d) 44° (angles in the same segment)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -4353,25 +4513,29 @@
     "question_number": "10",
     "marks": 12,
     "topic_tags": [
-      "circle_geometry"
+      "vectors"
     ],
-    "question_text": "O is the centre. A, B, C on the circumference. AB is a diameter. Angle BAC = 32°. (a) Angle ACB. Reason.  [3] (b) Angle BOC (centre, same arc BC).  [3] (c) D on the remaining circumference. Angle BDC. Reason.  [3] (d) State the angle-in-a-semicircle theorem.  [3]",
-    "answer": "(a) 90°; (b) 64°; (c) 32° same segment",
+    "question_text": "The position vectors of A and B are a = (5 ; 3) and b = (0 ; 6). M is the midpoint of AB. (a) Find vector AB.  [3] (b) Find |AB|.  [3] (c) Find the position vector of M.  [3] (d) Show that AM = ½ AB.  [3]",
+    "answer": "(a) (-5 ; 3); (b) √34; (c) (2 1/2 ; 4 1/2)",
     "steps": [
       {
-        "t": "(a) angle in a semicircle",
-        "d": "90°"
+        "t": "(a) AB = b − a",
+        "d": "(0−5 ; 6−3) = (-5 ; 3)"
       },
       {
-        "t": "(b) angle at centre = 2 at circumference",
-        "d": "64°"
+        "t": "(b) |AB| = √(x²+y²)",
+        "d": "√34"
       },
       {
-        "t": "(c) same segment",
-        "d": "32°"
+        "t": "(c) OM = (a+b)/2",
+        "d": ""
+      },
+      {
+        "t": "(d) M midpoint ⇒ AM = ½ AB",
+        "d": ""
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 90°; (b) 64°; (c) 32° same segment",
+    "markscheme": "12 marks. Answer: (a) (-5 ; 3); (b) √34; (c) (2 1/2 ; 4 1/2)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -4384,25 +4548,29 @@
     "question_number": "11",
     "marks": 12,
     "topic_tags": [
-      "travel_graphs"
+      "cumulative_frequency"
     ],
-    "question_text": "A kombi leaves Masvingo at 08:00 and travels 150 km at constant speed, arriving after 3 hours. It stops 30 minutes, then returns at 80 km/h. (a) Outward speed.  [3] (b) Time for the return.  [3] (c) Sketch a distance–time graph, labelling axes.  [4] (d) Average speed for the whole trip including the stop.  [2]",
-    "answer": "(a) 50 km/h; (b) 1.875 h",
+    "question_text": "40 candidates sat a Mathematics paper marked out of 50. A cumulative frequency curve (ogive) is drawn. (a) State the median position on the cumulative-frequency axis.  [2] (b) Describe how to read the median mark from the ogive.  [3] (c) The lower quartile is at position n/4 and the upper quartile at 3n/4. Write these positions as numbers.  [3] (d) Define the interquartile range and state one advantage of the IQR over the range.  [4]",
+    "answer": "(a) 20.0; (c) Q1 at 10.0, Q3 at 30.0; (d) IQR = Q3 − Q1, less affected by outliers",
     "steps": [
       {
-        "t": "(a) s = d/t",
-        "d": "150/3"
+        "t": "(a) n/2",
+        "d": "40/2 = 20.0"
       },
       {
-        "t": "(b) t = d/s",
-        "d": "150/80"
+        "t": "(b)",
+        "d": "from cf = n/2 across to the curve, down to the mark axis"
       },
       {
-        "t": "(d) total distance 2d / total time",
-        "d": ""
+        "t": "(c)",
+        "d": "Q1: 10.0, Q3: 30.0"
+      },
+      {
+        "t": "(d)",
+        "d": "IQR = Q3 − Q1; uses the middle 50%, so extreme values have less effect"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 50 km/h; (b) 1.875 h",
+    "markscheme": "12 marks. Answer: (a) 20.0; (c) Q1 at 10.0, Q3 at 30.0; (d) IQR = Q3 − Q1, less affected by outliers",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -4415,25 +4583,29 @@
     "question_number": "12",
     "marks": 12,
     "topic_tags": [
-      "quadratic_equations"
+      "transformations"
     ],
-    "question_text": "(a) Solve x² − 9x + 18 = 0 by factorisation.  [4] (b) A rectangular plot in Masvingo is 6 m longer than it is wide. If the area is 27 m², form and solve an equation for the width w.  [5] (c) Sketch y = (x − 3)(x − 6), showing intercepts.  [3]",
-    "answer": "(a) x=3 or 6; (b) w(w+6) = 27",
+    "question_text": "Triangle PQR has P(2, 1), Q(4, 1) and R(2, 4). (a) P' is the image of P under reflection in the y-axis. Write down the coordinates of P'.  [2] (b) Q is translated by the vector (2 ; -1). Find the image Q''.  [3] (c) The matrix (0 −1 ; 1  0) represents a transformation T. Describe T fully.  [4] (d) Find T(Q), the image of Q under T.  [3]",
+    "answer": "(a) (-2, 1); (b) (6, 0); (c) rotation 90° anticlockwise about O; (d) (-1, 4)",
     "steps": [
       {
-        "t": "(a)",
-        "d": "(x−3)(x−6)=0"
+        "t": "(a) (x, y) → (−x, y)",
+        "d": "P'(-2, 1)"
       },
       {
-        "t": "(b)",
-        "d": "w² + 6w − 27 = 0"
+        "t": "(b) add the vector",
+        "d": "(4+2, 1+-1)"
       },
       {
-        "t": "(c) intercepts",
-        "d": "3, 6"
+        "t": "(c) (x, y) → (−y, x)",
+        "d": "rotation 90° anticlockwise about the origin"
+      },
+      {
+        "t": "(d)",
+        "d": "(4, 1) → (-1, 4)"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) x=3 or 6; (b) w(w+6) = 27",
+    "markscheme": "12 marks. Answer: (a) (-2, 1); (b) (6, 0); (c) rotation 90° anticlockwise about O; (d) (-1, 4)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -4446,25 +4618,25 @@
     "question_number": "13",
     "marks": 12,
     "topic_tags": [
-      "vectors"
+      "variation"
     ],
-    "question_text": "OA = a = (6 ; 2), OB = b = (4 ; 2). M midpoint of AB. (a) Vector AB.  [3] (b) |AB|.  [3] (c) Position vector OM.  [3] (d) Show AM = MB.  [3]",
-    "answer": "(a) (-2 ; 0); (b) √4",
+    "question_text": "(a) y varies directly as x. When x = 6, y = 18. &nbsp;&nbsp;&nbsp;(i) Find the equation connecting y and x.  [3] &nbsp;&nbsp;&nbsp;(ii) Find y when x = 8.  [2] (b) z varies inversely as x. When x = 3, z = 8. Let this value of z be z₀. &nbsp;&nbsp;&nbsp;(i) Find z when x = 6.  [4] &nbsp;&nbsp;&nbsp;(ii) Describe what happens to z when x is doubled.  [3]",
+    "answer": "(a) y = 3x; y(8) = 24; (b) inverse: product constant, doubling x halves z",
     "steps": [
       {
-        "t": "(a) b − a",
-        "d": "(-2 ; 0)"
+        "t": "(a)(i) y = kx",
+        "d": "18 = k×6 ⇒ k = 3"
       },
       {
-        "t": "(b) magnitude",
-        "d": ""
+        "t": "(a)(ii)",
+        "d": "y = 3×8 = 24"
       },
       {
-        "t": "(c) (a+b)/2",
-        "d": ""
+        "t": "(b) z = c/x",
+        "d": "if x doubles, z is halved"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) (-2 ; 0); (b) √4",
+    "markscheme": "12 marks. Answer: (a) y = 3x; y(8) = 24; (b) inverse: product constant, doubling x halves z",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -5189,27 +5361,31 @@
     "year": 2022,
     "session": "November",
     "question_number": "1",
-    "marks": 9,
+    "marks": 10,
     "topic_tags": [
-      "consumer_arithmetic"
+      "algebra"
     ],
-    "question_text": "A sewing machine is marked at $500 in Bindura. (a) 15% discount. Discounted price.  [3] (b) Then add VAT 15%. Amount paid.  [3] (c) Deposit 40% of the final amount. Balance remaining.  [3]",
-    "answer": "(a) $425; (b) $488; (c) $293",
+    "question_text": "(a) Expand and simplify  (5x − 2)(x + 2).  [3] (b) Factorise completely  10x² + 6x.  [2] (c) Solve  5(x − 2) = 25.  [3] (d) Simplify  (x² − 16)/(x − 4).  [2]",
+    "answer": "(a) 5x² + 8x − 4; (b) 2x(5x + 3); (c) x = 7; (d) x + 4",
     "steps": [
       {
-        "t": "(a)",
-        "d": "500×85/100 = 425"
+        "t": "(a) FOIL",
+        "d": "5x² + 10x − 2x − 4 = 5x² + 8x − 4"
       },
       {
-        "t": "(b) ×1.15",
-        "d": "488"
+        "t": "(b) common factor",
+        "d": "2x(5x + 3)"
       },
       {
-        "t": "(c) 60%",
-        "d": "293"
+        "t": "(c) divide by 5",
+        "d": "x − 2 = 5 ⇒ x = 7"
+      },
+      {
+        "t": "(d) difference of squares",
+        "d": "(x−4)(x+4)/(x−4) = x+4, x≠4"
       }
     ],
-    "markscheme": "9 marks. Answer: (a) $425; (b) $488; (c) $293",
+    "markscheme": "(a) 3 (b) 2 (c) 3 (d) 2 = 10",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -5220,27 +5396,31 @@
     "year": 2022,
     "session": "November",
     "question_number": "2",
-    "marks": 9,
+    "marks": 8,
     "topic_tags": [
-      "statistics"
+      "geometry"
     ],
-    "question_text": "21 Form 4 pupils at Moleli scored: 2 (3 pupils), 6 (3 pupils), 5 (5 pupils), 6 (6 pupils), 2 (4 pupils). (a) Modal mark.  [1] (b) Mean mark.  [4] (c) Range.  [2] (d) One extra pupil scores 6. Effect on the mean?  [2]",
-    "answer": "(a) 6; (b) 4 3/7; (c) 4",
+    "question_text": "AB is parallel to CD. Transversal PQ meets AB at X and CD at Y. (a) Angle AXY = 54°. Find the corresponding angle at Y. Give a reason.  [2] (b) Find the co-interior (allied) angle to 54°. Give a reason.  [2] (c) In triangle PQR, P̂ = 54° and Q̂ = 35°. Calculate R̂.  [2] (d) State whether triangle PQR is acute, right-angled or obtuse. Give a reason.  [2]",
+    "answer": "(a) 54° corresponding angles, AB ∥ CD; (b) 126° co-interior; (c) 91°",
     "steps": [
       {
-        "t": "(a) highest frequency",
-        "d": "6"
+        "t": "(a) corresponding angles",
+        "d": "54°, AB ∥ CD"
       },
       {
-        "t": "(b) Σfx/Σf",
-        "d": "93/21"
+        "t": "(b) co-interior sum to 180°",
+        "d": "126°"
       },
       {
-        "t": "(c)",
-        "d": "4"
+        "t": "(c) angle sum of a triangle",
+        "d": "180 − 54 − 35 = 91°"
+      },
+      {
+        "t": "(d) compare with 90°",
+        "d": "acute if all < 90°, obtuse if one > 90°"
       }
     ],
-    "markscheme": "9 marks. Answer: (a) 6; (b) 4 3/7; (c) 4",
+    "markscheme": "8 marks. Answer: (a) 54° corresponding angles, AB ∥ CD; (b) 126° co-interior; (c) 91°",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -5251,27 +5431,27 @@
     "year": 2022,
     "session": "November",
     "question_number": "3",
-    "marks": 10,
+    "marks": 8,
     "topic_tags": [
-      "formulae_and_fractions"
+      "mensuration"
     ],
-    "question_text": "(a) Make t the subject of  v = u + at.  [3] (b) Simplify  (3x/4) + (x/6).  [3] (c) Solve  2/x = 5/(15).  [4]",
-    "answer": "see steps",
+    "question_text": "A closed cylinder has radius 7 cm and height 10 cm. Take π = 22/7. (a) Calculate the volume.  [3] (b) Calculate the curved surface area.  [3] (c) Calculate the total surface area.  [2]",
+    "answer": "(a) 1540 cm³; (b) 440 cm²; (c) 748 cm²",
     "steps": [
       {
-        "t": "(a)",
-        "d": "t = (v − u)/a"
+        "t": "(a) V = πr²h",
+        "d": "22/7 × 7² × 10 = 1540 cm³"
       },
       {
-        "t": "(b) LCD 12",
-        "d": "9x/12 + 2x/12 = 11x/12"
+        "t": "(b) CSA = 2πrh",
+        "d": "440 cm²"
       },
       {
-        "t": "(c) cross multiply",
+        "t": "(c) TSA = 2πrh + 2πr²",
         "d": ""
       }
     ],
-    "markscheme": "10 marks. Answer: see steps",
+    "markscheme": "8 marks. Answer: (a) 1540 cm³; (b) 440 cm²; (c) 748 cm²",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -5284,25 +5464,29 @@
     "question_number": "4",
     "marks": 8,
     "topic_tags": [
-      "geometrical_construction"
+      "coordinate_geometry"
     ],
-    "question_text": "(a) Using ruler and compasses only, construct triangle ABC with AB = 7 cm, BC = 5 cm and AC = 7 cm.  [4] (b) Construct the perpendicular bisector of BC.  [2] (c) Mark the circumcentre and describe its property.  [2]",
-    "answer": "Construction — equal arcs; circumcentre equidistant from A,B,C",
+    "question_text": "The line L has equation  y = 1x + -3. (a) Write down the gradient of L and the coordinates of the y-intercept.  [2] (b) Find the coordinates of the point where L meets the x-axis.  [2] (c) Find the gradient of the line joining A(1, 3) and B(3, 5).  [2] (d) Write the equation of the line parallel to L that passes through (0, 1).  [2]",
+    "answer": "(a) gradient 1, (0, -3); (b) (3, 0); (c) 1; (d) y = 1x + 1",
     "steps": [
       {
-        "t": "(a) base + two arcs",
-        "d": "SSS construction"
+        "t": "(a) y = mx + c",
+        "d": "m = 1, intercept (0, -3)"
       },
       {
-        "t": "(b) arcs from B and C",
-        "d": ""
+        "t": "(b) y = 0",
+        "d": "0 = 1x + -3 ⇒ x = 3"
       },
       {
-        "t": "(c) intersection of perpendicular bisectors",
-        "d": ""
+        "t": "(c) m = (y2−y1)/(x2−x1)",
+        "d": "2/2"
+      },
+      {
+        "t": "(d) same gradient",
+        "d": "y = 1x + 1"
       }
     ],
-    "markscheme": "8 marks. Answer: Construction — equal arcs; circumcentre equidistant from A,B,C",
+    "markscheme": "8 marks. Answer: (a) gradient 1, (0, -3); (b) (3, 0); (c) 1; (d) y = 1x + 1",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -5313,31 +5497,31 @@
     "year": 2022,
     "session": "November",
     "question_number": "5",
-    "marks": 10,
+    "marks": 9,
     "topic_tags": [
-      "algebra"
+      "statistics"
     ],
-    "question_text": "(a) Expand and simplify (6x − 2)(x + 2).  [3] (b) Factorise x² + 8x + 15.  [2] (c) Solve (x + 2)/6 = 3.  [3] (d) Simplify (x² − 9)/(x − 3).  [2]",
-    "answer": "(a) 6x² + 10x − 4; (b) (x+3)(x+5); (c) x = 16; (d) x+3",
+    "question_text": "The table shows values of x with frequencies f: x=1, f=7, x=3, f=5, x=4, f=6, x=4, f=2, x=7, f=2. (a) State the modal value of x.  [1] (b) Calculate Σf and Σfx.  [3] (c) Calculate the mean of x.  [3] (d) Find the range of x.  [2]",
+    "answer": "(a) 1; (b) Σf=22, Σfx=68; (c) 3 1/11; (d) 6",
     "steps": [
       {
-        "t": "(a) FOIL",
-        "d": "6x² + 10x − 4"
+        "t": "(a) highest frequency",
+        "d": "1"
       },
       {
         "t": "(b)",
-        "d": "(x+3)(x+5)"
+        "d": "Σf = 22, Σfx = 68"
       },
       {
-        "t": "(c)",
-        "d": "x = 16"
+        "t": "(c) mean = Σfx/Σf",
+        "d": "68/22 = 3 1/11"
       },
       {
-        "t": "(d) difference of squares",
-        "d": "x + 3"
+        "t": "(d) max − min",
+        "d": "7 − 1 = 6"
       }
     ],
-    "markscheme": "10 marks. Answer: (a) 6x² + 10x − 4; (b) (x+3)(x+5); (c) x = 16; (d) x+3",
+    "markscheme": "9 marks. Answer: (a) 1; (b) Σf=22, Σfx=68; (c) 3 1/11; (d) 6",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -5348,27 +5532,31 @@
     "year": 2022,
     "session": "November",
     "question_number": "6",
-    "marks": 8,
+    "marks": 9,
     "topic_tags": [
-      "mensuration_(cylinder)"
+      "matrices"
     ],
-    "question_text": "A cylindrical tank at Moleli has radius 7 cm and height 12 cm. π = 22/7. (a) Volume.  [3] (b) Curved surface area.  [3] (c) Total surface area including the base only (open top).  [2]",
-    "answer": "(a) 1848 cm³; (b) 528 cm²",
+    "question_text": "A = (1  2 ; 4  1)  and  column vector u = (4 ; 2). (a) Calculate Au.  [3] (b) Find det A.  [2] (c) Describe fully the transformation represented by (0 −1 ; 1  0).  [2] (d) Find the image of the point (4, 2) under a reflection in the y-axis.  [2]",
+    "answer": "(a) (8 ; 18); (b) -7; (c) rotation 90° anticlockwise about O; (d) (-4, 2)",
     "steps": [
       {
-        "t": "(a) πr²h",
-        "d": ""
+        "t": "(a) row × column",
+        "d": "(8 ; 18)"
       },
       {
-        "t": "(b) 2πrh",
-        "d": ""
+        "t": "(b) ad − bc",
+        "d": "1×1 − 2×4 = -7"
       },
       {
-        "t": "(c) 2πrh + πr²",
-        "d": ""
+        "t": "(c)",
+        "d": "(x,y) → (−y, x), 90° anticlockwise about O"
+      },
+      {
+        "t": "(d) (x,y) → (−x, y)",
+        "d": "(-4, 2)"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 1848 cm³; (b) 528 cm²",
+    "markscheme": "9 marks. Answer: (a) (8 ; 18); (b) -7; (c) rotation 90° anticlockwise about O; (d) (-4, 2)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -5381,25 +5569,29 @@
     "question_number": "7",
     "marks": 12,
     "topic_tags": [
-      "circle_geometry"
+      "quadratic_equations"
     ],
-    "question_text": "O is the centre. A, B, C on the circumference. AB is a diameter. Angle BAC = 32°. (a) Angle ACB. Reason.  [3] (b) Angle BOC (centre, same arc BC).  [3] (c) D on the remaining circumference. Angle BDC. Reason.  [3] (d) State the angle-in-a-semicircle theorem.  [3]",
-    "answer": "(a) 90°; (b) 64°; (c) 32° same segment",
+    "question_text": "(a) Factorise  x² − 6x + 5.  [3] (b) Hence solve  x² − 6x + 5 = 0.  [2] (c) Write down the roots of  (x − 1)(x − 5) = 0.  [1] (d) Sketch y = (x − 1)(x − 5), showing the intercepts with both axes.  [3] (e) State the coordinates of the turning point.  [3]",
+    "answer": "(a) (x−1)(x−5); (b) x=1 or x=5; (e) (3, -4)",
     "steps": [
       {
-        "t": "(a) angle in a semicircle",
-        "d": "90°"
+        "t": "(a)",
+        "d": "(x − 1)(x − 5)"
       },
       {
-        "t": "(b) angle at centre = 2 at circumference",
-        "d": "64°"
+        "t": "(b)",
+        "d": "x = 1 or x = 5"
       },
       {
-        "t": "(c) same segment",
-        "d": "32°"
+        "t": "(d) x-intercepts and y-intercept {r1*r2}",
+        "d": "U-shape (positive x²)"
+      },
+      {
+        "t": "(e) midpoint of roots, substitute",
+        "d": "x = 3"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 90°; (b) 64°; (c) 32° same segment",
+    "markscheme": "12 marks. Answer: (a) (x−1)(x−5); (b) x=1 or x=5; (e) (3, -4)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -5412,25 +5604,29 @@
     "question_number": "8",
     "marks": 12,
     "topic_tags": [
-      "transformations_and_matrices"
+      "trigonometry"
     ],
-    "question_text": "Triangle P(1,1), Q(3,1), R(1,3). (a) Reflect in the y-axis. Coordinates of P'.  [4] (b) Translate PQR by (3 ; -1). Give Q''.  [3] (c) Matrix (0 −1 ; 1  0) maps (x;y). Describe fully and find the image of Q.  [5]",
-    "answer": "(a) P'(-1,1); (b) Q''(6,0); (c) 90° anticlockwise about O",
+    "question_text": "In triangle ABC, Â = 50°, B̂ = 60° and BC = a = 12 cm. (a) Calculate Ĉ.  [2] (b) Write the sine rule.  [2] (c) Calculate AB = c.  [5] (d) State whether the triangle is acute or obtuse, with a reason.  [3]",
+    "answer": "(a) 70°; (c) c = 12 sin(50)/sin(60)  [leave in sin form if no calculator tables]",
     "steps": [
       {
-        "t": "(a) (x,y)→(−x,y)",
-        "d": "P'(-1,1)"
+        "t": "(a) angle sum",
+        "d": "C = 180 − 50 − 60 = 70°"
       },
       {
         "t": "(b)",
-        "d": "Q(3,1)+(3,-1)"
+        "d": "a/sin A = b/sin B = c/sin C"
       },
       {
-        "t": "(c) (−y, x)",
-        "d": "rotation 90° anticlockwise about O"
+        "t": "(c)",
+        "d": "c / sin 50° = 12 / sin 60°"
+      },
+      {
+        "t": "(d)",
+        "d": "all angles < 90° ⇒ acute"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) P'(-1,1); (b) Q''(6,0); (c) 90° anticlockwise about O",
+    "markscheme": "12 marks. Answer: (a) 70°; (c) c = 12 sin(50)/sin(60)  [leave in sin form if no calculator tables]",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -5443,25 +5639,29 @@
     "question_number": "9",
     "marks": 12,
     "topic_tags": [
-      "cumulative_frequency"
+      "circle_theorems"
     ],
-    "question_text": "60 pupils at Moleli sat a test (0–50). An ogive is drawn. (a) How to read the median from the ogive.  [3] (b) Median estimated as 30. Meaning?  [2] (c) How to find the IQR from the graph.  [4] (d) Why IQR is better than the range here.  [3]",
-    "answer": "(a) read at cf = 30.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "question_text": "O is the centre of a circle. A, B and C lie on the circumference. AB is a diameter. Angle BAC = 32°. (a) Find angle ACB. Give a reason.  [3] (b) Find angle ABC.  [2] (c) Find angle BOC (angle at the centre standing on arc BC). Give a reason.  [4] (d) Point D lies on the remaining circumference. Find angle BDC. Give a reason.  [3]",
+    "answer": "(a) 90° (angle in a semicircle); (b) 58°; (c) 64° (angle at centre = 2 × angle at circumference); (d) 32° (angles in the same segment)",
     "steps": [
       {
-        "t": "(a)",
-        "d": "n/2 = 30.0"
+        "t": "(a) angle in a semicircle",
+        "d": "ACB = 90° because AB is a diameter"
       },
       {
-        "t": "(c)",
-        "d": "Q1 = 15.0, Q3 = 45.0"
+        "t": "(b) angle sum in triangle ABC",
+        "d": "ABC = 90 − 32 = 58°"
       },
       {
-        "t": "(d) outliers",
-        "d": "IQR uses middle 50%"
+        "t": "(c) angle at the centre is twice the angle at the circumference, same arc BC",
+        "d": "BOC = 2 × 32 = 64°"
+      },
+      {
+        "t": "(d) angles in the same segment",
+        "d": "BDC = BAC = 32°"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) read at cf = 30.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "markscheme": "12 marks. Answer: (a) 90° (angle in a semicircle); (b) 58°; (c) 64° (angle at centre = 2 × angle at circumference); (d) 32° (angles in the same segment)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -5474,25 +5674,29 @@
     "question_number": "10",
     "marks": 12,
     "topic_tags": [
-      "variation_and_linear_programming"
+      "vectors"
     ],
-    "question_text": "(a) y varies directly as x. When x = 4, y = 36. Find y when x = 10.  [4] (b) z varies inversely as x. When x = 3, z = 8. Find z when x = 6.  [4] (c) A farmer near Bindura has at most 30 hours. Maize takes 2 h/ha, vegetables 1 h/ha. Inequality for hectares m and v.  [4]",
-    "answer": "(a) 90; (b) 4; (c) 2m + v ≤ 30",
+    "question_text": "The position vectors of A and B are a = (3 ; 2) and b = (-1 ; 2). M is the midpoint of AB. (a) Find vector AB.  [3] (b) Find |AB|.  [3] (c) Find the position vector of M.  [3] (d) Show that AM = ½ AB.  [3]",
+    "answer": "(a) (-4 ; 0); (b) √16; (c) (1 ; 2)",
     "steps": [
       {
-        "t": "(a) y = kx",
-        "d": "k = 9, y = 90"
+        "t": "(a) AB = b − a",
+        "d": "(-1−3 ; 2−2) = (-4 ; 0)"
       },
       {
-        "t": "(b) z = k/x",
-        "d": "k = 24, z = 4"
+        "t": "(b) |AB| = √(x²+y²)",
+        "d": "√16"
       },
       {
-        "t": "(c)",
-        "d": "2m + v ≤ 30, m≥0, v≥0"
+        "t": "(c) OM = (a+b)/2",
+        "d": ""
+      },
+      {
+        "t": "(d) M midpoint ⇒ AM = ½ AB",
+        "d": ""
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 90; (b) 4; (c) 2m + v ≤ 30",
+    "markscheme": "12 marks. Answer: (a) (-4 ; 0); (b) √16; (c) (1 ; 2)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -5505,25 +5709,29 @@
     "question_number": "11",
     "marks": 12,
     "topic_tags": [
-      "quadratic_equations"
+      "cumulative_frequency"
     ],
-    "question_text": "(a) Solve x² − 11x + 24 = 0 by factorisation.  [4] (b) A rectangular plot in Bindura is 8 m longer than it is wide. If the area is 33 m², form and solve an equation for the width w.  [5] (c) Sketch y = (x − 3)(x − 8), showing intercepts.  [3]",
-    "answer": "(a) x=3 or 8; (b) w(w+8) = 33",
+    "question_text": "50 candidates sat a Mathematics paper marked out of 50. A cumulative frequency curve (ogive) is drawn. (a) State the median position on the cumulative-frequency axis.  [2] (b) Describe how to read the median mark from the ogive.  [3] (c) The lower quartile is at position n/4 and the upper quartile at 3n/4. Write these positions as numbers.  [3] (d) Define the interquartile range and state one advantage of the IQR over the range.  [4]",
+    "answer": "(a) 25.0; (c) Q1 at 12.5, Q3 at 37.5; (d) IQR = Q3 − Q1, less affected by outliers",
     "steps": [
       {
-        "t": "(a)",
-        "d": "(x−3)(x−8)=0"
+        "t": "(a) n/2",
+        "d": "50/2 = 25.0"
       },
       {
         "t": "(b)",
-        "d": "w² + 8w − 33 = 0"
+        "d": "from cf = n/2 across to the curve, down to the mark axis"
       },
       {
-        "t": "(c) intercepts",
-        "d": "3, 8"
+        "t": "(c)",
+        "d": "Q1: 12.5, Q3: 37.5"
+      },
+      {
+        "t": "(d)",
+        "d": "IQR = Q3 − Q1; uses the middle 50%, so extreme values have less effect"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) x=3 or 8; (b) w(w+8) = 33",
+    "markscheme": "12 marks. Answer: (a) 25.0; (c) Q1 at 12.5, Q3 at 37.5; (d) IQR = Q3 − Q1, less affected by outliers",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -5536,25 +5744,29 @@
     "question_number": "12",
     "marks": 12,
     "topic_tags": [
-      "travel_graphs"
+      "transformations"
     ],
-    "question_text": "A kombi leaves Bindura at 08:00 and travels 120 km at constant speed, arriving after 2 hours. It stops 30 minutes, then returns at 80 km/h. (a) Outward speed.  [3] (b) Time for the return.  [3] (c) Sketch a distance–time graph, labelling axes.  [4] (d) Average speed for the whole trip including the stop.  [2]",
-    "answer": "(a) 60 km/h; (b) 1.5 h",
+    "question_text": "Triangle PQR has P(3, 2), Q(6, 2) and R(3, 5). (a) P' is the image of P under reflection in the y-axis. Write down the coordinates of P'.  [2] (b) Q is translated by the vector (-1 ; -1). Find the image Q''.  [3] (c) The matrix (0 −1 ; 1  0) represents a transformation T. Describe T fully.  [4] (d) Find T(Q), the image of Q under T.  [3]",
+    "answer": "(a) (-3, 2); (b) (5, 1); (c) rotation 90° anticlockwise about O; (d) (-2, 6)",
     "steps": [
       {
-        "t": "(a) s = d/t",
-        "d": "120/2"
+        "t": "(a) (x, y) → (−x, y)",
+        "d": "P'(-3, 2)"
       },
       {
-        "t": "(b) t = d/s",
-        "d": "120/80"
+        "t": "(b) add the vector",
+        "d": "(6+-1, 2+-1)"
       },
       {
-        "t": "(d) total distance 2d / total time",
-        "d": ""
+        "t": "(c) (x, y) → (−y, x)",
+        "d": "rotation 90° anticlockwise about the origin"
+      },
+      {
+        "t": "(d)",
+        "d": "(6, 2) → (-2, 6)"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 60 km/h; (b) 1.5 h",
+    "markscheme": "12 marks. Answer: (a) (-3, 2); (b) (5, 1); (c) rotation 90° anticlockwise about O; (d) (-2, 6)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -5567,25 +5779,25 @@
     "question_number": "13",
     "marks": 12,
     "topic_tags": [
-      "trigonometry_and_bearings"
+      "variation"
     ],
-    "question_text": "A msasa tree is observed from A on level ground in Bindura. Angle of elevation of the top is 30°. Distance A to the foot is 40 m. (a) Height of the object. Use tan 30° = 1/√3.  [4] (b) From B, 40 m due East of A, the bearing of the foot is 300°. Sketch.  [3] (c) A bird sits halfway up. Angle of elevation from A.  [5]",
-    "answer": "(a) 40/√3 = 40√3/3 m",
+    "question_text": "(a) y varies directly as x. When x = 3, y = 12. &nbsp;&nbsp;&nbsp;(i) Find the equation connecting y and x.  [3] &nbsp;&nbsp;&nbsp;(ii) Find y when x = 10.  [2] (b) z varies inversely as x. When x = 3, z = 12. Let this value of z be z₀. &nbsp;&nbsp;&nbsp;(i) Find z when x = 6.  [4] &nbsp;&nbsp;&nbsp;(ii) Describe what happens to z when x is doubled.  [3]",
+    "answer": "(a) y = 4x; y(10) = 40; (b) inverse: product constant, doubling x halves z",
     "steps": [
       {
-        "t": "(a) tan 30° = opp/adj",
-        "d": "h = 40/√3 = 40√3/3 m"
+        "t": "(a)(i) y = kx",
+        "d": "12 = k×3 ⇒ k = 4"
       },
       {
-        "t": "(b) bearings sketch",
-        "d": "North lines at A and B"
+        "t": "(a)(ii)",
+        "d": "y = 4×10 = 40"
       },
       {
-        "t": "(c) tan θ = (h/2)/adj",
-        "d": ""
+        "t": "(b) z = c/x",
+        "d": "if x doubles, z is halved"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 40/√3 = 40√3/3 m",
+    "markscheme": "12 marks. Answer: (a) y = 4x; y(10) = 40; (b) inverse: product constant, doubling x halves z",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -6306,27 +6518,31 @@
     "year": 2023,
     "session": "November",
     "question_number": "1",
-    "marks": 9,
+    "marks": 10,
     "topic_tags": [
-      "consumer_arithmetic"
+      "algebra"
     ],
-    "question_text": "A laptop is marked at $900 in Chitungwiza. (a) 10% discount. Discounted price.  [3] (b) Then add VAT 15%. Amount paid.  [3] (c) Deposit 40% of the final amount. Balance remaining.  [3]",
-    "answer": "(a) $810; (b) $931; (c) $559",
+    "question_text": "(a) Expand and simplify  (4x − 2)(x + 2).  [3] (b) Factorise completely  8x² + 4x.  [2] (c) Solve  4(x − 2) = 12.  [3] (d) Simplify  (x² − 16)/(x − 4).  [2]",
+    "answer": "(a) 4x² + 6x − 4; (b) 2x(4x + 2); (c) x = 5; (d) x + 4",
     "steps": [
       {
-        "t": "(a)",
-        "d": "900×90/100 = 810"
+        "t": "(a) FOIL",
+        "d": "4x² + 8x − 2x − 4 = 4x² + 6x − 4"
       },
       {
-        "t": "(b) ×1.15",
-        "d": "931"
+        "t": "(b) common factor",
+        "d": "2x(4x + 2)"
       },
       {
-        "t": "(c) 60%",
-        "d": "559"
+        "t": "(c) divide by 4",
+        "d": "x − 2 = 3 ⇒ x = 5"
+      },
+      {
+        "t": "(d) difference of squares",
+        "d": "(x−4)(x+4)/(x−4) = x+4, x≠4"
       }
     ],
-    "markscheme": "9 marks. Answer: (a) $810; (b) $931; (c) $559",
+    "markscheme": "(a) 3 (b) 2 (c) 3 (d) 2 = 10",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -6339,25 +6555,29 @@
     "question_number": "2",
     "marks": 8,
     "topic_tags": [
-      "mensuration_(cylinder)"
+      "geometry"
     ],
-    "question_text": "A cylindrical tank at Fletcher High has radius 7 cm and height 14 cm. π = 22/7. (a) Volume.  [3] (b) Curved surface area.  [3] (c) Total surface area including the base only (open top).  [2]",
-    "answer": "(a) 2156 cm³; (b) 616 cm²",
+    "question_text": "AB is parallel to CD. Transversal PQ meets AB at X and CD at Y. (a) Angle AXY = 61°. Find the corresponding angle at Y. Give a reason.  [2] (b) Find the co-interior (allied) angle to 61°. Give a reason.  [2] (c) In triangle PQR, P̂ = 61° and Q̂ = 35°. Calculate R̂.  [2] (d) State whether triangle PQR is acute, right-angled or obtuse. Give a reason.  [2]",
+    "answer": "(a) 61° corresponding angles, AB ∥ CD; (b) 119° co-interior; (c) 84°",
     "steps": [
       {
-        "t": "(a) πr²h",
-        "d": ""
+        "t": "(a) corresponding angles",
+        "d": "61°, AB ∥ CD"
       },
       {
-        "t": "(b) 2πrh",
-        "d": ""
+        "t": "(b) co-interior sum to 180°",
+        "d": "119°"
       },
       {
-        "t": "(c) 2πrh + πr²",
-        "d": ""
+        "t": "(c) angle sum of a triangle",
+        "d": "180 − 61 − 35 = 84°"
+      },
+      {
+        "t": "(d) compare with 90°",
+        "d": "acute if all < 90°, obtuse if one > 90°"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 2156 cm³; (b) 616 cm²",
+    "markscheme": "8 marks. Answer: (a) 61° corresponding angles, AB ∥ CD; (b) 119° co-interior; (c) 84°",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -6372,23 +6592,23 @@
     "topic_tags": [
       "mensuration"
     ],
-    "question_text": "A rectangular garden in Unit L measures 12 m by 10 m. A path of width 2 m runs all around the outside. (a) Area of the garden.  [2] (b) Area of the path.  [3] (c) A circular bed of radius 7 m is later dug. Area of the bed, π = 22/7.  [3]",
-    "answer": "(a) 120 m²; (b) 104 m²; (c) 154 m²",
+    "question_text": "A rectangle measures 16 cm by 9 cm. A border of width 2 cm is drawn around the outside. (a) Find the area of the rectangle.  [2] (b) Find the area of the outer rectangle.  [3] (c) Hence find the area of the border.  [3]",
+    "answer": "(a) 144 cm²; (b) 260 cm²; (c) 116 cm²",
     "steps": [
       {
-        "t": "(a)",
-        "d": "12×10 = 120"
+        "t": "(a) lw",
+        "d": "16×9 = 144"
       },
       {
-        "t": "(b) outer − inner",
-        "d": "224 − 120 = 104"
+        "t": "(b) (l+2w)(w+2w)",
+        "d": "20×13 = 260"
       },
       {
-        "t": "(c) πr²",
-        "d": ""
+        "t": "(c) outer − inner",
+        "d": "116"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 120 m²; (b) 104 m²; (c) 154 m²",
+    "markscheme": "8 marks. Answer: (a) 144 cm²; (b) 260 cm²; (c) 116 cm²",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -6401,25 +6621,29 @@
     "question_number": "4",
     "marks": 8,
     "topic_tags": [
-      "graphs_and_coordinates"
+      "coordinate_geometry"
     ],
-    "question_text": "Line L: y = 3x + 3. (a) Gradient and y-intercept.  [2] (b) Coordinates where L meets the x-axis.  [2] (c) Show A(2, 9) lies on L.  [2] (d) Equation of the line parallel to L through (0, 4).  [2]",
-    "answer": "(a) 3, (0,3); (b) (-1, 0); (d) y = 3x + 4",
+    "question_text": "The line L has equation  y = -2x + 4. (a) Write down the gradient of L and the coordinates of the y-intercept.  [2] (b) Find the coordinates of the point where L meets the x-axis.  [2] (c) Find the gradient of the line joining A(2, 3) and B(6, 9).  [2] (d) Write the equation of the line parallel to L that passes through (0, 1).  [2]",
+    "answer": "(a) gradient -2, (0, 4); (b) (2, 0); (c) 1 1/2; (d) y = -2x + 1",
     "steps": [
       {
         "t": "(a) y = mx + c",
-        "d": ""
+        "d": "m = -2, intercept (0, 4)"
       },
       {
         "t": "(b) y = 0",
-        "d": "x = -1"
+        "d": "0 = -2x + 4 ⇒ x = 2"
       },
       {
-        "t": "(d) same m",
-        "d": "y = 3x + 4"
+        "t": "(c) m = (y2−y1)/(x2−x1)",
+        "d": "6/4"
+      },
+      {
+        "t": "(d) same gradient",
+        "d": "y = -2x + 1"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 3, (0,3); (b) (-1, 0); (d) y = 3x + 4",
+    "markscheme": "8 marks. Answer: (a) gradient -2, (0, 4); (b) (2, 0); (c) 1 1/2; (d) y = -2x + 1",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -6434,23 +6658,27 @@
     "topic_tags": [
       "statistics"
     ],
-    "question_text": "25 Form 4 pupils at Fletcher High scored: 4 (3 pupils), 4 (5 pupils), 6 (5 pupils), 3 (6 pupils), 5 (6 pupils). (a) Modal mark.  [1] (b) Mean mark.  [4] (c) Range.  [2] (d) One extra pupil scores 6. Effect on the mean?  [2]",
-    "answer": "(a) 3; (b) 4 2/5; (c) 3",
+    "question_text": "The table shows values of x with frequencies f: x=1, f=2, x=2, f=4, x=5, f=5, x=6, f=6, x=6, f=7. (a) State the modal value of x.  [1] (b) Calculate Σf and Σfx.  [3] (c) Calculate the mean of x.  [3] (d) Find the range of x.  [2]",
+    "answer": "(a) 6; (b) Σf=24, Σfx=113; (c) 4 17/24; (d) 5",
     "steps": [
       {
         "t": "(a) highest frequency",
-        "d": "3"
+        "d": "6"
       },
       {
-        "t": "(b) Σfx/Σf",
-        "d": "110/25"
+        "t": "(b)",
+        "d": "Σf = 24, Σfx = 113"
       },
       {
-        "t": "(c)",
-        "d": "3"
+        "t": "(c) mean = Σfx/Σf",
+        "d": "113/24 = 4 17/24"
+      },
+      {
+        "t": "(d) max − min",
+        "d": "6 − 1 = 5"
       }
     ],
-    "markscheme": "9 marks. Answer: (a) 3; (b) 4 2/5; (c) 3",
+    "markscheme": "9 marks. Answer: (a) 6; (b) Σf=24, Σfx=113; (c) 4 17/24; (d) 5",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -6461,27 +6689,31 @@
     "year": 2023,
     "session": "November",
     "question_number": "6",
-    "marks": 10,
+    "marks": 9,
     "topic_tags": [
-      "formulae_and_fractions"
+      "matrices"
     ],
-    "question_text": "(a) Make t the subject of  v = u + at.  [3] (b) Simplify  (3x/4) + (x/6).  [3] (c) Solve  2/x = 5/(15).  [4]",
-    "answer": "see steps",
+    "question_text": "A = (4  2 ; 3  1)  and  column vector u = (4 ; 1). (a) Calculate Au.  [3] (b) Find det A.  [2] (c) Describe fully the transformation represented by (0 −1 ; 1  0).  [2] (d) Find the image of the point (4, 1) under a reflection in the y-axis.  [2]",
+    "answer": "(a) (18 ; 13); (b) -2; (c) rotation 90° anticlockwise about O; (d) (-4, 1)",
     "steps": [
       {
-        "t": "(a)",
-        "d": "t = (v − u)/a"
+        "t": "(a) row × column",
+        "d": "(18 ; 13)"
       },
       {
-        "t": "(b) LCD 12",
-        "d": "9x/12 + 2x/12 = 11x/12"
+        "t": "(b) ad − bc",
+        "d": "4×1 − 2×3 = -2"
       },
       {
-        "t": "(c) cross multiply",
-        "d": ""
+        "t": "(c)",
+        "d": "(x,y) → (−y, x), 90° anticlockwise about O"
+      },
+      {
+        "t": "(d) (x,y) → (−x, y)",
+        "d": "(-4, 1)"
       }
     ],
-    "markscheme": "10 marks. Answer: see steps",
+    "markscheme": "9 marks. Answer: (a) (18 ; 13); (b) -2; (c) rotation 90° anticlockwise about O; (d) (-4, 1)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -6494,25 +6726,29 @@
     "question_number": "7",
     "marks": 12,
     "topic_tags": [
-      "trigonometry_and_bearings"
+      "quadratic_equations"
     ],
-    "question_text": "A msasa tree is observed from A on level ground in Chitungwiza. Angle of elevation of the top is 30°. Distance A to the foot is 24 m. (a) Height of the object. Use tan 30° = 1/√3.  [4] (b) From B, 24 m due East of A, the bearing of the foot is 300°. Sketch.  [3] (c) A bird sits halfway up. Angle of elevation from A.  [5]",
-    "answer": "(a) 24/√3 = 24√3/3 m",
+    "question_text": "(a) Factorise  x² − 8x + 12.  [3] (b) Hence solve  x² − 8x + 12 = 0.  [2] (c) Write down the roots of  (x − 2)(x − 6) = 0.  [1] (d) Sketch y = (x − 2)(x − 6), showing the intercepts with both axes.  [3] (e) State the coordinates of the turning point.  [3]",
+    "answer": "(a) (x−2)(x−6); (b) x=2 or x=6; (e) (4, -4)",
     "steps": [
       {
-        "t": "(a) tan 30° = opp/adj",
-        "d": "h = 24/√3 = 24√3/3 m"
+        "t": "(a)",
+        "d": "(x − 2)(x − 6)"
       },
       {
-        "t": "(b) bearings sketch",
-        "d": "North lines at A and B"
+        "t": "(b)",
+        "d": "x = 2 or x = 6"
       },
       {
-        "t": "(c) tan θ = (h/2)/adj",
-        "d": ""
+        "t": "(d) x-intercepts and y-intercept {r1*r2}",
+        "d": "U-shape (positive x²)"
+      },
+      {
+        "t": "(e) midpoint of roots, substitute",
+        "d": "x = 4"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 24/√3 = 24√3/3 m",
+    "markscheme": "12 marks. Answer: (a) (x−2)(x−6); (b) x=2 or x=6; (e) (4, -4)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -6525,25 +6761,29 @@
     "question_number": "8",
     "marks": 12,
     "topic_tags": [
-      "quadratic_equations"
+      "trigonometry"
     ],
-    "question_text": "(a) Solve x² − 9x + 18 = 0 by factorisation.  [4] (b) A rectangular plot in Chitungwiza is 6 m longer than it is wide. If the area is 27 m², form and solve an equation for the width w.  [5] (c) Sketch y = (x − 3)(x − 6), showing intercepts.  [3]",
-    "answer": "(a) x=3 or 6; (b) w(w+6) = 27",
+    "question_text": "In triangle ABC, Â = 50°, B̂ = 60° and BC = a = 8 cm. (a) Calculate Ĉ.  [2] (b) Write the sine rule.  [2] (c) Calculate AB = c.  [5] (d) State whether the triangle is acute or obtuse, with a reason.  [3]",
+    "answer": "(a) 70°; (c) c = 8 sin(50)/sin(60)  [leave in sin form if no calculator tables]",
     "steps": [
       {
-        "t": "(a)",
-        "d": "(x−3)(x−6)=0"
+        "t": "(a) angle sum",
+        "d": "C = 180 − 50 − 60 = 70°"
       },
       {
         "t": "(b)",
-        "d": "w² + 6w − 27 = 0"
+        "d": "a/sin A = b/sin B = c/sin C"
       },
       {
-        "t": "(c) intercepts",
-        "d": "3, 6"
+        "t": "(c)",
+        "d": "c / sin 50° = 8 / sin 60°"
+      },
+      {
+        "t": "(d)",
+        "d": "all angles < 90° ⇒ acute"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) x=3 or 6; (b) w(w+6) = 27",
+    "markscheme": "12 marks. Answer: (a) 70°; (c) c = 8 sin(50)/sin(60)  [leave in sin form if no calculator tables]",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -6556,25 +6796,29 @@
     "question_number": "9",
     "marks": 12,
     "topic_tags": [
-      "vectors"
+      "circle_theorems"
     ],
-    "question_text": "OA = a = (5 ; 5), OB = b = (2 ; 3). M midpoint of AB. (a) Vector AB.  [3] (b) |AB|.  [3] (c) Position vector OM.  [3] (d) Show AM = MB.  [3]",
-    "answer": "(a) (-3 ; -2); (b) √13",
+    "question_text": "O is the centre of a circle. A, B and C lie on the circumference. AB is a diameter. Angle BAC = 26°. (a) Find angle ACB. Give a reason.  [3] (b) Find angle ABC.  [2] (c) Find angle BOC (angle at the centre standing on arc BC). Give a reason.  [4] (d) Point D lies on the remaining circumference. Find angle BDC. Give a reason.  [3]",
+    "answer": "(a) 90° (angle in a semicircle); (b) 64°; (c) 52° (angle at centre = 2 × angle at circumference); (d) 26° (angles in the same segment)",
     "steps": [
       {
-        "t": "(a) b − a",
-        "d": "(-3 ; -2)"
+        "t": "(a) angle in a semicircle",
+        "d": "ACB = 90° because AB is a diameter"
       },
       {
-        "t": "(b) magnitude",
-        "d": ""
+        "t": "(b) angle sum in triangle ABC",
+        "d": "ABC = 90 − 26 = 64°"
       },
       {
-        "t": "(c) (a+b)/2",
-        "d": ""
+        "t": "(c) angle at the centre is twice the angle at the circumference, same arc BC",
+        "d": "BOC = 2 × 26 = 52°"
+      },
+      {
+        "t": "(d) angles in the same segment",
+        "d": "BDC = BAC = 26°"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) (-3 ; -2); (b) √13",
+    "markscheme": "12 marks. Answer: (a) 90° (angle in a semicircle); (b) 64°; (c) 52° (angle at centre = 2 × angle at circumference); (d) 26° (angles in the same segment)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -6587,25 +6831,29 @@
     "question_number": "10",
     "marks": 12,
     "topic_tags": [
-      "travel_graphs"
+      "vectors"
     ],
-    "question_text": "A kombi leaves Chitungwiza at 08:00 and travels 180 km at constant speed, arriving after 2 hours. It stops 30 minutes, then returns at 80 km/h. (a) Outward speed.  [3] (b) Time for the return.  [3] (c) Sketch a distance–time graph, labelling axes.  [4] (d) Average speed for the whole trip including the stop.  [2]",
-    "answer": "(a) 90 km/h; (b) 2.25 h",
+    "question_text": "The position vectors of A and B are a = (6 ; 3) and b = (4 ; 5). M is the midpoint of AB. (a) Find vector AB.  [3] (b) Find |AB|.  [3] (c) Find the position vector of M.  [3] (d) Show that AM = ½ AB.  [3]",
+    "answer": "(a) (-2 ; 2); (b) √8; (c) (5 ; 4)",
     "steps": [
       {
-        "t": "(a) s = d/t",
-        "d": "180/2"
+        "t": "(a) AB = b − a",
+        "d": "(4−6 ; 5−3) = (-2 ; 2)"
       },
       {
-        "t": "(b) t = d/s",
-        "d": "180/80"
+        "t": "(b) |AB| = √(x²+y²)",
+        "d": "√8"
       },
       {
-        "t": "(d) total distance 2d / total time",
+        "t": "(c) OM = (a+b)/2",
+        "d": ""
+      },
+      {
+        "t": "(d) M midpoint ⇒ AM = ½ AB",
         "d": ""
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 90 km/h; (b) 2.25 h",
+    "markscheme": "12 marks. Answer: (a) (-2 ; 2); (b) √8; (c) (5 ; 4)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -6620,23 +6868,27 @@
     "topic_tags": [
       "cumulative_frequency"
     ],
-    "question_text": "80 pupils at Fletcher High sat a test (0–50). An ogive is drawn. (a) How to read the median from the ogive.  [3] (b) Median estimated as 22. Meaning?  [2] (c) How to find the IQR from the graph.  [4] (d) Why IQR is better than the range here.  [3]",
-    "answer": "(a) read at cf = 40.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "question_text": "50 candidates sat a Mathematics paper marked out of 50. A cumulative frequency curve (ogive) is drawn. (a) State the median position on the cumulative-frequency axis.  [2] (b) Describe how to read the median mark from the ogive.  [3] (c) The lower quartile is at position n/4 and the upper quartile at 3n/4. Write these positions as numbers.  [3] (d) Define the interquartile range and state one advantage of the IQR over the range.  [4]",
+    "answer": "(a) 25.0; (c) Q1 at 12.5, Q3 at 37.5; (d) IQR = Q3 − Q1, less affected by outliers",
     "steps": [
       {
-        "t": "(a)",
-        "d": "n/2 = 40.0"
+        "t": "(a) n/2",
+        "d": "50/2 = 25.0"
+      },
+      {
+        "t": "(b)",
+        "d": "from cf = n/2 across to the curve, down to the mark axis"
       },
       {
         "t": "(c)",
-        "d": "Q1 = 20.0, Q3 = 60.0"
+        "d": "Q1: 12.5, Q3: 37.5"
       },
       {
-        "t": "(d) outliers",
-        "d": "IQR uses middle 50%"
+        "t": "(d)",
+        "d": "IQR = Q3 − Q1; uses the middle 50%, so extreme values have less effect"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) read at cf = 40.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "markscheme": "12 marks. Answer: (a) 25.0; (c) Q1 at 12.5, Q3 at 37.5; (d) IQR = Q3 − Q1, less affected by outliers",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -6649,25 +6901,29 @@
     "question_number": "12",
     "marks": 12,
     "topic_tags": [
-      "circle_geometry"
+      "transformations"
     ],
-    "question_text": "O is the centre. A, B, C on the circumference. AB is a diameter. Angle BAC = 44°. (a) Angle ACB. Reason.  [3] (b) Angle BOC (centre, same arc BC).  [3] (c) D on the remaining circumference. Angle BDC. Reason.  [3] (d) State the angle-in-a-semicircle theorem.  [3]",
-    "answer": "(a) 90°; (b) 88°; (c) 44° same segment",
+    "question_text": "Triangle PQR has P(2, 4), Q(4, 4) and R(2, 7). (a) P' is the image of P under reflection in the y-axis. Write down the coordinates of P'.  [2] (b) Q is translated by the vector (1 ; 2). Find the image Q''.  [3] (c) The matrix (0 −1 ; 1  0) represents a transformation T. Describe T fully.  [4] (d) Find T(Q), the image of Q under T.  [3]",
+    "answer": "(a) (-2, 4); (b) (5, 6); (c) rotation 90° anticlockwise about O; (d) (-4, 4)",
     "steps": [
       {
-        "t": "(a) angle in a semicircle",
-        "d": "90°"
+        "t": "(a) (x, y) → (−x, y)",
+        "d": "P'(-2, 4)"
       },
       {
-        "t": "(b) angle at centre = 2 at circumference",
-        "d": "88°"
+        "t": "(b) add the vector",
+        "d": "(4+1, 4+2)"
       },
       {
-        "t": "(c) same segment",
-        "d": "44°"
+        "t": "(c) (x, y) → (−y, x)",
+        "d": "rotation 90° anticlockwise about the origin"
+      },
+      {
+        "t": "(d)",
+        "d": "(4, 4) → (-4, 4)"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 90°; (b) 88°; (c) 44° same segment",
+    "markscheme": "12 marks. Answer: (a) (-2, 4); (b) (5, 6); (c) rotation 90° anticlockwise about O; (d) (-4, 4)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -6680,25 +6936,25 @@
     "question_number": "13",
     "marks": 12,
     "topic_tags": [
-      "variation_and_linear_programming"
+      "variation"
     ],
-    "question_text": "(a) y varies directly as x. When x = 4, y = 12. Find y when x = 10.  [4] (b) z varies inversely as x. When x = 3, z = 8. Find z when x = 6.  [4] (c) A farmer near Chitungwiza has at most 48 hours. Maize takes 3 h/ha, vegetables 1 h/ha. Inequality for hectares m and v.  [4]",
-    "answer": "(a) 30; (b) 4; (c) 3m + v ≤ 48",
+    "question_text": "(a) y varies directly as x. When x = 6, y = 12. &nbsp;&nbsp;&nbsp;(i) Find the equation connecting y and x.  [3] &nbsp;&nbsp;&nbsp;(ii) Find y when x = 10.  [2] (b) z varies inversely as x. When x = 3, z = 12. Let this value of z be z₀. &nbsp;&nbsp;&nbsp;(i) Find z when x = 6.  [4] &nbsp;&nbsp;&nbsp;(ii) Describe what happens to z when x is doubled.  [3]",
+    "answer": "(a) y = 2x; y(10) = 20; (b) inverse: product constant, doubling x halves z",
     "steps": [
       {
-        "t": "(a) y = kx",
-        "d": "k = 3, y = 30"
+        "t": "(a)(i) y = kx",
+        "d": "12 = k×6 ⇒ k = 2"
       },
       {
-        "t": "(b) z = k/x",
-        "d": "k = 24, z = 4"
+        "t": "(a)(ii)",
+        "d": "y = 2×10 = 20"
       },
       {
-        "t": "(c)",
-        "d": "3m + v ≤ 48, m≥0, v≥0"
+        "t": "(b) z = c/x",
+        "d": "if x doubles, z is halved"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 30; (b) 4; (c) 3m + v ≤ 48",
+    "markscheme": "12 marks. Answer: (a) y = 2x; y(10) = 20; (b) inverse: product constant, doubling x halves z",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -7419,27 +7675,31 @@
     "year": 2024,
     "session": "November",
     "question_number": "1",
-    "marks": 8,
+    "marks": 10,
     "topic_tags": [
-      "graphs_and_coordinates"
+      "algebra"
     ],
-    "question_text": "Line L: y = 2x + 3. (a) Gradient and y-intercept.  [2] (b) Coordinates where L meets the x-axis.  [2] (c) Show A(1, 5) lies on L.  [2] (d) Equation of the line parallel to L through (0, 4).  [2]",
-    "answer": "(a) 2, (0,3); (b) (-1 1/2, 0); (d) y = 2x + 4",
+    "question_text": "(a) Expand and simplify  (2x − 4)(x + 4).  [3] (b) Factorise completely  9x² + 3x.  [2] (c) Solve  2(x − 4) = 8.  [3] (d) Simplify  (x² − 4)/(x − 2).  [2]",
+    "answer": "(a) 2x² + 4x − 16; (b) 3x(3x + 1); (c) x = 8; (d) x + 2",
     "steps": [
       {
-        "t": "(a) y = mx + c",
-        "d": ""
+        "t": "(a) FOIL",
+        "d": "2x² + 8x − 4x − 16 = 2x² + 4x − 16"
       },
       {
-        "t": "(b) y = 0",
-        "d": "x = -1 1/2"
+        "t": "(b) common factor",
+        "d": "3x(3x + 1)"
       },
       {
-        "t": "(d) same m",
-        "d": "y = 2x + 4"
+        "t": "(c) divide by 2",
+        "d": "x − 4 = 4 ⇒ x = 8"
+      },
+      {
+        "t": "(d) difference of squares",
+        "d": "(x−2)(x+2)/(x−2) = x+2, x≠2"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 2, (0,3); (b) (-1 1/2, 0); (d) y = 2x + 4",
+    "markscheme": "(a) 3 (b) 2 (c) 3 (d) 2 = 10",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -7452,25 +7712,29 @@
     "question_number": "2",
     "marks": 8,
     "topic_tags": [
-      "mensuration_(cylinder)"
+      "geometry"
     ],
-    "question_text": "A cylindrical tank at St Mary's has radius 7 cm and height 20 cm. π = 22/7. (a) Volume.  [3] (b) Curved surface area.  [3] (c) Total surface area including the base only (open top).  [2]",
-    "answer": "(a) 3080 cm³; (b) 880 cm²",
+    "question_text": "AB is parallel to CD. Transversal PQ meets AB at X and CD at Y. (a) Angle AXY = 58°. Find the corresponding angle at Y. Give a reason.  [2] (b) Find the co-interior (allied) angle to 58°. Give a reason.  [2] (c) In triangle PQR, P̂ = 58° and Q̂ = 45°. Calculate R̂.  [2] (d) State whether triangle PQR is acute, right-angled or obtuse. Give a reason.  [2]",
+    "answer": "(a) 58° corresponding angles, AB ∥ CD; (b) 122° co-interior; (c) 77°",
     "steps": [
       {
-        "t": "(a) πr²h",
-        "d": ""
+        "t": "(a) corresponding angles",
+        "d": "58°, AB ∥ CD"
       },
       {
-        "t": "(b) 2πrh",
-        "d": ""
+        "t": "(b) co-interior sum to 180°",
+        "d": "122°"
       },
       {
-        "t": "(c) 2πrh + πr²",
-        "d": ""
+        "t": "(c) angle sum of a triangle",
+        "d": "180 − 58 − 45 = 77°"
+      },
+      {
+        "t": "(d) compare with 90°",
+        "d": "acute if all < 90°, obtuse if one > 90°"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 3080 cm³; (b) 880 cm²",
+    "markscheme": "8 marks. Answer: (a) 58° corresponding angles, AB ∥ CD; (b) 122° co-interior; (c) 77°",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -7485,23 +7749,23 @@
     "topic_tags": [
       "mensuration"
     ],
-    "question_text": "A rectangular garden in Mbare Musika measures 18 m by 9 m. A path of width 1 m runs all around the outside. (a) Area of the garden.  [2] (b) Area of the path.  [3] (c) A circular bed of radius 7 m is later dug. Area of the bed, π = 22/7.  [3]",
-    "answer": "(a) 162 m²; (b) 58 m²; (c) 154 m²",
+    "question_text": "A closed cylinder has radius 7 cm and height 8 cm. Take π = 22/7. (a) Calculate the volume.  [3] (b) Calculate the curved surface area.  [3] (c) Calculate the total surface area.  [2]",
+    "answer": "(a) 1232 cm³; (b) 352 cm²; (c) 660 cm²",
     "steps": [
       {
-        "t": "(a)",
-        "d": "18×9 = 162"
+        "t": "(a) V = πr²h",
+        "d": "22/7 × 7² × 8 = 1232 cm³"
       },
       {
-        "t": "(b) outer − inner",
-        "d": "220 − 162 = 58"
+        "t": "(b) CSA = 2πrh",
+        "d": "352 cm²"
       },
       {
-        "t": "(c) πr²",
+        "t": "(c) TSA = 2πrh + 2πr²",
         "d": ""
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 162 m²; (b) 58 m²; (c) 154 m²",
+    "markscheme": "8 marks. Answer: (a) 1232 cm³; (b) 352 cm²; (c) 660 cm²",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -7512,31 +7776,31 @@
     "year": 2024,
     "session": "November",
     "question_number": "4",
-    "marks": 10,
+    "marks": 8,
     "topic_tags": [
-      "algebra"
+      "coordinate_geometry"
     ],
-    "question_text": "(a) Expand and simplify (6x − 1)(x + 1).  [3] (b) Factorise x² + 8x + 12.  [2] (c) Solve (x + 1)/6 = 2.  [3] (d) Simplify (x² − 4)/(x − 2).  [2]",
-    "answer": "(a) 6x² + 5x − 1; (b) (x+2)(x+6); (c) x = 11; (d) x+2",
+    "question_text": "The line L has equation  y = 3x + 4. (a) Write down the gradient of L and the coordinates of the y-intercept.  [2] (b) Find the coordinates of the point where L meets the x-axis.  [2] (c) Find the gradient of the line joining A(3, 3) and B(5, 7).  [2] (d) Write the equation of the line parallel to L that passes through (0, 1).  [2]",
+    "answer": "(a) gradient 3, (0, 4); (b) (-1 1/3, 0); (c) 2; (d) y = 3x + 1",
     "steps": [
       {
-        "t": "(a) FOIL",
-        "d": "6x² + 5x − 1"
+        "t": "(a) y = mx + c",
+        "d": "m = 3, intercept (0, 4)"
       },
       {
-        "t": "(b)",
-        "d": "(x+2)(x+6)"
+        "t": "(b) y = 0",
+        "d": "0 = 3x + 4 ⇒ x = -1 1/3"
       },
       {
-        "t": "(c)",
-        "d": "x = 11"
+        "t": "(c) m = (y2−y1)/(x2−x1)",
+        "d": "4/2"
       },
       {
-        "t": "(d) difference of squares",
-        "d": "x + 2"
+        "t": "(d) same gradient",
+        "d": "y = 3x + 1"
       }
     ],
-    "markscheme": "10 marks. Answer: (a) 6x² + 5x − 1; (b) (x+2)(x+6); (c) x = 11; (d) x+2",
+    "markscheme": "8 marks. Answer: (a) gradient 3, (0, 4); (b) (-1 1/3, 0); (c) 2; (d) y = 3x + 1",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -7549,25 +7813,29 @@
     "question_number": "5",
     "marks": 9,
     "topic_tags": [
-      "consumer_arithmetic"
+      "statistics"
     ],
-    "question_text": "A sewing machine is marked at $500 in Harare. (a) 10% discount. Discounted price.  [3] (b) Then add VAT 15%. Amount paid.  [3] (c) Deposit 40% of the final amount. Balance remaining.  [3]",
-    "answer": "(a) $450; (b) $517; (c) $311",
+    "question_text": "The table shows values of x with frequencies f: x=2, f=6, x=3, f=2, x=4, f=8, x=4, f=2, x=5, f=6. (a) State the modal value of x.  [1] (b) Calculate Σf and Σfx.  [3] (c) Calculate the mean of x.  [3] (d) Find the range of x.  [2]",
+    "answer": "(a) 4; (b) Σf=24, Σfx=88; (c) 3 2/3; (d) 3",
     "steps": [
       {
-        "t": "(a)",
-        "d": "500×90/100 = 450"
+        "t": "(a) highest frequency",
+        "d": "4"
       },
       {
-        "t": "(b) ×1.15",
-        "d": "517"
+        "t": "(b)",
+        "d": "Σf = 24, Σfx = 88"
       },
       {
-        "t": "(c) 60%",
-        "d": "311"
+        "t": "(c) mean = Σfx/Σf",
+        "d": "88/24 = 3 2/3"
+      },
+      {
+        "t": "(d) max − min",
+        "d": "5 − 2 = 3"
       }
     ],
-    "markscheme": "9 marks. Answer: (a) $450; (b) $517; (c) $311",
+    "markscheme": "9 marks. Answer: (a) 4; (b) Σf=24, Σfx=88; (c) 3 2/3; (d) 3",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -7578,27 +7846,31 @@
     "year": 2024,
     "session": "November",
     "question_number": "6",
-    "marks": 8,
+    "marks": 9,
     "topic_tags": [
-      "geometry_(angles)"
+      "matrices"
     ],
-    "question_text": "AB ∥ CD with transversal EF in a street plan of Harare. (a) Angle APQ = 50°. State the corresponding angle at Q, with a reason.  [2] (b) Find the co-interior angle to 50°.  [2] (c) A triangle has angles 50°, 31° and x°. Find x.  [2] (d) Classify the triangle (acute / right / obtuse).  [2]",
-    "answer": "(a) 50° corresponding; (b) 130°; (c) 99°",
+    "question_text": "A = (2  2 ; 1  2)  and  column vector u = (1 ; 1). (a) Calculate Au.  [3] (b) Find det A.  [2] (c) Describe fully the transformation represented by (0 −1 ; 1  0).  [2] (d) Find the image of the point (1, 1) under a reflection in the y-axis.  [2]",
+    "answer": "(a) (4 ; 3); (b) 2; (c) rotation 90° anticlockwise about O; (d) (-1, 1)",
     "steps": [
       {
-        "t": "(a) corresponding, AB ∥ CD",
-        "d": "50°"
+        "t": "(a) row × column",
+        "d": "(4 ; 3)"
       },
       {
-        "t": "(b) co-interior",
-        "d": "130°"
+        "t": "(b) ad − bc",
+        "d": "2×2 − 2×1 = 2"
       },
       {
         "t": "(c)",
-        "d": "99°"
+        "d": "(x,y) → (−y, x), 90° anticlockwise about O"
+      },
+      {
+        "t": "(d) (x,y) → (−x, y)",
+        "d": "(-1, 1)"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 50° corresponding; (b) 130°; (c) 99°",
+    "markscheme": "9 marks. Answer: (a) (4 ; 3); (b) 2; (c) rotation 90° anticlockwise about O; (d) (-1, 1)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -7611,25 +7883,29 @@
     "question_number": "7",
     "marks": 12,
     "topic_tags": [
-      "vectors"
+      "quadratic_equations"
     ],
-    "question_text": "OA = a = (2 ; 2), OB = b = (2 ; 2). M midpoint of AB. (a) Vector AB.  [3] (b) |AB|.  [3] (c) Position vector OM.  [3] (d) Show AM = MB.  [3]",
-    "answer": "(a) (0 ; 0); (b) √0",
+    "question_text": "(a) Factorise  x² − 5x + 4.  [3] (b) Hence solve  x² − 5x + 4 = 0.  [2] (c) Write down the roots of  (x − 1)(x − 4) = 0.  [1] (d) Sketch y = (x − 1)(x − 4), showing the intercepts with both axes.  [3] (e) State the coordinates of the turning point.  [3]",
+    "answer": "(a) (x−1)(x−4); (b) x=1 or x=4; (e) (2 1/2, -3)",
     "steps": [
       {
-        "t": "(a) b − a",
-        "d": "(0 ; 0)"
+        "t": "(a)",
+        "d": "(x − 1)(x − 4)"
       },
       {
-        "t": "(b) magnitude",
-        "d": ""
+        "t": "(b)",
+        "d": "x = 1 or x = 4"
       },
       {
-        "t": "(c) (a+b)/2",
-        "d": ""
+        "t": "(d) x-intercepts and y-intercept {r1*r2}",
+        "d": "U-shape (positive x²)"
+      },
+      {
+        "t": "(e) midpoint of roots, substitute",
+        "d": "x = 2 1/2"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) (0 ; 0); (b) √0",
+    "markscheme": "12 marks. Answer: (a) (x−1)(x−4); (b) x=1 or x=4; (e) (2 1/2, -3)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -7642,25 +7918,29 @@
     "question_number": "8",
     "marks": 12,
     "topic_tags": [
-      "quadratic_equations"
+      "trigonometry"
     ],
-    "question_text": "(a) Solve x² − 8x + 15 = 0 by factorisation.  [4] (b) A rectangular plot in Harare is 5 m longer than it is wide. If the area is 24 m², form and solve an equation for the width w.  [5] (c) Sketch y = (x − 3)(x − 5), showing intercepts.  [3]",
-    "answer": "(a) x=3 or 5; (b) w(w+5) = 24",
+    "question_text": "In triangle ABC, Â = 40°, B̂ = 30° and BC = a = 8 cm. (a) Calculate Ĉ.  [2] (b) Write the sine rule.  [2] (c) Calculate AB = c.  [5] (d) State whether the triangle is acute or obtuse, with a reason.  [3]",
+    "answer": "(a) 110°; (c) c = 8 sin(40)/sin(30)  [leave in sin form if no calculator tables]",
     "steps": [
       {
-        "t": "(a)",
-        "d": "(x−3)(x−5)=0"
+        "t": "(a) angle sum",
+        "d": "C = 180 − 40 − 30 = 110°"
       },
       {
         "t": "(b)",
-        "d": "w² + 5w − 24 = 0"
+        "d": "a/sin A = b/sin B = c/sin C"
       },
       {
-        "t": "(c) intercepts",
-        "d": "3, 5"
+        "t": "(c)",
+        "d": "c / sin 40° = 8 / sin 30°"
+      },
+      {
+        "t": "(d)",
+        "d": "obtuse"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) x=3 or 5; (b) w(w+5) = 24",
+    "markscheme": "12 marks. Answer: (a) 110°; (c) c = 8 sin(40)/sin(30)  [leave in sin form if no calculator tables]",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -7673,25 +7953,29 @@
     "question_number": "9",
     "marks": 12,
     "topic_tags": [
-      "trigonometry_and_bearings"
+      "circle_theorems"
     ],
-    "question_text": "A cellphone tower is observed from A on level ground in Harare. Angle of elevation of the top is 30°. Distance A to the foot is 24 m. (a) Height of the object. Use tan 30° = 1/√3.  [4] (b) From B, 24 m due East of A, the bearing of the foot is 300°. Sketch.  [3] (c) A bird sits halfway up. Angle of elevation from A.  [5]",
-    "answer": "(a) 24/√3 = 24√3/3 m",
+    "question_text": "O is the centre of a circle. A, B and C lie on the circumference. AB is a diameter. Angle BAC = 48°. (a) Find angle ACB. Give a reason.  [3] (b) Find angle ABC.  [2] (c) Find angle BOC (angle at the centre standing on arc BC). Give a reason.  [4] (d) Point D lies on the remaining circumference. Find angle BDC. Give a reason.  [3]",
+    "answer": "(a) 90° (angle in a semicircle); (b) 42°; (c) 96° (angle at centre = 2 × angle at circumference); (d) 48° (angles in the same segment)",
     "steps": [
       {
-        "t": "(a) tan 30° = opp/adj",
-        "d": "h = 24/√3 = 24√3/3 m"
+        "t": "(a) angle in a semicircle",
+        "d": "ACB = 90° because AB is a diameter"
       },
       {
-        "t": "(b) bearings sketch",
-        "d": "North lines at A and B"
+        "t": "(b) angle sum in triangle ABC",
+        "d": "ABC = 90 − 48 = 42°"
       },
       {
-        "t": "(c) tan θ = (h/2)/adj",
-        "d": ""
+        "t": "(c) angle at the centre is twice the angle at the circumference, same arc BC",
+        "d": "BOC = 2 × 48 = 96°"
+      },
+      {
+        "t": "(d) angles in the same segment",
+        "d": "BDC = BAC = 48°"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 24/√3 = 24√3/3 m",
+    "markscheme": "12 marks. Answer: (a) 90° (angle in a semicircle); (b) 42°; (c) 96° (angle at centre = 2 × angle at circumference); (d) 48° (angles in the same segment)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -7704,25 +7988,29 @@
     "question_number": "10",
     "marks": 12,
     "topic_tags": [
-      "transformations_and_matrices"
+      "vectors"
     ],
-    "question_text": "Triangle P(1,2), Q(4,2), R(1,4). (a) Reflect in the y-axis. Coordinates of P'.  [4] (b) Translate PQR by (1 ; -1). Give Q''.  [3] (c) Matrix (0 −1 ; 1  0) maps (x;y). Describe fully and find the image of Q.  [5]",
-    "answer": "(a) P'(-1,2); (b) Q''(5,1); (c) 90° anticlockwise about O",
+    "question_text": "The position vectors of A and B are a = (2 ; 3) and b = (3 ; 3). M is the midpoint of AB. (a) Find vector AB.  [3] (b) Find |AB|.  [3] (c) Find the position vector of M.  [3] (d) Show that AM = ½ AB.  [3]",
+    "answer": "(a) (1 ; 0); (b) √1; (c) (2 1/2 ; 3)",
     "steps": [
       {
-        "t": "(a) (x,y)→(−x,y)",
-        "d": "P'(-1,2)"
+        "t": "(a) AB = b − a",
+        "d": "(3−2 ; 3−3) = (1 ; 0)"
       },
       {
-        "t": "(b)",
-        "d": "Q(4,2)+(1,-1)"
+        "t": "(b) |AB| = √(x²+y²)",
+        "d": "√1"
       },
       {
-        "t": "(c) (−y, x)",
-        "d": "rotation 90° anticlockwise about O"
+        "t": "(c) OM = (a+b)/2",
+        "d": ""
+      },
+      {
+        "t": "(d) M midpoint ⇒ AM = ½ AB",
+        "d": ""
       }
     ],
-    "markscheme": "12 marks. Answer: (a) P'(-1,2); (b) Q''(5,1); (c) 90° anticlockwise about O",
+    "markscheme": "12 marks. Answer: (a) (1 ; 0); (b) √1; (c) (2 1/2 ; 3)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -7737,23 +8025,27 @@
     "topic_tags": [
       "cumulative_frequency"
     ],
-    "question_text": "80 pupils at St Mary's sat a test (0–50). An ogive is drawn. (a) How to read the median from the ogive.  [3] (b) Median estimated as 22. Meaning?  [2] (c) How to find the IQR from the graph.  [4] (d) Why IQR is better than the range here.  [3]",
-    "answer": "(a) read at cf = 40.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "question_text": "50 candidates sat a Mathematics paper marked out of 50. A cumulative frequency curve (ogive) is drawn. (a) State the median position on the cumulative-frequency axis.  [2] (b) Describe how to read the median mark from the ogive.  [3] (c) The lower quartile is at position n/4 and the upper quartile at 3n/4. Write these positions as numbers.  [3] (d) Define the interquartile range and state one advantage of the IQR over the range.  [4]",
+    "answer": "(a) 25.0; (c) Q1 at 12.5, Q3 at 37.5; (d) IQR = Q3 − Q1, less affected by outliers",
     "steps": [
       {
-        "t": "(a)",
-        "d": "n/2 = 40.0"
+        "t": "(a) n/2",
+        "d": "50/2 = 25.0"
+      },
+      {
+        "t": "(b)",
+        "d": "from cf = n/2 across to the curve, down to the mark axis"
       },
       {
         "t": "(c)",
-        "d": "Q1 = 20.0, Q3 = 60.0"
+        "d": "Q1: 12.5, Q3: 37.5"
       },
       {
-        "t": "(d) outliers",
-        "d": "IQR uses middle 50%"
+        "t": "(d)",
+        "d": "IQR = Q3 − Q1; uses the middle 50%, so extreme values have less effect"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) read at cf = 40.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "markscheme": "12 marks. Answer: (a) 25.0; (c) Q1 at 12.5, Q3 at 37.5; (d) IQR = Q3 − Q1, less affected by outliers",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -7766,25 +8058,29 @@
     "question_number": "12",
     "marks": 12,
     "topic_tags": [
-      "variation_and_linear_programming"
+      "transformations"
     ],
-    "question_text": "(a) y varies directly as x. When x = 4, y = 24. Find y when x = 10.  [4] (b) z varies inversely as x. When x = 3, z = 8. Find z when x = 6.  [4] (c) A farmer near Harare has at most 40 hours. Maize takes 2 h/ha, vegetables 1 h/ha. Inequality for hectares m and v.  [4]",
-    "answer": "(a) 60; (b) 4; (c) 2m + v ≤ 40",
+    "question_text": "Triangle PQR has P(2, 2), Q(4, 2) and R(2, 4). (a) P' is the image of P under reflection in the y-axis. Write down the coordinates of P'.  [2] (b) Q is translated by the vector (2 ; -2). Find the image Q''.  [3] (c) The matrix (0 −1 ; 1  0) represents a transformation T. Describe T fully.  [4] (d) Find T(Q), the image of Q under T.  [3]",
+    "answer": "(a) (-2, 2); (b) (6, 0); (c) rotation 90° anticlockwise about O; (d) (-2, 4)",
     "steps": [
       {
-        "t": "(a) y = kx",
-        "d": "k = 6, y = 60"
+        "t": "(a) (x, y) → (−x, y)",
+        "d": "P'(-2, 2)"
       },
       {
-        "t": "(b) z = k/x",
-        "d": "k = 24, z = 4"
+        "t": "(b) add the vector",
+        "d": "(4+2, 2+-2)"
       },
       {
-        "t": "(c)",
-        "d": "2m + v ≤ 40, m≥0, v≥0"
+        "t": "(c) (x, y) → (−y, x)",
+        "d": "rotation 90° anticlockwise about the origin"
+      },
+      {
+        "t": "(d)",
+        "d": "(4, 2) → (-2, 4)"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 60; (b) 4; (c) 2m + v ≤ 40",
+    "markscheme": "12 marks. Answer: (a) (-2, 2); (b) (6, 0); (c) rotation 90° anticlockwise about O; (d) (-2, 4)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -7797,25 +8093,25 @@
     "question_number": "13",
     "marks": 12,
     "topic_tags": [
-      "travel_graphs"
+      "variation"
     ],
-    "question_text": "A kombi leaves Harare at 08:00 and travels 150 km at constant speed, arriving after 2 hours. It stops 30 minutes, then returns at 80 km/h. (a) Outward speed.  [3] (b) Time for the return.  [3] (c) Sketch a distance–time graph, labelling axes.  [4] (d) Average speed for the whole trip including the stop.  [2]",
-    "answer": "(a) 75 km/h; (b) 1.875 h",
+    "question_text": "(a) y varies directly as x. When x = 3, y = 18. &nbsp;&nbsp;&nbsp;(i) Find the equation connecting y and x.  [3] &nbsp;&nbsp;&nbsp;(ii) Find y when x = 8.  [2] (b) z varies inversely as x. When x = 3, z = 12. Let this value of z be z₀. &nbsp;&nbsp;&nbsp;(i) Find z when x = 6.  [4] &nbsp;&nbsp;&nbsp;(ii) Describe what happens to z when x is doubled.  [3]",
+    "answer": "(a) y = 6x; y(8) = 48; (b) inverse: product constant, doubling x halves z",
     "steps": [
       {
-        "t": "(a) s = d/t",
-        "d": "150/2"
+        "t": "(a)(i) y = kx",
+        "d": "18 = k×3 ⇒ k = 6"
       },
       {
-        "t": "(b) t = d/s",
-        "d": "150/80"
+        "t": "(a)(ii)",
+        "d": "y = 6×8 = 48"
       },
       {
-        "t": "(d) total distance 2d / total time",
-        "d": ""
+        "t": "(b) z = c/x",
+        "d": "if x doubles, z is halved"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 75 km/h; (b) 1.875 h",
+    "markscheme": "12 marks. Answer: (a) y = 6x; y(8) = 48; (b) inverse: product constant, doubling x halves z",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -8540,27 +8836,31 @@
     "year": 2023,
     "session": "June",
     "question_number": "1",
-    "marks": 9,
+    "marks": 10,
     "topic_tags": [
-      "statistics"
+      "algebra"
     ],
-    "question_text": "27 Form 4 pupils at St Mary's scored: 2 (8 pupils), 2 (4 pupils), 3 (5 pupils), 6 (4 pupils), 6 (6 pupils). (a) Modal mark.  [1] (b) Mean mark.  [4] (c) Range.  [2] (d) One extra pupil scores 6. Effect on the mean?  [2]",
-    "answer": "(a) 2; (b) 3 2/3; (c) 4",
+    "question_text": "(a) Expand and simplify  (2x − 1)(x + 1).  [3] (b) Factorise completely  4x² + 8x.  [2] (c) Solve  2(x − 1) = 6.  [3] (d) Simplify  (x² − 4)/(x − 2).  [2]",
+    "answer": "(a) 2x² + 1x − 1; (b) 2x(2x + 4); (c) x = 4; (d) x + 2",
     "steps": [
       {
-        "t": "(a) highest frequency",
-        "d": "2"
+        "t": "(a) FOIL",
+        "d": "2x² + 2x − 1x − 1 = 2x² + 1x − 1"
       },
       {
-        "t": "(b) Σfx/Σf",
-        "d": "99/27"
+        "t": "(b) common factor",
+        "d": "2x(2x + 4)"
       },
       {
-        "t": "(c)",
-        "d": "4"
+        "t": "(c) divide by 2",
+        "d": "x − 1 = 3 ⇒ x = 4"
+      },
+      {
+        "t": "(d) difference of squares",
+        "d": "(x−2)(x+2)/(x−2) = x+2, x≠2"
       }
     ],
-    "markscheme": "9 marks. Answer: (a) 2; (b) 3 2/3; (c) 4",
+    "markscheme": "(a) 3 (b) 2 (c) 3 (d) 2 = 10",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -8573,25 +8873,29 @@
     "question_number": "2",
     "marks": 8,
     "topic_tags": [
-      "geometry_(angles)"
+      "geometry"
     ],
-    "question_text": "AB ∥ CD with transversal EF in a street plan of Chitungwiza. (a) Angle APQ = 42°. State the corresponding angle at Q, with a reason.  [2] (b) Find the co-interior angle to 42°.  [2] (c) A triangle has angles 42°, 46° and x°. Find x.  [2] (d) Classify the triangle (acute / right / obtuse).  [2]",
-    "answer": "(a) 42° corresponding; (b) 138°; (c) 92°",
+    "question_text": "AB is parallel to CD. Transversal PQ meets AB at X and CD at Y. (a) Angle AXY = 39°. Find the corresponding angle at Y. Give a reason.  [2] (b) Find the co-interior (allied) angle to 39°. Give a reason.  [2] (c) In triangle PQR, P̂ = 39° and Q̂ = 54°. Calculate R̂.  [2] (d) State whether triangle PQR is acute, right-angled or obtuse. Give a reason.  [2]",
+    "answer": "(a) 39° corresponding angles, AB ∥ CD; (b) 141° co-interior; (c) 87°",
     "steps": [
       {
-        "t": "(a) corresponding, AB ∥ CD",
-        "d": "42°"
+        "t": "(a) corresponding angles",
+        "d": "39°, AB ∥ CD"
       },
       {
-        "t": "(b) co-interior",
-        "d": "138°"
+        "t": "(b) co-interior sum to 180°",
+        "d": "141°"
       },
       {
-        "t": "(c)",
-        "d": "92°"
+        "t": "(c) angle sum of a triangle",
+        "d": "180 − 39 − 54 = 87°"
+      },
+      {
+        "t": "(d) compare with 90°",
+        "d": "acute if all < 90°, obtuse if one > 90°"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 42° corresponding; (b) 138°; (c) 92°",
+    "markscheme": "8 marks. Answer: (a) 39° corresponding angles, AB ∥ CD; (b) 141° co-interior; (c) 87°",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -8606,23 +8910,23 @@
     "topic_tags": [
       "mensuration"
     ],
-    "question_text": "A rectangular garden in Unit L measures 12 m by 10 m. A path of width 2 m runs all around the outside. (a) Area of the garden.  [2] (b) Area of the path.  [3] (c) A circular bed of radius 7 m is later dug. Area of the bed, π = 22/7.  [3]",
-    "answer": "(a) 120 m²; (b) 104 m²; (c) 154 m²",
+    "question_text": "A closed cylinder has radius 7 cm and height 8 cm. Take π = 22/7. (a) Calculate the volume.  [3] (b) Calculate the curved surface area.  [3] (c) Calculate the total surface area.  [2]",
+    "answer": "(a) 1232 cm³; (b) 352 cm²; (c) 660 cm²",
     "steps": [
       {
-        "t": "(a)",
-        "d": "12×10 = 120"
+        "t": "(a) V = πr²h",
+        "d": "22/7 × 7² × 8 = 1232 cm³"
       },
       {
-        "t": "(b) outer − inner",
-        "d": "224 − 120 = 104"
+        "t": "(b) CSA = 2πrh",
+        "d": "352 cm²"
       },
       {
-        "t": "(c) πr²",
+        "t": "(c) TSA = 2πrh + 2πr²",
         "d": ""
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 120 m²; (b) 104 m²; (c) 154 m²",
+    "markscheme": "8 marks. Answer: (a) 1232 cm³; (b) 352 cm²; (c) 660 cm²",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -8635,25 +8939,29 @@
     "question_number": "4",
     "marks": 8,
     "topic_tags": [
-      "geometrical_construction"
+      "coordinate_geometry"
     ],
-    "question_text": "(a) Using ruler and compasses only, construct triangle ABC with AB = 7 cm, BC = 7 cm and AC = 8 cm.  [4] (b) Construct the perpendicular bisector of BC.  [2] (c) Mark the circumcentre and describe its property.  [2]",
-    "answer": "Construction — equal arcs; circumcentre equidistant from A,B,C",
+    "question_text": "The line L has equation  y = 2x + 6. (a) Write down the gradient of L and the coordinates of the y-intercept.  [2] (b) Find the coordinates of the point where L meets the x-axis.  [2] (c) Find the gradient of the line joining A(2, 1) and B(6, 3).  [2] (d) Write the equation of the line parallel to L that passes through (0, 1).  [2]",
+    "answer": "(a) gradient 2, (0, 6); (b) (-3, 0); (c) 1/2; (d) y = 2x + 1",
     "steps": [
       {
-        "t": "(a) base + two arcs",
-        "d": "SSS construction"
+        "t": "(a) y = mx + c",
+        "d": "m = 2, intercept (0, 6)"
       },
       {
-        "t": "(b) arcs from B and C",
-        "d": ""
+        "t": "(b) y = 0",
+        "d": "0 = 2x + 6 ⇒ x = -3"
       },
       {
-        "t": "(c) intersection of perpendicular bisectors",
-        "d": ""
+        "t": "(c) m = (y2−y1)/(x2−x1)",
+        "d": "2/4"
+      },
+      {
+        "t": "(d) same gradient",
+        "d": "y = 2x + 1"
       }
     ],
-    "markscheme": "8 marks. Answer: Construction — equal arcs; circumcentre equidistant from A,B,C",
+    "markscheme": "8 marks. Answer: (a) gradient 2, (0, 6); (b) (-3, 0); (c) 1/2; (d) y = 2x + 1",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -8664,27 +8972,31 @@
     "year": 2023,
     "session": "June",
     "question_number": "5",
-    "marks": 8,
+    "marks": 9,
     "topic_tags": [
-      "mensuration_(cylinder)"
+      "statistics"
     ],
-    "question_text": "A cylindrical tank at St Mary's has radius 7 cm and height 20 cm. π = 22/7. (a) Volume.  [3] (b) Curved surface area.  [3] (c) Total surface area including the base only (open top).  [2]",
-    "answer": "(a) 3080 cm³; (b) 880 cm²",
+    "question_text": "The table shows values of x with frequencies f: x=1, f=7, x=2, f=8, x=3, f=3, x=6, f=8, x=7, f=4. (a) State the modal value of x.  [1] (b) Calculate Σf and Σfx.  [3] (c) Calculate the mean of x.  [3] (d) Find the range of x.  [2]",
+    "answer": "(a) 2; (b) Σf=30, Σfx=108; (c) 3 3/5; (d) 6",
     "steps": [
       {
-        "t": "(a) πr²h",
-        "d": ""
+        "t": "(a) highest frequency",
+        "d": "2"
       },
       {
-        "t": "(b) 2πrh",
-        "d": ""
+        "t": "(b)",
+        "d": "Σf = 30, Σfx = 108"
       },
       {
-        "t": "(c) 2πrh + πr²",
-        "d": ""
+        "t": "(c) mean = Σfx/Σf",
+        "d": "108/30 = 3 3/5"
+      },
+      {
+        "t": "(d) max − min",
+        "d": "7 − 1 = 6"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 3080 cm³; (b) 880 cm²",
+    "markscheme": "9 marks. Answer: (a) 2; (b) Σf=30, Σfx=108; (c) 3 3/5; (d) 6",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -8695,27 +9007,31 @@
     "year": 2023,
     "session": "June",
     "question_number": "6",
-    "marks": 8,
+    "marks": 9,
     "topic_tags": [
-      "graphs_and_coordinates"
+      "matrices"
     ],
-    "question_text": "Line L: y = 2x + -2. (a) Gradient and y-intercept.  [2] (b) Coordinates where L meets the x-axis.  [2] (c) Show A(0, -2) lies on L.  [2] (d) Equation of the line parallel to L through (0, 4).  [2]",
-    "answer": "(a) 2, (0,-2); (b) (1, 0); (d) y = 2x + 4",
+    "question_text": "A = (2  3 ; 1  0)  and  column vector u = (3 ; 4). (a) Calculate Au.  [3] (b) Find det A.  [2] (c) Describe fully the transformation represented by (0 −1 ; 1  0).  [2] (d) Find the image of the point (3, 4) under a reflection in the y-axis.  [2]",
+    "answer": "(a) (18 ; 3); (b) -3; (c) rotation 90° anticlockwise about O; (d) (-3, 4)",
     "steps": [
       {
-        "t": "(a) y = mx + c",
-        "d": ""
+        "t": "(a) row × column",
+        "d": "(18 ; 3)"
       },
       {
-        "t": "(b) y = 0",
-        "d": "x = 1"
+        "t": "(b) ad − bc",
+        "d": "2×0 − 3×1 = -3"
       },
       {
-        "t": "(d) same m",
-        "d": "y = 2x + 4"
+        "t": "(c)",
+        "d": "(x,y) → (−y, x), 90° anticlockwise about O"
+      },
+      {
+        "t": "(d) (x,y) → (−x, y)",
+        "d": "(-3, 4)"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 2, (0,-2); (b) (1, 0); (d) y = 2x + 4",
+    "markscheme": "9 marks. Answer: (a) (18 ; 3); (b) -3; (c) rotation 90° anticlockwise about O; (d) (-3, 4)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -8728,25 +9044,29 @@
     "question_number": "7",
     "marks": 12,
     "topic_tags": [
-      "cumulative_frequency"
+      "quadratic_equations"
     ],
-    "question_text": "50 pupils at St Mary's sat a test (0–50). An ogive is drawn. (a) How to read the median from the ogive.  [3] (b) Median estimated as 34. Meaning?  [2] (c) How to find the IQR from the graph.  [4] (d) Why IQR is better than the range here.  [3]",
-    "answer": "(a) read at cf = 25.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "question_text": "(a) Factorise  x² − 8x + 12.  [3] (b) Hence solve  x² − 8x + 12 = 0.  [2] (c) Write down the roots of  (x − 2)(x − 6) = 0.  [1] (d) Sketch y = (x − 2)(x − 6), showing the intercepts with both axes.  [3] (e) State the coordinates of the turning point.  [3]",
+    "answer": "(a) (x−2)(x−6); (b) x=2 or x=6; (e) (4, -4)",
     "steps": [
       {
         "t": "(a)",
-        "d": "n/2 = 25.0"
+        "d": "(x − 2)(x − 6)"
       },
       {
-        "t": "(c)",
-        "d": "Q1 = 12.5, Q3 = 37.5"
+        "t": "(b)",
+        "d": "x = 2 or x = 6"
       },
       {
-        "t": "(d) outliers",
-        "d": "IQR uses middle 50%"
+        "t": "(d) x-intercepts and y-intercept {r1*r2}",
+        "d": "U-shape (positive x²)"
+      },
+      {
+        "t": "(e) midpoint of roots, substitute",
+        "d": "x = 4"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) read at cf = 25.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "markscheme": "12 marks. Answer: (a) (x−2)(x−6); (b) x=2 or x=6; (e) (4, -4)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -8759,25 +9079,29 @@
     "question_number": "8",
     "marks": 12,
     "topic_tags": [
-      "vectors"
+      "trigonometry"
     ],
-    "question_text": "OA = a = (6 ; 2), OB = b = (0 ; 2). M midpoint of AB. (a) Vector AB.  [3] (b) |AB|.  [3] (c) Position vector OM.  [3] (d) Show AM = MB.  [3]",
-    "answer": "(a) (-6 ; 0); (b) √36",
+    "question_text": "In triangle ABC, Â = 50°, B̂ = 30° and BC = a = 8 cm. (a) Calculate Ĉ.  [2] (b) Write the sine rule.  [2] (c) Calculate AB = c.  [5] (d) State whether the triangle is acute or obtuse, with a reason.  [3]",
+    "answer": "(a) 100°; (c) c = 8 sin(50)/sin(30)  [leave in sin form if no calculator tables]",
     "steps": [
       {
-        "t": "(a) b − a",
-        "d": "(-6 ; 0)"
+        "t": "(a) angle sum",
+        "d": "C = 180 − 50 − 30 = 100°"
       },
       {
-        "t": "(b) magnitude",
-        "d": ""
+        "t": "(b)",
+        "d": "a/sin A = b/sin B = c/sin C"
       },
       {
-        "t": "(c) (a+b)/2",
-        "d": ""
+        "t": "(c)",
+        "d": "c / sin 50° = 8 / sin 30°"
+      },
+      {
+        "t": "(d)",
+        "d": "obtuse"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) (-6 ; 0); (b) √36",
+    "markscheme": "12 marks. Answer: (a) 100°; (c) c = 8 sin(50)/sin(30)  [leave in sin form if no calculator tables]",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -8790,25 +9114,29 @@
     "question_number": "9",
     "marks": 12,
     "topic_tags": [
-      "variation_and_linear_programming"
+      "circle_theorems"
     ],
-    "question_text": "(a) y varies directly as x. When x = 4, y = 12. Find y when x = 10.  [4] (b) z varies inversely as x. When x = 3, z = 8. Find z when x = 6.  [4] (c) A farmer near Chitungwiza has at most 48 hours. Maize takes 2 h/ha, vegetables 1 h/ha. Inequality for hectares m and v.  [4]",
-    "answer": "(a) 30; (b) 4; (c) 2m + v ≤ 48",
+    "question_text": "O is the centre of a circle. A, B and C lie on the circumference. AB is a diameter. Angle BAC = 32°. (a) Find angle ACB. Give a reason.  [3] (b) Find angle ABC.  [2] (c) Find angle BOC (angle at the centre standing on arc BC). Give a reason.  [4] (d) Point D lies on the remaining circumference. Find angle BDC. Give a reason.  [3]",
+    "answer": "(a) 90° (angle in a semicircle); (b) 58°; (c) 64° (angle at centre = 2 × angle at circumference); (d) 32° (angles in the same segment)",
     "steps": [
       {
-        "t": "(a) y = kx",
-        "d": "k = 3, y = 30"
+        "t": "(a) angle in a semicircle",
+        "d": "ACB = 90° because AB is a diameter"
       },
       {
-        "t": "(b) z = k/x",
-        "d": "k = 24, z = 4"
+        "t": "(b) angle sum in triangle ABC",
+        "d": "ABC = 90 − 32 = 58°"
       },
       {
-        "t": "(c)",
-        "d": "2m + v ≤ 48, m≥0, v≥0"
+        "t": "(c) angle at the centre is twice the angle at the circumference, same arc BC",
+        "d": "BOC = 2 × 32 = 64°"
+      },
+      {
+        "t": "(d) angles in the same segment",
+        "d": "BDC = BAC = 32°"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 30; (b) 4; (c) 2m + v ≤ 48",
+    "markscheme": "12 marks. Answer: (a) 90° (angle in a semicircle); (b) 58°; (c) 64° (angle at centre = 2 × angle at circumference); (d) 32° (angles in the same segment)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -8821,25 +9149,29 @@
     "question_number": "10",
     "marks": 12,
     "topic_tags": [
-      "quadratic_equations"
+      "vectors"
     ],
-    "question_text": "(a) Solve x² − 8x + 15 = 0 by factorisation.  [4] (b) A rectangular plot in Chitungwiza is 5 m longer than it is wide. If the area is 24 m², form and solve an equation for the width w.  [5] (c) Sketch y = (x − 3)(x − 5), showing intercepts.  [3]",
-    "answer": "(a) x=3 or 5; (b) w(w+5) = 24",
+    "question_text": "The position vectors of A and B are a = (5 ; 5) and b = (-1 ; 4). M is the midpoint of AB. (a) Find vector AB.  [3] (b) Find |AB|.  [3] (c) Find the position vector of M.  [3] (d) Show that AM = ½ AB.  [3]",
+    "answer": "(a) (-6 ; -1); (b) √37; (c) (2 ; 4 1/2)",
     "steps": [
       {
-        "t": "(a)",
-        "d": "(x−3)(x−5)=0"
+        "t": "(a) AB = b − a",
+        "d": "(-1−5 ; 4−5) = (-6 ; -1)"
       },
       {
-        "t": "(b)",
-        "d": "w² + 5w − 24 = 0"
+        "t": "(b) |AB| = √(x²+y²)",
+        "d": "√37"
       },
       {
-        "t": "(c) intercepts",
-        "d": "3, 5"
+        "t": "(c) OM = (a+b)/2",
+        "d": ""
+      },
+      {
+        "t": "(d) M midpoint ⇒ AM = ½ AB",
+        "d": ""
       }
     ],
-    "markscheme": "12 marks. Answer: (a) x=3 or 5; (b) w(w+5) = 24",
+    "markscheme": "12 marks. Answer: (a) (-6 ; -1); (b) √37; (c) (2 ; 4 1/2)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -8852,25 +9184,29 @@
     "question_number": "11",
     "marks": 12,
     "topic_tags": [
-      "transformations_and_matrices"
+      "cumulative_frequency"
     ],
-    "question_text": "Triangle P(2,1), Q(5,1), R(2,4). (a) Reflect in the y-axis. Coordinates of P'.  [4] (b) Translate PQR by (3 ; -1). Give Q''.  [3] (c) Matrix (0 −1 ; 1  0) maps (x;y). Describe fully and find the image of Q.  [5]",
-    "answer": "(a) P'(-2,1); (b) Q''(8,0); (c) 90° anticlockwise about O",
+    "question_text": "40 candidates sat a Mathematics paper marked out of 50. A cumulative frequency curve (ogive) is drawn. (a) State the median position on the cumulative-frequency axis.  [2] (b) Describe how to read the median mark from the ogive.  [3] (c) The lower quartile is at position n/4 and the upper quartile at 3n/4. Write these positions as numbers.  [3] (d) Define the interquartile range and state one advantage of the IQR over the range.  [4]",
+    "answer": "(a) 20.0; (c) Q1 at 10.0, Q3 at 30.0; (d) IQR = Q3 − Q1, less affected by outliers",
     "steps": [
       {
-        "t": "(a) (x,y)→(−x,y)",
-        "d": "P'(-2,1)"
+        "t": "(a) n/2",
+        "d": "40/2 = 20.0"
       },
       {
         "t": "(b)",
-        "d": "Q(5,1)+(3,-1)"
+        "d": "from cf = n/2 across to the curve, down to the mark axis"
       },
       {
-        "t": "(c) (−y, x)",
-        "d": "rotation 90° anticlockwise about O"
+        "t": "(c)",
+        "d": "Q1: 10.0, Q3: 30.0"
+      },
+      {
+        "t": "(d)",
+        "d": "IQR = Q3 − Q1; uses the middle 50%, so extreme values have less effect"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) P'(-2,1); (b) Q''(8,0); (c) 90° anticlockwise about O",
+    "markscheme": "12 marks. Answer: (a) 20.0; (c) Q1 at 10.0, Q3 at 30.0; (d) IQR = Q3 − Q1, less affected by outliers",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -8883,25 +9219,29 @@
     "question_number": "12",
     "marks": 12,
     "topic_tags": [
-      "travel_graphs"
+      "transformations"
     ],
-    "question_text": "A kombi leaves Chitungwiza at 08:00 and travels 120 km at constant speed, arriving after 2 hours. It stops 30 minutes, then returns at 80 km/h. (a) Outward speed.  [3] (b) Time for the return.  [3] (c) Sketch a distance–time graph, labelling axes.  [4] (d) Average speed for the whole trip including the stop.  [2]",
-    "answer": "(a) 60 km/h; (b) 1.5 h",
+    "question_text": "Triangle PQR has P(3, 4), Q(5, 4) and R(3, 6). (a) P' is the image of P under reflection in the y-axis. Write down the coordinates of P'.  [2] (b) Q is translated by the vector (2 ; -2). Find the image Q''.  [3] (c) The matrix (0 −1 ; 1  0) represents a transformation T. Describe T fully.  [4] (d) Find T(Q), the image of Q under T.  [3]",
+    "answer": "(a) (-3, 4); (b) (7, 2); (c) rotation 90° anticlockwise about O; (d) (-4, 5)",
     "steps": [
       {
-        "t": "(a) s = d/t",
-        "d": "120/2"
+        "t": "(a) (x, y) → (−x, y)",
+        "d": "P'(-3, 4)"
       },
       {
-        "t": "(b) t = d/s",
-        "d": "120/80"
+        "t": "(b) add the vector",
+        "d": "(5+2, 4+-2)"
       },
       {
-        "t": "(d) total distance 2d / total time",
-        "d": ""
+        "t": "(c) (x, y) → (−y, x)",
+        "d": "rotation 90° anticlockwise about the origin"
+      },
+      {
+        "t": "(d)",
+        "d": "(5, 4) → (-4, 5)"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 60 km/h; (b) 1.5 h",
+    "markscheme": "12 marks. Answer: (a) (-3, 4); (b) (7, 2); (c) rotation 90° anticlockwise about O; (d) (-4, 5)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -8914,25 +9254,25 @@
     "question_number": "13",
     "marks": 12,
     "topic_tags": [
-      "circle_geometry"
+      "variation"
     ],
-    "question_text": "O is the centre. A, B, C on the circumference. AB is a diameter. Angle BAC = 44°. (a) Angle ACB. Reason.  [3] (b) Angle BOC (centre, same arc BC).  [3] (c) D on the remaining circumference. Angle BDC. Reason.  [3] (d) State the angle-in-a-semicircle theorem.  [3]",
-    "answer": "(a) 90°; (b) 88°; (c) 44° same segment",
+    "question_text": "(a) y varies directly as x. When x = 3, y = 24. &nbsp;&nbsp;&nbsp;(i) Find the equation connecting y and x.  [3] &nbsp;&nbsp;&nbsp;(ii) Find y when x = 12.  [2] (b) z varies inversely as x. When x = 3, z = 12. Let this value of z be z₀. &nbsp;&nbsp;&nbsp;(i) Find z when x = 6.  [4] &nbsp;&nbsp;&nbsp;(ii) Describe what happens to z when x is doubled.  [3]",
+    "answer": "(a) y = 8x; y(12) = 96; (b) inverse: product constant, doubling x halves z",
     "steps": [
       {
-        "t": "(a) angle in a semicircle",
-        "d": "90°"
+        "t": "(a)(i) y = kx",
+        "d": "24 = k×3 ⇒ k = 8"
       },
       {
-        "t": "(b) angle at centre = 2 at circumference",
-        "d": "88°"
+        "t": "(a)(ii)",
+        "d": "y = 8×12 = 96"
       },
       {
-        "t": "(c) same segment",
-        "d": "44°"
+        "t": "(b) z = c/x",
+        "d": "if x doubles, z is halved"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 90°; (b) 88°; (c) 44° same segment",
+    "markscheme": "12 marks. Answer: (a) y = 8x; y(12) = 96; (b) inverse: product constant, doubling x halves z",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -9661,27 +10001,31 @@
     "year": 2024,
     "session": "June",
     "question_number": "1",
-    "marks": 9,
+    "marks": 10,
     "topic_tags": [
-      "consumer_arithmetic"
+      "algebra"
     ],
-    "question_text": "A irrigation kit is marked at $700 in Harare. (a) 20% discount. Discounted price.  [3] (b) Then add VAT 15%. Amount paid.  [3] (c) Deposit 40% of the final amount. Balance remaining.  [3]",
-    "answer": "(a) $560; (b) $644; (c) $387",
+    "question_text": "(a) Expand and simplify  (3x − 1)(x + 1).  [3] (b) Factorise completely  20x² + 16x.  [2] (c) Solve  3(x − 1) = 12.  [3] (d) Simplify  (x² − 16)/(x − 4).  [2]",
+    "answer": "(a) 3x² + 2x − 1; (b) 4x(5x + 4); (c) x = 5; (d) x + 4",
     "steps": [
       {
-        "t": "(a)",
-        "d": "700×80/100 = 560"
+        "t": "(a) FOIL",
+        "d": "3x² + 3x − 1x − 1 = 3x² + 2x − 1"
       },
       {
-        "t": "(b) ×1.15",
-        "d": "644"
+        "t": "(b) common factor",
+        "d": "4x(5x + 4)"
       },
       {
-        "t": "(c) 60%",
-        "d": "387"
+        "t": "(c) divide by 3",
+        "d": "x − 1 = 4 ⇒ x = 5"
+      },
+      {
+        "t": "(d) difference of squares",
+        "d": "(x−4)(x+4)/(x−4) = x+4, x≠4"
       }
     ],
-    "markscheme": "9 marks. Answer: (a) $560; (b) $644; (c) $387",
+    "markscheme": "(a) 3 (b) 2 (c) 3 (d) 2 = 10",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -9692,31 +10036,31 @@
     "year": 2024,
     "session": "June",
     "question_number": "2",
-    "marks": 10,
+    "marks": 8,
     "topic_tags": [
-      "algebra"
+      "geometry"
     ],
-    "question_text": "(a) Expand and simplify (6x − 1)(x + 1).  [3] (b) Factorise x² + 9x + 18.  [2] (c) Solve (x + 1)/6 = 3.  [3] (d) Simplify (x² − 9)/(x − 3).  [2]",
-    "answer": "(a) 6x² + 5x − 1; (b) (x+3)(x+6); (c) x = 17; (d) x+3",
+    "question_text": "AB is parallel to CD. Transversal PQ meets AB at X and CD at Y. (a) Angle AXY = 48°. Find the corresponding angle at Y. Give a reason.  [2] (b) Find the co-interior (allied) angle to 48°. Give a reason.  [2] (c) In triangle PQR, P̂ = 48° and Q̂ = 55°. Calculate R̂.  [2] (d) State whether triangle PQR is acute, right-angled or obtuse. Give a reason.  [2]",
+    "answer": "(a) 48° corresponding angles, AB ∥ CD; (b) 132° co-interior; (c) 77°",
     "steps": [
       {
-        "t": "(a) FOIL",
-        "d": "6x² + 5x − 1"
+        "t": "(a) corresponding angles",
+        "d": "48°, AB ∥ CD"
       },
       {
-        "t": "(b)",
-        "d": "(x+3)(x+6)"
+        "t": "(b) co-interior sum to 180°",
+        "d": "132°"
       },
       {
-        "t": "(c)",
-        "d": "x = 17"
+        "t": "(c) angle sum of a triangle",
+        "d": "180 − 48 − 55 = 77°"
       },
       {
-        "t": "(d) difference of squares",
-        "d": "x + 3"
+        "t": "(d) compare with 90°",
+        "d": "acute if all < 90°, obtuse if one > 90°"
       }
     ],
-    "markscheme": "10 marks. Answer: (a) 6x² + 5x − 1; (b) (x+3)(x+6); (c) x = 17; (d) x+3",
+    "markscheme": "8 marks. Answer: (a) 48° corresponding angles, AB ∥ CD; (b) 132° co-interior; (c) 77°",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -9729,25 +10073,25 @@
     "question_number": "3",
     "marks": 8,
     "topic_tags": [
-      "mensuration_(cylinder)"
+      "mensuration"
     ],
-    "question_text": "A cylindrical tank at Moleli has radius 7 cm and height 14 cm. π = 22/7. (a) Volume.  [3] (b) Curved surface area.  [3] (c) Total surface area including the base only (open top).  [2]",
-    "answer": "(a) 2156 cm³; (b) 616 cm²",
+    "question_text": "A rectangle measures 18 cm by 10 cm. A border of width 1 cm is drawn around the outside. (a) Find the area of the rectangle.  [2] (b) Find the area of the outer rectangle.  [3] (c) Hence find the area of the border.  [3]",
+    "answer": "(a) 180 cm²; (b) 240 cm²; (c) 60 cm²",
     "steps": [
       {
-        "t": "(a) πr²h",
-        "d": ""
+        "t": "(a) lw",
+        "d": "18×10 = 180"
       },
       {
-        "t": "(b) 2πrh",
-        "d": ""
+        "t": "(b) (l+2w)(w+2w)",
+        "d": "20×12 = 240"
       },
       {
-        "t": "(c) 2πrh + πr²",
-        "d": ""
+        "t": "(c) outer − inner",
+        "d": "60"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 2156 cm³; (b) 616 cm²",
+    "markscheme": "8 marks. Answer: (a) 180 cm²; (b) 240 cm²; (c) 60 cm²",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -9760,25 +10104,29 @@
     "question_number": "4",
     "marks": 8,
     "topic_tags": [
-      "graphs_and_coordinates"
+      "coordinate_geometry"
     ],
-    "question_text": "Line L: y = 3x + 5. (a) Gradient and y-intercept.  [2] (b) Coordinates where L meets the x-axis.  [2] (c) Show A(2, 11) lies on L.  [2] (d) Equation of the line parallel to L through (0, 4).  [2]",
-    "answer": "(a) 3, (0,5); (b) (-1 2/3, 0); (d) y = 3x + 4",
+    "question_text": "The line L has equation  y = -1x + 6. (a) Write down the gradient of L and the coordinates of the y-intercept.  [2] (b) Find the coordinates of the point where L meets the x-axis.  [2] (c) Find the gradient of the line joining A(1, 5) and B(4, 7).  [2] (d) Write the equation of the line parallel to L that passes through (0, 1).  [2]",
+    "answer": "(a) gradient -1, (0, 6); (b) (6, 0); (c) 2/3; (d) y = -1x + 1",
     "steps": [
       {
         "t": "(a) y = mx + c",
-        "d": ""
+        "d": "m = -1, intercept (0, 6)"
       },
       {
         "t": "(b) y = 0",
-        "d": "x = -1 2/3"
+        "d": "0 = -1x + 6 ⇒ x = 6"
       },
       {
-        "t": "(d) same m",
-        "d": "y = 3x + 4"
+        "t": "(c) m = (y2−y1)/(x2−x1)",
+        "d": "2/3"
+      },
+      {
+        "t": "(d) same gradient",
+        "d": "y = -1x + 1"
       }
     ],
-    "markscheme": "8 marks. Answer: (a) 3, (0,5); (b) (-1 2/3, 0); (d) y = 3x + 4",
+    "markscheme": "8 marks. Answer: (a) gradient -1, (0, 6); (b) (6, 0); (c) 2/3; (d) y = -1x + 1",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -9789,27 +10137,31 @@
     "year": 2024,
     "session": "June",
     "question_number": "5",
-    "marks": 8,
+    "marks": 9,
     "topic_tags": [
-      "geometrical_construction"
+      "statistics"
     ],
-    "question_text": "(a) Using ruler and compasses only, construct triangle ABC with AB = 6 cm, BC = 7 cm and AC = 9 cm.  [4] (b) Construct the perpendicular bisector of BC.  [2] (c) Mark the circumcentre and describe its property.  [2]",
-    "answer": "Construction — equal arcs; circumcentre equidistant from A,B,C",
+    "question_text": "The table shows values of x with frequencies f: x=3, f=2, x=3, f=5, x=5, f=6, x=6, f=7, x=7, f=4. (a) State the modal value of x.  [1] (b) Calculate Σf and Σfx.  [3] (c) Calculate the mean of x.  [3] (d) Find the range of x.  [2]",
+    "answer": "(a) 6; (b) Σf=24, Σfx=121; (c) 5 1/24; (d) 4",
     "steps": [
       {
-        "t": "(a) base + two arcs",
-        "d": "SSS construction"
+        "t": "(a) highest frequency",
+        "d": "6"
       },
       {
-        "t": "(b) arcs from B and C",
-        "d": ""
+        "t": "(b)",
+        "d": "Σf = 24, Σfx = 121"
       },
       {
-        "t": "(c) intersection of perpendicular bisectors",
-        "d": ""
+        "t": "(c) mean = Σfx/Σf",
+        "d": "121/24 = 5 1/24"
+      },
+      {
+        "t": "(d) max − min",
+        "d": "7 − 3 = 4"
       }
     ],
-    "markscheme": "8 marks. Answer: Construction — equal arcs; circumcentre equidistant from A,B,C",
+    "markscheme": "9 marks. Answer: (a) 6; (b) Σf=24, Σfx=121; (c) 5 1/24; (d) 4",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -9822,25 +10174,29 @@
     "question_number": "6",
     "marks": 9,
     "topic_tags": [
-      "statistics"
+      "matrices"
     ],
-    "question_text": "24 Form 4 pupils at Moleli scored: 6 (8 pupils), 5 (5 pupils), 2 (4 pupils), 5 (4 pupils), 6 (3 pupils). (a) Modal mark.  [1] (b) Mean mark.  [4] (c) Range.  [2] (d) One extra pupil scores 6. Effect on the mean?  [2]",
-    "answer": "(a) 6; (b) 4 23/24; (c) 4",
+    "question_text": "A = (1  3 ; 1  3)  and  column vector u = (5 ; 3). (a) Calculate Au.  [3] (b) Find det A.  [2] (c) Describe fully the transformation represented by (0 −1 ; 1  0).  [2] (d) Find the image of the point (5, 3) under a reflection in the y-axis.  [2]",
+    "answer": "(a) (14 ; 14); (b) 0; (c) rotation 90° anticlockwise about O; (d) (-5, 3)",
     "steps": [
       {
-        "t": "(a) highest frequency",
-        "d": "6"
+        "t": "(a) row × column",
+        "d": "(14 ; 14)"
       },
       {
-        "t": "(b) Σfx/Σf",
-        "d": "119/24"
+        "t": "(b) ad − bc",
+        "d": "1×3 − 3×1 = 0"
       },
       {
         "t": "(c)",
-        "d": "4"
+        "d": "(x,y) → (−y, x), 90° anticlockwise about O"
+      },
+      {
+        "t": "(d) (x,y) → (−x, y)",
+        "d": "(-5, 3)"
       }
     ],
-    "markscheme": "9 marks. Answer: (a) 6; (b) 4 23/24; (c) 4",
+    "markscheme": "9 marks. Answer: (a) (14 ; 14); (b) 0; (c) rotation 90° anticlockwise about O; (d) (-5, 3)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -9853,25 +10209,29 @@
     "question_number": "7",
     "marks": 12,
     "topic_tags": [
-      "circle_geometry"
+      "quadratic_equations"
     ],
-    "question_text": "O is the centre. A, B, C on the circumference. AB is a diameter. Angle BAC = 36°. (a) Angle ACB. Reason.  [3] (b) Angle BOC (centre, same arc BC).  [3] (c) D on the remaining circumference. Angle BDC. Reason.  [3] (d) State the angle-in-a-semicircle theorem.  [3]",
-    "answer": "(a) 90°; (b) 72°; (c) 36° same segment",
+    "question_text": "(a) Factorise  x² − 6x + 5.  [3] (b) Hence solve  x² − 6x + 5 = 0.  [2] (c) Write down the roots of  (x − 1)(x − 5) = 0.  [1] (d) Sketch y = (x − 1)(x − 5), showing the intercepts with both axes.  [3] (e) State the coordinates of the turning point.  [3]",
+    "answer": "(a) (x−1)(x−5); (b) x=1 or x=5; (e) (3, -4)",
     "steps": [
       {
-        "t": "(a) angle in a semicircle",
-        "d": "90°"
+        "t": "(a)",
+        "d": "(x − 1)(x − 5)"
       },
       {
-        "t": "(b) angle at centre = 2 at circumference",
-        "d": "72°"
+        "t": "(b)",
+        "d": "x = 1 or x = 5"
       },
       {
-        "t": "(c) same segment",
-        "d": "36°"
+        "t": "(d) x-intercepts and y-intercept {r1*r2}",
+        "d": "U-shape (positive x²)"
+      },
+      {
+        "t": "(e) midpoint of roots, substitute",
+        "d": "x = 3"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 90°; (b) 72°; (c) 36° same segment",
+    "markscheme": "12 marks. Answer: (a) (x−1)(x−5); (b) x=1 or x=5; (e) (3, -4)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -9884,25 +10244,29 @@
     "question_number": "8",
     "marks": 12,
     "topic_tags": [
-      "cumulative_frequency"
+      "trigonometry"
     ],
-    "question_text": "50 pupils at Moleli sat a test (0–50). An ogive is drawn. (a) How to read the median from the ogive.  [3] (b) Median estimated as 22. Meaning?  [2] (c) How to find the IQR from the graph.  [4] (d) Why IQR is better than the range here.  [3]",
-    "answer": "(a) read at cf = 25.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "question_text": "In triangle ABC, Ĉ = 90°, Â = 30° and AC = 16 cm (hypotenuse). (a) Write down sin 30° and cos 60°.  [2] (b) Calculate BC (opposite 30°).  [3] (c) Calculate AB (adjacent to 30°).  [3] (d) Show that tan 30° = 1/√3 and hence find BC/AB.  [4]",
+    "answer": "(a) 1/2, 1/2; (b) 8 cm; (c) 16√3/2 cm",
     "steps": [
       {
         "t": "(a)",
-        "d": "n/2 = 25.0"
+        "d": "sin 30° = 1/2, cos 60° = 1/2"
       },
       {
-        "t": "(c)",
-        "d": "Q1 = 12.5, Q3 = 37.5"
+        "t": "(b) sin 30° = BC/AC",
+        "d": "BC = 16/2 = 8 cm"
       },
       {
-        "t": "(d) outliers",
-        "d": "IQR uses middle 50%"
+        "t": "(c) cos 30° = √3/2 = AB/AC",
+        "d": "AB = 16√3/2 cm"
+      },
+      {
+        "t": "(d) opp/adj",
+        "d": "BC/AB = 1/√3"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) read at cf = 25.0; (c) Q3 at 3n/4 minus Q1 at n/4",
+    "markscheme": "12 marks. Answer: (a) 1/2, 1/2; (b) 8 cm; (c) 16√3/2 cm",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -9915,25 +10279,29 @@
     "question_number": "9",
     "marks": 12,
     "topic_tags": [
-      "trigonometry_and_bearings"
+      "circle_theorems"
     ],
-    "question_text": "A msasa tree is observed from A on level ground in Harare. Angle of elevation of the top is 30°. Distance A to the foot is 30 m. (a) Height of the object. Use tan 30° = 1/√3.  [4] (b) From B, 30 m due East of A, the bearing of the foot is 300°. Sketch.  [3] (c) A bird sits halfway up. Angle of elevation from A.  [5]",
-    "answer": "(a) 30/√3 = 30√3/3 m",
+    "question_text": "O is the centre of a circle. A, B and C lie on the circumference. AB is a diameter. Angle BAC = 32°. (a) Find angle ACB. Give a reason.  [3] (b) Find angle ABC.  [2] (c) Find angle BOC (angle at the centre standing on arc BC). Give a reason.  [4] (d) Point D lies on the remaining circumference. Find angle BDC. Give a reason.  [3]",
+    "answer": "(a) 90° (angle in a semicircle); (b) 58°; (c) 64° (angle at centre = 2 × angle at circumference); (d) 32° (angles in the same segment)",
     "steps": [
       {
-        "t": "(a) tan 30° = opp/adj",
-        "d": "h = 30/√3 = 30√3/3 m"
+        "t": "(a) angle in a semicircle",
+        "d": "ACB = 90° because AB is a diameter"
       },
       {
-        "t": "(b) bearings sketch",
-        "d": "North lines at A and B"
+        "t": "(b) angle sum in triangle ABC",
+        "d": "ABC = 90 − 32 = 58°"
       },
       {
-        "t": "(c) tan θ = (h/2)/adj",
-        "d": ""
+        "t": "(c) angle at the centre is twice the angle at the circumference, same arc BC",
+        "d": "BOC = 2 × 32 = 64°"
+      },
+      {
+        "t": "(d) angles in the same segment",
+        "d": "BDC = BAC = 32°"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 30/√3 = 30√3/3 m",
+    "markscheme": "12 marks. Answer: (a) 90° (angle in a semicircle); (b) 58°; (c) 64° (angle at centre = 2 × angle at circumference); (d) 32° (angles in the same segment)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -9946,25 +10314,29 @@
     "question_number": "10",
     "marks": 12,
     "topic_tags": [
-      "quadratic_equations"
+      "vectors"
     ],
-    "question_text": "(a) Solve x² − 7x + 10 = 0 by factorisation.  [4] (b) A rectangular plot in Harare is 5 m longer than it is wide. If the area is 14 m², form and solve an equation for the width w.  [5] (c) Sketch y = (x − 2)(x − 5), showing intercepts.  [3]",
-    "answer": "(a) x=2 or 5; (b) w(w+5) = 14",
+    "question_text": "The position vectors of A and B are a = (2 ; 3) and b = (-3 ; 3). M is the midpoint of AB. (a) Find vector AB.  [3] (b) Find |AB|.  [3] (c) Find the position vector of M.  [3] (d) Show that AM = ½ AB.  [3]",
+    "answer": "(a) (-5 ; 0); (b) √25; (c) (-1/2 ; 3)",
     "steps": [
       {
-        "t": "(a)",
-        "d": "(x−2)(x−5)=0"
+        "t": "(a) AB = b − a",
+        "d": "(-3−2 ; 3−3) = (-5 ; 0)"
       },
       {
-        "t": "(b)",
-        "d": "w² + 5w − 14 = 0"
+        "t": "(b) |AB| = √(x²+y²)",
+        "d": "√25"
       },
       {
-        "t": "(c) intercepts",
-        "d": "2, 5"
+        "t": "(c) OM = (a+b)/2",
+        "d": ""
+      },
+      {
+        "t": "(d) M midpoint ⇒ AM = ½ AB",
+        "d": ""
       }
     ],
-    "markscheme": "12 marks. Answer: (a) x=2 or 5; (b) w(w+5) = 14",
+    "markscheme": "12 marks. Answer: (a) (-5 ; 0); (b) √25; (c) (-1/2 ; 3)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -9977,25 +10349,29 @@
     "question_number": "11",
     "marks": 12,
     "topic_tags": [
-      "vectors"
+      "cumulative_frequency"
     ],
-    "question_text": "OA = a = (5 ; 1), OB = b = (4 ; 3). M midpoint of AB. (a) Vector AB.  [3] (b) |AB|.  [3] (c) Position vector OM.  [3] (d) Show AM = MB.  [3]",
-    "answer": "(a) (-1 ; 2); (b) √5",
+    "question_text": "50 candidates sat a Mathematics paper marked out of 50. A cumulative frequency curve (ogive) is drawn. (a) State the median position on the cumulative-frequency axis.  [2] (b) Describe how to read the median mark from the ogive.  [3] (c) The lower quartile is at position n/4 and the upper quartile at 3n/4. Write these positions as numbers.  [3] (d) Define the interquartile range and state one advantage of the IQR over the range.  [4]",
+    "answer": "(a) 25.0; (c) Q1 at 12.5, Q3 at 37.5; (d) IQR = Q3 − Q1, less affected by outliers",
     "steps": [
       {
-        "t": "(a) b − a",
-        "d": "(-1 ; 2)"
+        "t": "(a) n/2",
+        "d": "50/2 = 25.0"
       },
       {
-        "t": "(b) magnitude",
-        "d": ""
+        "t": "(b)",
+        "d": "from cf = n/2 across to the curve, down to the mark axis"
       },
       {
-        "t": "(c) (a+b)/2",
-        "d": ""
+        "t": "(c)",
+        "d": "Q1: 12.5, Q3: 37.5"
+      },
+      {
+        "t": "(d)",
+        "d": "IQR = Q3 − Q1; uses the middle 50%, so extreme values have less effect"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) (-1 ; 2); (b) √5",
+    "markscheme": "12 marks. Answer: (a) 25.0; (c) Q1 at 12.5, Q3 at 37.5; (d) IQR = Q3 − Q1, less affected by outliers",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -10008,25 +10384,29 @@
     "question_number": "12",
     "marks": 12,
     "topic_tags": [
-      "travel_graphs"
+      "transformations"
     ],
-    "question_text": "A kombi leaves Harare at 08:00 and travels 180 km at constant speed, arriving after 3 hours. It stops 30 minutes, then returns at 80 km/h. (a) Outward speed.  [3] (b) Time for the return.  [3] (c) Sketch a distance–time graph, labelling axes.  [4] (d) Average speed for the whole trip including the stop.  [2]",
-    "answer": "(a) 60 km/h; (b) 2.25 h",
+    "question_text": "Triangle PQR has P(2, 1), Q(4, 1) and R(2, 4). (a) P' is the image of P under reflection in the y-axis. Write down the coordinates of P'.  [2] (b) Q is translated by the vector (-1 ; 2). Find the image Q''.  [3] (c) The matrix (0 −1 ; 1  0) represents a transformation T. Describe T fully.  [4] (d) Find T(Q), the image of Q under T.  [3]",
+    "answer": "(a) (-2, 1); (b) (3, 3); (c) rotation 90° anticlockwise about O; (d) (-1, 4)",
     "steps": [
       {
-        "t": "(a) s = d/t",
-        "d": "180/3"
+        "t": "(a) (x, y) → (−x, y)",
+        "d": "P'(-2, 1)"
       },
       {
-        "t": "(b) t = d/s",
-        "d": "180/80"
+        "t": "(b) add the vector",
+        "d": "(4+-1, 1+2)"
       },
       {
-        "t": "(d) total distance 2d / total time",
-        "d": ""
+        "t": "(c) (x, y) → (−y, x)",
+        "d": "rotation 90° anticlockwise about the origin"
+      },
+      {
+        "t": "(d)",
+        "d": "(4, 1) → (-1, 4)"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 60 km/h; (b) 2.25 h",
+    "markscheme": "12 marks. Answer: (a) (-2, 1); (b) (3, 3); (c) rotation 90° anticlockwise about O; (d) (-1, 4)",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
@@ -10039,25 +10419,25 @@
     "question_number": "13",
     "marks": 12,
     "topic_tags": [
-      "variation_and_linear_programming"
+      "variation"
     ],
-    "question_text": "(a) y varies directly as x. When x = 4, y = 36. Find y when x = 10.  [4] (b) z varies inversely as x. When x = 3, z = 8. Find z when x = 6.  [4] (c) A farmer near Harare has at most 48 hours. Maize takes 2 h/ha, vegetables 1 h/ha. Inequality for hectares m and v.  [4]",
-    "answer": "(a) 90; (b) 4; (c) 2m + v ≤ 48",
+    "question_text": "(a) y varies directly as x. When x = 4, y = 36. &nbsp;&nbsp;&nbsp;(i) Find the equation connecting y and x.  [3] &nbsp;&nbsp;&nbsp;(ii) Find y when x = 12.  [2] (b) z varies inversely as x. When x = 3, z = 4. Let this value of z be z₀. &nbsp;&nbsp;&nbsp;(i) Find z when x = 6.  [4] &nbsp;&nbsp;&nbsp;(ii) Describe what happens to z when x is doubled.  [3]",
+    "answer": "(a) y = 9x; y(12) = 108; (b) inverse: product constant, doubling x halves z",
     "steps": [
       {
-        "t": "(a) y = kx",
-        "d": "k = 9, y = 90"
+        "t": "(a)(i) y = kx",
+        "d": "36 = k×4 ⇒ k = 9"
       },
       {
-        "t": "(b) z = k/x",
-        "d": "k = 24, z = 4"
+        "t": "(a)(ii)",
+        "d": "y = 9×12 = 108"
       },
       {
-        "t": "(c)",
-        "d": "2m + v ≤ 48, m≥0, v≥0"
+        "t": "(b) z = c/x",
+        "d": "if x doubles, z is halved"
       }
     ],
-    "markscheme": "12 marks. Answer: (a) 90; (b) 4; (c) 2m + v ≤ 48",
+    "markscheme": "12 marks. Answer: (a) y = 9x; y(12) = 108; (b) inverse: product constant, doubling x halves z",
     "source": "ACADEX original — ZIMSEC syllabus style"
   },
   {
