@@ -1,4 +1,4 @@
-// ACADEX - SECURE WhatsApp Bot (Trigger-Only + Admin Locked)
+// ACADEX - SECURE WhatsApp Bot (Trigger-Only + Admin Locked) — +263716987183
 import express from 'express';
 import axios from 'axios';
 import dotenv from 'dotenv';
