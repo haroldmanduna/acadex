@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Link WhatsApp — ACADEX</title>
+  <style>
+    :root { --g:#0a7a3c; --ink:#0f172a; --muted:#64748b; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      background: #f1f5f9; color: var(--ink);
+    }
+    .wrap { max-width: 520px; margin: 0 auto; padding: 20px 16px 48px; }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    .sub { color: var(--muted); margin: 0 0 18px; font-size: 14px; }
+    .card {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 16px;
+      padding: 18px; margin: 0 0 14px;
+    }
+    .live {
+      background: #ecfdf5; border-color: #6ee7b7; text-align: center;
+    }
+    .code {
+      font-size: 40px; letter-spacing: 4px; font-weight: 900;
+      text-align: center; color: var(--g); margin: 8px 0 12px;
+      font-variant-numeric: tabular-nums;
+    }
+    ol { margin: 8px 0 0 18px; padding: 0; line-height: 1.55; }
+    li { margin: 0 0 8px; }
+    .badge {
+      display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .04em;
+      padding: 4px 10px; border-radius: 999px; background: #e2e8f0; color: #334155;
+    }
+    .badge.on { background: #0a7a3c; color: #fff; }
+    .badge.wait { background: #f59e0b; color: #111; }
+    img.qr { display: block; margin: 10px auto; width: 220px; height: 220px; }
+    button {
+      width: 100%; padding: 12px; border: 0; border-radius: 10px;
+      background: var(--g); color: #fff; font-weight: 800; font-size: 15px; cursor: pointer;
+    }
+    .hint { font-size: 12px; color: var(--muted); margin-top: 10px; }
+    .err { color: #b91c1c; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🇿🇼 Link ACADEX to WhatsApp</h1>
+    <p class="sub">No Facebook. No tokens. Same as WhatsApp Web — one code on the phone that is <b>+263 71 698 7183</b>.</p>
+    <div id="main"><p>Loading…</p></div>
+  </div>
+  <script>
+    async function tick() {
+      let j;
+      try { j = await (await fetch('/link/status', { cache: 'no-store' })).json(); }
+      catch (e) { document.getElementById('main').innerHTML = '<div class="card err">Cannot reach the bot host. Keep this page open.</div>'; return; }
+      const el = document.getElementById('main');
+      if (j.connected || j.status === 'connected') {
+        el.innerHTML = `
+          <div class="card live">
+            <span class="badge on">LIVE</span>
+            <h2>Auto-replies are on</h2>
+            <p>Students WhatsApp <b>+263 71 698 7183</b> and send:</p>
+            <p style="font-size:20px;font-weight:900;margin:8px 0">mhoro acadex</p>
+            <p>Then: HELP · 2x+3=11 · Download 2024 Maths Paper 1 · photosynthesis · composition · predictor</p>
+          </div>
+          <p class="hint">To stop: WhatsApp → Linked devices → log out this device.</p>`;
+        return;
+      }
+      const code = j.pairingCode || '……-……';
+      const qr = j.qrDataUrl ? `<img class="qr" alt="QR" src="${j.qrDataUrl}">` : '';
+      const err = j.error ? `<p class="err">${j.error}</p>` : '';
+      el.innerHTML = `
+        <div class="card">
+          <span class="badge wait">${(j.status || 'waiting').toUpperCase()}</span>
+          <p style="margin:10px 0 0;text-align:center;color:#64748b;font-size:13px">Enter this code on the phone</p>
+          <div class="code" id="code">${code}</div>
+          <button type="button" onclick="navigator.clipboard.writeText('${(j.pairingCode||'').replace('-','')}').then(()=>this.textContent='Copied')">Copy code</button>
+          ${qr}
+          ${err}
+        </div>
+        <div class="card">
+          <b>On that same phone — 30 seconds</b>
+          <ol>
+            <li>Open <b>WhatsApp</b></li>
+            <li>Tap <b>⋮</b> (Android) or <b>Settings</b> (iPhone)</li>
+            <li><b>Linked devices</b> → <b>Link a device</b></li>
+            <li>Tap <b>Link with phone number instead</b></li>
+            <li>Type the 8-digit code above</li>
+          </ol>
+          <p class="hint">Shona: Vhura WhatsApp → Linked devices → Link a device → Link with phone number instead → nyora code.</p>
+          <p class="hint">Or scan the QR from a second phone. This is WhatsApp Web, not Meta Developer. Do not bulk-message strangers (WhatsApp can ban the number).</p>
+        </div>`;
+    }
+    tick();
+    setInterval(tick, 2000);
+  </script>
+</body>
+</html>
