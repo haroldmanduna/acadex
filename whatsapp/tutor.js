@@ -13,7 +13,7 @@ import {
 import { startMock, formatMockQ, scoreAnswer, finishMock } from './mock.js';
 import { parseNumbered, markAgainstPaper, markComposition, looksLikeEssay } from './marker.js';
 import { detectLang, ttsFile, stockVoice, wantsVoice, stripVoiceAsk } from './voice.js';
-import { examLock } from './zimsec.js';
+import { examLock, looksLikeExam } from './zimsec.js';
 
 const FREE_LIMIT = 10000;
 const sessions = new Map();
@@ -119,8 +119,8 @@ function buildContext(text, bank, phone) {
   const eng = helpEnglish(text);
   if (eng) bits.push('ENGLISH 1122 NOTES:\n' + eng.title + '\n' + eng.answer);
   const hit = searchBank(bank, text);
-  if (hit) bits.push('SIMILAR ACADEX PAPER ITEM (practice, not a leaked ZIMSEC script):\n' + formatHit(hit).slice(0, 1100));
-  bits.push(examLock(text));
+  if (hit) bits.push('SIMILAR ACADEX PAPER ITEM (practice, not a leaked official script):\n' + formatHit(hit).slice(0, 1100));
+  if (looksLikeExam(text)) bits.push(examLock(text));
   return bits.join('\n\n');
 }
 

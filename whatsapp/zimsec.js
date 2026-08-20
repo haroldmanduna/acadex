@@ -43,6 +43,15 @@ English 1122/2: 2 hours, 50. Sec A comprehension 20 + summary 20 (own words, wor
 ACADEX items are original practice in this format — never call them leaked official scripts.
 `;
 
+export function looksLikeExam(text) {
+  const t = String(text || '');
+  if (t.split(/\s+/).length < 3 && !/=/.test(t)) return false;
+  return /\b(state|explain|describe|suggest|calculate|determine|show that|solve|expand|factorise|define|compare|evaluate|discuss|outline|predict|identify|give|name|list|complete|sketch|draw)\b/i.test(t)
+    || /\(\s*[a-d]\s*\)/.test(t)
+    || /\[\s*\d+\s*\]/.test(t)
+    || /\b(4004|5006|1122|paper\s*[12]|section [ab])\b/i.test(t);
+}
+
 export function examLock(text) {
   return PAPER_RULES + '\nTHIS QUESTION: ' + commandWord(text);
 }
