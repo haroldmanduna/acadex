@@ -221,8 +221,10 @@ async function dispatchReplies(defaultTo, replies){
   for (const r of replies || []) {
     const to = r.to || defaultTo;
     if (r.type === 'document') await sendDocument(to, r.url, r.filename, r.caption || '');
-    else if (r.type === 'audio') await sendAudio(to, r.url);
-    else await sendText(to, r.text);
+    else if (r.type === 'audio') {
+      if (r.filePath && isLinked() && fs.existsSync(r.filePath)) await phoneLink.sendPhoneAudio(to, r.filePath);
+      else if (r.url) await sendAudio(to, r.url);
+    } else await sendText(to, r.text);
   }
 }
 

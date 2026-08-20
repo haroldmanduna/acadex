@@ -1,4 +1,4 @@
-/** ACADEX WhatsApp tutor — Maths 4004, Combined Science 5006, English 1122. */
+/** ACADEX WhatsApp tutor — personal marker + mocks + voice. */
 import fs from 'fs';
 import path from 'path';
 import {
@@ -6,13 +6,23 @@ import {
   searchBank, formatHit, formatMath, closer, fallback,
 } from './brain.js';
 import { askTeacher } from './teacher.js';
+import {
+  initLearners, getLearner, touchLearner, rememberTopic,
+  extractProfile, card, parentReport, allLearners,
+} from './learner.js';
+import { startMock, formatMockQ, scoreAnswer, finishMock } from './mock.js';
+import { parseNumbered, markAgainstPaper, markComposition, looksLikeEssay } from './marker.js';
+import { detectLang, ttsFile, stockVoice } from './voice.js';
 
 const FREE_LIMIT = 10000;
 const sessions = new Map();
 const users = new Map();
+let workspaceRoot = '';
 
-export function loadBank(workspaceRoot) {
-  const p = path.join(workspaceRoot, 'data', 'acadex-maths.json');
+export function loadBank(root) {
+  workspaceRoot = root;
+  initLearners(root);
+  const p = path.join(root, 'data', 'acadex-maths.json');
   try {
     return JSON.parse(fs.readFileSync(p, 'utf8'));
   } catch {
@@ -39,6 +49,8 @@ export function incrementUse(phone) {
   if (isPaid(phone)) return;
   u.free_used = (u.free_used || 0) + 1;
   users.set(phone, u);
+  const L = getLearner(phone);
+  touchLearner(phone, { asked: (L.asked || 0) + 1 });
 }
 export function activateUser(phone, days) {
   const exp = new Date();
@@ -73,20 +85,20 @@ export function enterBotMode(phone, minutes) {
     ...prev,
     botModeUntil: Date.now() + minutes * 60 * 1000,
     at: new Date().toISOString(),
-    lang: prev.lang || 'sn',
+    lang: prev.lang || getLearner(phone).lang || 'sn',
     chat: prev.chat || [],
+    mock: prev.mock || null,
   });
 }
-export function exitBotMode(phone) {
-  sessions.delete(phone);
-}
+export function exitBotMode(phone) { sessions.delete(phone); }
 export function setLang(phone, lang) {
   const s = sessions.get(phone) || {};
   s.lang = lang;
   sessions.set(phone, s);
+  touchLearner(phone, { lang });
 }
 export function getLang(phone) {
-  return (sessions.get(phone) || {}).lang || 'sn';
+  return (sessions.get(phone) || {}).lang || getLearner(phone).lang || 'sn';
 }
 
 function pushChat(phone, role, content) {
@@ -95,8 +107,10 @@ function pushChat(phone, role, content) {
   sessions.set(phone, s);
 }
 
-function buildContext(text, bank) {
+function buildContext(text, bank, phone) {
   const bits = [];
+  const lc = card(phone);
+  if (lc) bits.push('LEARNER FILE:\n' + lc);
   const math = solveMath(text);
   if (math) bits.push('MATH ENGINE (correct numbers):\n' + formatMath(math, 'en'));
   const sci = explainScience(text);
@@ -108,18 +122,33 @@ function buildContext(text, bank) {
   return bits.join('\n\n');
 }
 
-async function teach(digits, text, bank, say) {
+async function maybeVoice(replies, phone, spoken) {
+  if (process.env.DISABLE_VOICE === '1') return;
+  const lang = getLang(phone);
+  try {
+    const fp = await ttsFile(workspaceRoot || path.join(process.cwd()), spoken, lang);
+    if (fp && fs.existsSync(fp)) replies.push({ type: 'audio', filePath: fp, url: fp });
+  } catch (e) {
+    console.warn('voice', e.message);
+  }
+}
+
+async function teach(digits, text, bank, say, replies) {
   const s = sessions.get(digits) || {};
   const taught = await askTeacher({
     history: s.chat || [],
     user: text,
-    context: buildContext(text, bank),
+    context: buildContext(text, bank, digits),
+    learner: card(digits),
   });
   if (!taught) return false;
   say(taught);
   pushChat(digits, 'user', text);
   pushChat(digits, 'assistant', taught);
   incrementUse(digits);
+  const topic = (explainScience(text) || helpEnglish(text) || {}).title || (solveMath(text) ? 'Algebra' : '');
+  if (topic) rememberTopic(digits, topic, true);
+  await maybeVoice(replies, digits, taught);
   return true;
 }
 
@@ -169,22 +198,35 @@ export function findQuestion(bank, text) {
   return searchBank(bank, text);
 }
 
-function personality(text) {
+function personality(text, phone) {
+  const L = getLearner(phone);
   const t = String(text || '').toLowerCase();
-  if (/your name|who are you|who r u|who is this|zita rako|unonzi ani|comment tu t.?appelles|como te llamas|what.?s your name|whats your name|ninani|ngubani/.test(t)) {
-    return "I'm ACADEX — your ZIMSEC tutor on WhatsApp. Maths 4004, Combined Science 5006 and English 1122. Talk to me in any language. Send the question.";
+  if (/your name|who are you|who r u|who is this|zita rako|unonzi ani|comment tu t.?appelles|whats your name|what.?s your name|ninani|ngubani/.test(t)) {
+    return L.name
+      ? `${L.name}, I'm ACADEX — your ZIMSEC tutor. We last touched ${L.lastTopic || 'the work'}. What shall we do now?`
+      : "I'm ACADEX — your ZIMSEC tutor on WhatsApp. What should I call you?";
   }
   if (/^(hi|hello|hey|hie|yo|mhoro|salut|bonjour|sawubona|hola|sup|morning|evening|good morning|good evening)\b/.test(t) && t.split(/\s+/).length <= 6) {
-    return "Hey — ACADEX here. What are we working on today? Maths, Science or English, any language.";
+    if (L.name && L.lastTopic) {
+      return `Hey ${L.name} — ACADEX. Last time we were on ${L.lastTopic}. Want to pick that up, start a mock, or send a new question?`;
+    }
+    if (L.name) return `Hey ${L.name} — ACADEX here. Mock, mark, or a question?`;
+    return 'Hey — ACADEX here. What should I call you, and what are we working on?';
   }
   return null;
 }
 
 function helpText() {
-  return `I'm ACADEX — send the question and I'll work it with you like class.
+  return `ACADEX — your tutor, marker and mock invigilator.
 
-Maths, Combined Science 5006, English 1122. Any language.
-Papers: Download 2024 Maths Paper 1`;
+Just talk. Or:
+• mock / full mock / mock science
+• mark 1. 50%  2. x=4
+• parent 2637…   then  report
+• Download 2024 Maths Paper 1
+• voice shona / ndebele / english / chewa / xhosa…
+
+Papers are original ACADEX practice, not leaked ZIMSEC scripts.`;
 }
 
 function predictorText(bank) {
@@ -199,36 +241,34 @@ function predictorText(bank) {
   }).join('\n\n');
 }
 
-/**
- * Pure tutor turn. Returns { replies, enter, exit, increment }
- */
+function pushMockQ(mock, say) {
+  const fmt = formatMockQ(mock);
+  if (fmt.expired) return { expired: true };
+  if (fmt.done) return { done: true };
+  say(fmt.text);
+  return { ok: true };
+}
+
 export async function handleTurn({ from, text, bank, publicUrl, adminPhone, trigger, sessionMinutes }) {
   const replies = [];
   const say = (t) => replies.push({ type: 'text', text: t });
   const tl = (text || '').toLowerCase().trim();
   const digits = String(from || '').replace(/\D/g, '');
 
-  const triggered = checkTrigger(text, trigger);
-  const inMode = isBotMode(digits, sessionMinutes);
-
-  if (!triggered && !inMode) {
-    return { replies: [], ignored: true };
-  }
-  if (triggered && !inMode) {
-    enterBotMode(digits, sessionMinutes);
-    const taught = await askTeacher({
-      history: [],
-      user: text,
-      context: 'The student just opened ACADEX on WhatsApp. Greet them as ACADEX the ZIMSEC tutor. Invite any question in their language. Do not dump a menu.',
-    });
-    say(taught || 'Mhoro — I\'m ACADEX, your ZIMSEC tutor. Send me the question in any language. Maths, Science or English.');
-    if (taught) {
-      pushChat(digits, 'user', text);
-      pushChat(digits, 'assistant', taught);
-    }
-    return { replies, enter: true };
-  }
+  if (!tl) return { replies: [], ignored: true };
   enterBotMode(digits, sessionMinutes);
+
+  const prof = extractProfile(text);
+  if (prof.name || prof.grade || prof.parent) touchLearner(digits, prof);
+  const guessed = detectLang(text, getLang(digits));
+  if (guessed) setLang(digits, guessed);
+
+  const voiceSet = tl.match(/^voice\s+(\w+)/i);
+  if (voiceSet) {
+    setLang(digits, voiceSet[1].toLowerCase());
+    say(`Voice: ${voiceSet[1]}. I’ll speak short workings as a voice note.`);
+    return { replies };
+  }
 
   if (tl.startsWith('admin') && adminPhone && digits === adminPhone) {
     const parts = text.trim().split(/\s+/);
@@ -236,37 +276,120 @@ export async function handleTurn({ from, text, bank, publicUrl, adminPhone, trig
       const target = parts[2].replace(/\D/g, '');
       const days = parseInt(parts[3] || '7', 10);
       const exp = activateUser(target, days);
-      say(`✅ Activated ${target} for ${days} days until ${exp.toDateString()}`);
-      replies.push({ type: 'text', text: `✅ Acadex yatambirwa! Wava ne ${days} mazuva unlimited. Tumira mubvunzo.`, to: target });
+      say(`Activated ${target} for ${days} days until ${exp.toDateString()}`);
+      replies.push({ type: 'text', text: `ACADEX is unlocked for ${days} days. Send a question or MOCK.`, to: target });
     } else if (parts[1] === 'status') {
       const target = (parts[2] || digits).replace(/\D/g, '');
-      const u = getUser(target);
-      say(`Status ${target}: free_used=${u.free_used || 0}/${FREE_LIMIT}, expiry=${u.expiry_date || 'none'}, paid=${isPaid(target)}`);
+      say(card(target) || 'No file yet.');
+    } else if (parts[1] === 'class' || parts[1] === 'report') {
+      const rows = allLearners().slice(0, 20).map(u =>
+        `${u.name || u.phone} · asked ${u.asked || 0} · mock ${u.lastMock ? u.lastMock.score + '/' + u.lastMock.total : '—'} · weak ${(u.weak || [])[0] || '—'}`
+      );
+      say(rows.length ? `Class snapshot\n${rows.join('\n')}` : 'No learners yet.');
     } else {
-      say('Admin: admin activate <phone> <days>\nadmin status <phone>');
+      say('Admin: activate <phone> <days>\nstatus <phone>\nclass');
     }
     return { replies };
   }
 
-  if (tl === 'acadex exit') {
-    say('I’m still here whenever you send a message. What should we do next?');
-    return { replies };
-  }
+  const sess = sessions.get(digits) || {};
 
-  const sub = canUse(digits);
-  if (!sub.allowed) {
-    say('Wapfuura 10 FREE. Bhadhara $0.75/vhiki or $3/mwedzi. Admin activates after EcoCash.');
-    return { replies };
-  }
-
-  if (/^(predictor|forecast|predict)$/i.test(tl) || /\bpredictor\b/.test(tl)) {
-    say(predictorText(bank));
+  if (sess.mock) {
+    if (/^stop mock|end mock|cancel mock$/i.test(tl)) {
+      const fin = finishMock(sess.mock);
+      sess.mock = null;
+      sessions.set(digits, sess);
+      touchLearner(digits, { lastMock: { score: fin.score, total: fin.total, subject: fin.text.slice(0, 40) } });
+      say(fin.text);
+      return { replies };
+    }
+    if (Date.now() > sess.mock.endsAt) {
+      const fin = finishMock(sess.mock);
+      sess.mock = null;
+      sessions.set(digits, sess);
+      say('Time. ' + fin.text);
+      return { replies };
+    }
+    const q = sess.mock.qs[sess.mock.i];
+    const sc = scoreAnswer(q, text);
+    sess.mock.answers.push(sc);
+    rememberTopic(digits, sc.topic, sc.ok);
+    sess.mock.i += 1;
+    if (sess.mock.i >= sess.mock.qs.length) {
+      const fin = finishMock(sess.mock);
+      sess.mock = null;
+      sessions.set(digits, sess);
+      touchLearner(digits, { lastMock: { score: fin.score, total: fin.total, subject: 'mock' } });
+      say((sc.skip ? 'Skipped.\n' : (sc.ok ? '✓\n' : `✗ Answer was ${sc.correct}\n`)) + fin.text);
+      incrementUse(digits);
+      return { replies, increment: true };
+    }
+    sessions.set(digits, sess);
+    say(sc.skip ? 'Skipped.' : (sc.ok ? '✓ Keep going.' : `✗ It was ${String(sc.correct).slice(0, 80)}. Next:`));
+    const nxt = pushMockQ(sess.mock, say);
+    if (nxt.expired) {
+      const fin = finishMock(sess.mock);
+      sess.mock = null;
+      say(fin.text);
+    }
     incrementUse(digits);
     return { replies, increment: true };
   }
 
-  const wantsPaper = /download|pdf|past paper/.test(tl) || /\bpaper\s*[12]\b/.test(tl);
-  if (wantsPaper) {
+  if (/^(mock|start mock|full mock|mock science|mock maths|mock english|start maths p1)\b/i.test(tl) || /^start mock/.test(tl)) {
+    const mock = startMock(bank, tl);
+    if (mock.error) { say(mock.error); return { replies }; }
+    sess.mock = mock;
+    sessions.set(digits, sess);
+    say(`Starting: ${mock.title}\nI will send one question at a time. No calculator on 4004/1.`);
+    pushMockQ(mock, say);
+    return { replies };
+  }
+
+  if (/^parent\s+/i.test(tl)) {
+    const num = tl.replace(/[^\d]/g, '');
+    if (num.length >= 9) {
+      touchLearner(digits, { parent: num });
+      say(`Parent number saved. Send REPORT to generate the note.`);
+    } else say('Send: parent 2637…');
+    return { replies };
+  }
+  if (/^report$|^parent report$/i.test(tl)) {
+    const note = parentReport(digits);
+    say(note);
+    const L = getLearner(digits);
+    if (L.parent && L.parent !== digits) {
+      replies.push({ type: 'text', text: note, to: L.parent });
+    }
+    return { replies };
+  }
+
+  if (/^mark\b/i.test(tl) || parseNumbered(text).length >= 3) {
+    const nums = parseNumbered(text.replace(/^mark\s*/i, ''));
+    const req = parsePaperRequest(text);
+    const paper = findPaper(bank, req.year, req.session, req.code, req.paperNo)
+      || findPaper(bank, '2024', 'November', '4004', 1);
+    if (nums.length && paper) {
+      const marked = markAgainstPaper(paper, nums);
+      if (marked) {
+        say(marked.text);
+        marked.weak.forEach(w => rememberTopic(digits, w, false));
+        incrementUse(digits);
+        return { replies, increment: true };
+      }
+    }
+  }
+
+  if (looksLikeEssay(text) || /^mark (essay|composition)/i.test(tl)) {
+    const m = markComposition(text);
+    say(m.text);
+    rememberTopic(digits, 'Composition', m.words >= 280);
+    incrementUse(digits);
+    await maybeVoice(replies, digits, m.text);
+    return { replies, increment: true };
+  }
+
+  if (/download|pdf|past paper/.test(tl)) {
     const req = parsePaperRequest(text);
     const base = publicUrl || 'https://acadex-r6z0.onrender.com';
     const url = `${base}/pdfs/${req.fname}`;
@@ -280,56 +403,79 @@ export async function handleTurn({ from, text, bank, publicUrl, adminPhone, trig
     return { replies, increment: true };
   }
 
-  if (tl === '[photo]' || tl.startsWith('[image]')) {
-    say('I cannot read handwriting yet — type the question and I will work it with you.');
-    return { replies };
-  }
-
-  if (await teach(digits, text, bank, say)) {
+  if (/^(predictor|forecast|predict)$/i.test(tl) || /\bpredictor\b/.test(tl)) {
+    const L = getLearner(digits);
+    let extra = '';
+    if (L.weak?.length) extra = `\n\nFor you${L.name ? ', ' + L.name : ''}: drill ${L.weak[0]} first.`;
+    say(predictorText(bank) + extra);
+    incrementUse(digits);
     return { replies, increment: true };
   }
 
-  const person = personality(text);
+  if (tl === '[photo]' || tl.startsWith('[image]')) {
+    say('Put the question as the photo caption, or type it. I mark working best when I can see the numbers.');
+    return { replies };
+  }
+
+  if (/^(help|menu|\?)$/i.test(tl)) {
+    say(helpText());
+    return { replies };
+  }
+
+  const sub = canUse(digits);
+  if (!sub.allowed) {
+    say('Free drill is used up. $0.75/week or $3/month. Admin activates after EcoCash.');
+    return { replies };
+  }
+
+  if (await teach(digits, text, bank, say, replies)) {
+    return { replies, increment: true };
+  }
+
+  const person = personality(text, digits);
   if (person) {
     say(person);
     pushChat(digits, 'user', text);
     pushChat(digits, 'assistant', person);
+    const stock = stockVoice(workspaceRoot || process.cwd(), getLang(digits));
+    if (stock && fs.existsSync(stock)) replies.push({ type: 'audio', filePath: stock, url: stock });
     return { replies };
   }
 
-  // Offline fallback if the teacher network is down
   const lang = getLang(digits);
   const solved = solveMath(text);
   if (solved) {
-    say(formatMath(solved, lang));
+    const body = formatMath(solved, lang);
+    say(body);
+    rememberTopic(digits, 'Algebra', true);
     incrementUse(digits);
-    say(closer(digits));
+    await maybeVoice(replies, digits, body);
     return { replies, increment: true };
   }
   const sci = explainScience(text);
   if (sci) {
     say(`${sci.title}\n\n${sci.answer}`);
+    rememberTopic(digits, sci.title, true);
     incrementUse(digits);
+    await maybeVoice(replies, digits, sci.answer);
     return { replies, increment: true };
   }
   const eng = helpEnglish(text);
   if (eng) {
     say(`${eng.title}\n\n${eng.answer}`);
+    rememberTopic(digits, eng.title, true);
     incrementUse(digits);
     return { replies, increment: true };
   }
   const hit = searchBank(bank, text);
   if (hit) {
     say(formatHit(hit));
+    rememberTopic(digits, hit.qu.topic, true);
     incrementUse(digits);
     return { replies, increment: true };
-  }
-  if (/^(help|menu|\?)$/i.test(tl)) {
-    say(helpText());
-    return { replies };
   }
   say(fallback(text));
   return { replies };
 }
 
-export { FREE_LIMIT, users, sessions };
+export { FREE_LIMIT, users, sessions, closer };

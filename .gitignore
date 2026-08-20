@@ -7,5 +7,7 @@ node_modules/
 __pycache__/
 *.pyc
 whatsapp/session/
+data/learners.json
+audio/spoken/
 whatsapp/auth_info*/
 *.enc
