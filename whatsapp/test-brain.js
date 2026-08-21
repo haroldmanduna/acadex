@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { loadBank, handleTurn, resetFree } from './tutor.js';
-import { solveMath, explainScience, helpEnglish } from './brain.js';
+import { solveMath, explainScience, helpEnglish, teachConcept, isConfused, searchBank, fallback } from './brain.js';
 import { wantsVoice, ttsFile, speechScript, chunkSpeech } from './voice.js';
 import { commandWord } from './zimsec.js';
 import { wantsDiagram } from './diagrams.js';
@@ -86,6 +86,19 @@ expect('no diagram on 2x', !(silent.replies||[]).some(x=>x.type==='image'), '');
 expect('wantsDiagram', wantsDiagram('draw a triangle') && !wantsDiagram('2x+3=11'), '');
 const dr = await handleTurn({ from: '263771000088', text: 'draw a right angled triangle', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
 expect('drew triangle', (dr.replies||[]).some(x=>x.type==='image' && x.filePath), (dr.replies||[]).map(x=>x.type).join(','));
+
+expect('show that square', /6x|9/.test(solveMath('Show that (x+3)^2 = x^2 + 6x + 9')?.answer || ''), JSON.stringify(solveMath('Show that (x+3)^2 = x^2 + 6x + 9')));
+expect('gradient points', solveMath('Calculate the gradient of the line through (2,3) and (6,11)')?.answer === '2', '');
+expect('simultaneous', /x = 3/.test(solveMath('2x+y=7 and x-y=2')?.answer || ''), solveMath('2x+y=7 and x-y=2')?.answer);
+expect('confused', isConfused("I don't understand bearings") && !isConfused('2x+3=11'), '');
+expect('no bank on confused', !searchBank(bank, "I don't understand bearings. what does 060 degrees even mean"), '');
+expect('explain vs describe', /because/i.test(helpEnglish('what is the difference between explain and describe')?.answer || ''), '');
+expect('concept pythag', /hypotenuse|square sitting/i.test(teachConcept("I don't get Pythagoras. why a squared")?.answer || ''), '');
+expect('fallback not menu', !/dump the menu/i.test(fallback('draw the graph of y = -2x + 4 I do not get gradient')), fallback('hmm'));
+const br = await handleTurn({ from: '263771000099', text: "I don't understand bearings. what does 060 mean", bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+expect('bearings not mean', /bearing|north|clockwise/i.test(firstText(br)) && !/mean of 6/i.test(firstText(br)), firstText(br).slice(0, 160));
+const sh = await handleTurn({ from: '263771000100', text: 'Show that (x+3)^2 = x^2 + 6x + 9', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+expect('show that turn', /9/.test(firstText(sh)) && !/dump the menu/i.test(firstText(sh)), firstText(sh).slice(0, 160));
 if (fail.length) {
   console.error('FAIL', fail.length);
   fail.forEach(f => console.error(' -', f));

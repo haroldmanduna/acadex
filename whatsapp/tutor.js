@@ -4,6 +4,7 @@ import path from 'path';
 import {
   solveMath, solveLinearEq, explainScience, helpEnglish,
   searchBank, formatHit, formatMath, closer, fallback,
+  teachConcept, isConfused,
 } from './brain.js';
 import { askTeacher } from './teacher.js';
 import {
@@ -504,6 +505,15 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     return { replies };
   }
 
+  const concept = teachConcept(text);
+  if (concept) {
+    say(`${concept.title}\n\n${concept.answer}`);
+    rememberTopic(digits, concept.title, true);
+    incrementUse(digits);
+    await attachDiagram(replies, incoming);
+    return { replies, increment: true };
+  }
+
   const lang = getLang(digits);
   const solved = solveMath(text);
   if (solved) {
@@ -530,7 +540,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     incrementUse(digits);
     return { replies, increment: true };
   }
-  const hit = searchBank(bank, text);
+  const hit = (!isConfused(text) && searchBank(bank, text));
   if (hit) {
     say(formatHit(hit));
     rememberTopic(digits, hit.qu.topic, true);
@@ -539,6 +549,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     return { replies, increment: true };
   }
   say(fallback(text));
+  await attachDiagram(replies, incoming);
   return { replies };
 }
 

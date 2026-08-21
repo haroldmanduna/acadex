@@ -17,7 +17,10 @@ async function font() {
 }
 
 export function wantsDiagram(text) {
-  return /\b(draw|sketch|diagram|figure|graph it|plot it|show the (triangle|circle|graph|diagram)|draw it)\b/i.test(String(text || ''));
+  const t = String(text || '');
+  if (/\b(draw|sketch|diagram|figure|illustrat|picture|graph it|plot it|show the (triangle|circle|graph|diagram)|draw it)\b/i.test(t)) return true;
+  if (/(don'?t get|confused|lost|show me|visual)/i.test(t) && /\b(pythagoras|hypotenuse|bearing|vector|triangle|circle|gradient|graph|y\s*=)/i.test(t)) return true;
+  return false;
 }
 
 function nums(text) {
@@ -85,6 +88,74 @@ function label(ctx, text, x, y, color = '#0a7a3c') {
   ctx.font = '26pt DejaVu';
   ctx.fillText(String(text), x, y);
   ctx.fillStyle = '#111111';
+}
+
+function drawParabola(ctx) {
+  const ox = 450, oy = 780, s = 40;
+  ctx.lineWidth = 3;
+  line(ctx, 80, oy, 820, oy);
+  line(ctx, ox, 80, ox, 840);
+  ctx.fillText('x', 800, oy + 32);
+  ctx.fillText('y', ox - 28, 70);
+  ctx.strokeStyle = '#0a7a3c';
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  for (let i = -8; i <= 8; i += 0.2) {
+    const x = ox + i * s;
+    const y = oy - (i * i) * 8;
+    if (i === -8) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.strokeStyle = '#111';
+  label(ctx, 'y = x²', 560, 160);
+}
+
+function drawPythagoras(ctx) {
+  const s = 70;
+  const Bx = 280, By = 620;
+  const Ax = Bx, Ay = By - 3 * s;
+  const Cx = Bx + 4 * s, Cy = By;
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = '#111111';
+  ctx.beginPath();
+  ctx.moveTo(Ax, Ay);
+  ctx.lineTo(Bx, By);
+  ctx.lineTo(Cx, Cy);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.lineWidth = 3;
+  line(ctx, Bx + 28, By, Bx + 28, By - 28);
+  line(ctx, Bx + 28, By - 28, Bx, By - 28);
+  // square on AB (up-left)
+  ctx.strokeStyle = '#0a7a3c';
+  ctx.strokeRect(Ax - 3 * s, Ay, 3 * s, 3 * s);
+  // square on BC (down)
+  ctx.strokeRect(Bx, By, 4 * s, 4 * s);
+  // square on AC — outward along the hypotenuse is fiddly; draw a tilted quad
+  const dx = Cx - Ax, dy = Cy - Ay;
+  const len = Math.hypot(dx, dy);
+  const ux = dx / len, uy = dy / len;
+  const px = -uy, py = ux;
+  const P1x = Ax, P1y = Ay;
+  const P2x = Cx, P2y = Cy;
+  const P3x = Cx + px * len, P3y = Cy + py * len;
+  const P4x = Ax + px * len, P4y = Ay + py * len;
+  ctx.beginPath();
+  ctx.moveTo(P1x, P1y);
+  ctx.lineTo(P2x, P2y);
+  ctx.lineTo(P3x, P3y);
+  ctx.lineTo(P4x, P4y);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.strokeStyle = '#111';
+  label(ctx, 'a', (Ax + Bx) / 2 - 36, (Ay + By) / 2);
+  label(ctx, 'b', (Bx + Cx) / 2, By + 36);
+  label(ctx, 'c', (Ax + Cx) / 2 + 10, (Ay + Cy) / 2 - 10);
+  label(ctx, 'a²', Ax - 2 * s, Ay + 1.6 * s);
+  label(ctx, 'b²', Bx + 1.6 * s, By + 2.2 * s);
+  label(ctx, 'c²', (P3x + P4x) / 2 - 20, (P3y + P4y) / 2);
+  label(ctx, 'a² + b² = c²', 40, 50);
 }
 
 function drawTriangle(ctx) {

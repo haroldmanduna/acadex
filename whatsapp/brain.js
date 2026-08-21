@@ -240,6 +240,65 @@ export function solveMath(raw) {
   const lin = solveLinearEq(t);
   if (lin) return lin;
 
+  // (x+3)^2 or show that (x+3)^2 = ...
+  {
+    const compact = t.replace(/\s+/g, '');
+    const sq = compact.match(/\(([+-]?\d*)x([+-]\d+)\)\^2/) || compact.match(/\(x([+-]\d+)\)\^2/);
+    if (sq) {
+      let a = 1;
+      let b;
+      if (sq[2] !== undefined) { a = coef(sq[1]); b = +sq[2]; }
+      else b = +sq[1];
+      const A = a * a, B = 2 * a * b, C = b * b;
+      const poly = `${A === 1 ? '' : A}x² ${B >= 0 ? '+' : '−'} ${Math.abs(B)}x ${C >= 0 ? '+' : '−'} ${Math.abs(C)}`;
+      return { kind: 'expand', answer: poly.replace(/1x/g, 'x'), steps: [
+        { t: 'Square means times itself', d: `(${a === 1 ? '' : a}x ${b >= 0 ? '+' : '−'} ${Math.abs(b)})(${a === 1 ? '' : a}x ${b >= 0 ? '+' : '−'} ${Math.abs(b)})` },
+        { t: 'FOIL', d: `${A}x² + ${B}x + ${C}` },
+        { t: 'This is the right-hand side', d: poly.replace(/1x/g, 'x') },
+      ] };
+    }
+  }
+
+  // two-point gradient
+  m = original.match(/\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\).{0,40}\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)/);
+  if (m && /gradient|slope|m\s*=|through/.test(low)) {
+    const x1 = +m[1], y1 = +m[2], x2 = +m[3], y2 = +m[4];
+    const den = x2 - x1;
+    if (den !== 0) {
+      const g = (y2 - y1) / den;
+      return { kind: 'gradient', answer: niceNum(g), steps: [
+        { t: 'Gradient = rise / run', d: `(y2 − y1) / (x2 − x1)` },
+        { t: 'Substitute', d: `(${y2} − ${y1}) / (${x2} − ${x1}) = ${niceNum(y2 - y1)}/${niceNum(den)}` },
+        { t: 'm', d: niceNum(g) },
+      ] };
+    }
+  }
+
+  // simultaneous ax+by=c and dx+ey=f
+  {
+    const eqs = original.match(/([+-]?\d*)\s*x\s*([+-]\s*\d*)\s*y\s*=\s*([+-]?\d+)/gi);
+    if (eqs && eqs.length >= 2) {
+      const parse = (s) => {
+        const mm = s.replace(/\s+/g, '').match(/^([+-]?\d*)x([+-]\d*)y=([+-]?\d+)$/i);
+        if (!mm) return null;
+        return { a: coef(mm[1]), b: coef(mm[2]), c: +mm[3] };
+      };
+      const e1 = parse(eqs[0]), e2 = parse(eqs[1]);
+      if (e1 && e2) {
+        const det = e1.a * e2.b - e2.a * e1.b;
+        if (det) {
+          const x = (e1.c * e2.b - e2.c * e1.b) / det;
+          const y = (e1.a * e2.c - e2.a * e1.c) / det;
+          return { kind: 'simultaneous', answer: `x = ${niceNum(x)}, y = ${niceNum(y)}`, steps: [
+            { t: 'Two equations, one pair (x, y)', d: 'same x and y must fit both lines' },
+            { t: 'Eliminate / formula', d: `x = ${niceNum(x)}, y = ${niceNum(y)}` },
+            { t: 'Check in the first', d: `${e1.a}(${niceNum(x)}) + ${e1.b}(${niceNum(y)}) = ${niceNum(e1.a * x + e1.b * y)}` },
+          ] };
+        }
+      }
+    }
+  }
+
   // expand (ax+b)(cx+d)
   m = t.replace(/\s+/g, '').match(/expand\(?\(?([+-]?\d*)x([+-]\d+)\)\(([+-]?\d*)x([+-]\d+)\)\)?/i)
     || t.replace(/\s+/g, '').match(/\(([+-]?\d*)x([+-]\d+)\)\(([+-]?\d*)x([+-]\d+)\)/);
@@ -391,6 +450,9 @@ export function explainScience(text) {
 
 export function helpEnglish(text) {
   const low = String(text || '').toLowerCase();
+  if (/\bexplain\b/.test(low) && /\bdescribe\b/.test(low)) {
+    return { kind: 'english', title: 'Explain vs describe', answer: `Describe = what it looks like or what happens, in order. No because.\nExplain = because / so that / therefore. A reason linked to the fact.\n\nExample (leaf):\nDescribe: The leaf is broad and thin, with stomata on the lower surface.\nExplain: It is thin so that gases have a short distance to diffuse.\n\nIf the paper says Explain and you only State, that mark is 0.\nYou try: Explain why destarching is done before a starch test.` };
+  }
   const topic = cleanQuery(text)
     .replace(/composition|essay|story|letter|speech|article|summary|register|comprehension|english|1122|write|about/gi, ' ')
     .replace(/\s+/g, ' ').trim();
@@ -430,7 +492,44 @@ export function tokensOf(text) {
     .filter(w => w && w.length > 2 && !STOP.has(w));
 }
 
+export function isConfused(text) {
+  const t = String(text || '').toLowerCase();
+  return /i (don'?t|do not|dont) (get|understand|know|see)|i am lost|confused|nobody (showed|taught)|what does .{0,48} mean|why do we|why not|i still don|help me understand/.test(t);
+}
+
+export function teachConcept(text) {
+  const t = String(text || '').toLowerCase();
+  const stuck = isConfused(text) || /what (is|does) (a |the )?|meaning of|i am lost/.test(t);
+  if (!stuck && !(/chlorophyll/.test(t) && /\bstate\b/.test(t)) && !/destarch/.test(t)) return null;
+  if (/pythag|a\s*\^?\s*2\s*\+|hypotenuse|right.?angl/.test(t)) {
+    return { kind: 'concept', title: 'Pythagoras', answer: `The square corner is the right angle. The two sides that make that corner are a and b. The longest side, opposite the corner, is c (hypotenuse).\n\na² + b² = c² means: the square sitting on a plus the square sitting on b fill the square sitting on c. That is why we square.\n\n3-4-5: 9 + 16 = 25, so c = 5.\nIf they give c and one short side: subtract, then square root.\n\nSay DRAW if you want the picture with the three squares.\nYou try: 6 and 8 meet at the right angle. Find c.` };
+  }
+  if (/bearing/.test(t)) {
+    return { kind: 'concept', title: 'Bearings', answer: `A bearing is the angle from North, turning clockwise, written with three digits.\n\n060° means: stand at A, face North, turn 60° towards East. Walk that way to B.\n000° = North. 090° = East. 180° = South. 270° = West.\n\nAlways three figures (060 not 60). Always from North. Always clockwise.\nSay DRAW if you want the North-line sketch.\nYou try: From A, B is due East. What bearing is that?` };
+  }
+  if (/\bvector/.test(t)) {
+    return { kind: 'concept', title: 'Vectors', answer: `A vector is an arrow with size AND direction. (3 ; 0) means 3 right, 0 up.\nAdding: nose to tail. 2u means twice as long, same way.\nA number alone (speed 3 m/s with no direction) is a scalar, not a vector.\nSay DRAW if you want the arrow on axes.\nYou try: u = (3 ; 0), v = (−2 ; 5). What is 2u + v?` };
+  }
+  if (/gradient|slope/.test(t)) {
+    return { kind: 'concept', title: 'Gradient', answer: `Gradient m = rise / run = (y2 − y1) / (x2 − x1).\nPositive: uphill as you go right. Negative: downhill. 0: flat.\nm = −2 means: one step right, two steps down.\nOn y = mx + c, m is the tilt and c is where it cuts the y-axis.\nSay DRAW and send y = … if you want the line.\nYou try: (1, 4) and (3, 10). What is m?` };
+  }
+  if (/factoris|factoriz/.test(t)) {
+    return { kind: 'concept', title: 'Factorise', answer: `Factorise = put back into brackets. Expanding is the opposite.\nx² + 5x + 6 → two numbers that multiply to 6 and add to 5: 2 and 3.\nSo (x + 2)(x + 3).\nCheck by FOIL. If the last number is negative, the two numbers have opposite signs.\nYou try: x² + 7x + 10.` };
+  }
+  if (/simultaneous/.test(t)) {
+    return { kind: 'concept', title: 'Simultaneous equations', answer: `Two equations, one pair (x, y) that fits BOTH at the same time.\nIf you see +y and −y, add the equations so y disappears. Then solve x. Then put x back in.\nThat is elimination. Substitution is: make y the subject in one, plug into the other.\nPaste your two lines if you want them done slowly.` };
+  }
+  if (/chlorophyll/.test(t) && /\bstate\b/.test(t)) {
+    return { kind: 'concept', title: 'Chlorophyll', answer: `State: Chlorophyll absorbs light (for photosynthesis).\nNo because — the command was State.\nIf they had said Explain: because light energy is needed to make glucose.` };
+  }
+  if (/destarch/.test(t)) {
+    return { kind: 'concept', title: 'Destarching', answer: `Destarch so that any starch you find later was made in THIS experiment, not leftover from yesterday.\nHow: leave the plant in the dark 24–48 h. Iodine then stays brown if destarching worked.\nExplain needs because / so that.` };
+  }
+  return null;
+}
+
 export function searchBank(bank, text) {
+  if (isConfused(text)) return null;
   const words = tokensOf(text);
   if (words.length < 1) return null;
   const tl = String(text || '').toLowerCase();
@@ -494,6 +593,7 @@ export function closer(phone) {
 }
 
 export function fallback(text) {
-  const q = String(text || '').trim().slice(0, 140);
-  return `I will not dump the menu again — I need the actual question.\n\nYou sent: “${q}”\n\nI can:\n• work Maths (2+2, 15% of 80, 2x+3=11, x²−5x+6=0, area, F=ma)\n• explain Science 5006 topics in exam language\n• plan English 1122 composition / summary / register\n• pull a worked item from the 1437-question bank\n\nPaste the full question (or a photo typed out), including numbers.`;
+  const c = teachConcept(text);
+  if (c) return c.answer;
+  return `I heard you. Tell me the stuck bit in one sentence. Maths: paste the equation. Science: name the process. English: the title or the command word. I will go slowly. Say DRAW if you want a sketch.`;
 }

@@ -34,7 +34,9 @@ PERSON
 
 LANGUAGE
 - Match theirs (Shona, Ndebele, English, mix). Exam terms as the paper prints them.
-- 80–220 words unless they pasted a full structured question.`;
+- 80–220 words unless they pasted a full structured question.
+- Never ASCII art (no /|\\ triangles). If a figure helps, say “I am sending a sketch” in words only — a real picture may already be attached.
+- If they say they do not get it: one idea, one tiny example, then “you try”. Do not switch to a random paper question.`;
 
 function extract(data) {
   const c = data?.choices?.[0]?.message?.content;
