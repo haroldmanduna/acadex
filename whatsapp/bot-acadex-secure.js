@@ -193,18 +193,25 @@ function whatsappMode(){
   if (st.status && st.status !== 'idle') return 'phone-link-'+st.status;
   return 'mock';
 }
-app.get('/health', (req,res)=>res.json({
-  status: 'ACADEX live',
-  alwaysOn: true,
-  replyTo: 'any message',
-  admin: ADMIN_PHONE ? 'set' : 'not set',
-  whatsapp: whatsappMode(),
-  wa: ADMIN_PHONE ? '+'+ADMIN_PHONE : null,
-  papers: (BANK.papers||[]).length,
-  link: getLinkStatus().status,
-  time: new Date().toISOString()
-}));
-app.get('/ping', (req,res)=>res.type('text').send('ok'));
+app.get('/health', (req,res)=>{
+  noCacheCors(res);
+  res.json({
+    status: 'ACADEX live',
+    alwaysOn: true,
+    replyTo: 'any message',
+    admin: ADMIN_PHONE ? 'set' : 'not set',
+    whatsapp: whatsappMode(),
+    wa: ADMIN_PHONE ? '+'+ADMIN_PHONE : null,
+    papers: (BANK.papers||[]).length,
+    link: getLinkStatus().status,
+    queue: inboxStats(),
+    keepalive: keepaliveState(),
+    sessionStore: sessionStoreMode(),
+    time: new Date().toISOString()
+  });
+});
+app.get('/ping', (req,res)=>{ noCacheCors(res); res.type('text').send('ok'); });
+app.get('/awake', (req,res)=>{ noCacheCors(res); res.type('text').send('ok'); });
 app.get('/link', (req,res)=>{
   ensurePhoneLink();
   res.sendFile(path.join(__dirname, 'link.html'));
