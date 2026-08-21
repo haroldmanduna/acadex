@@ -173,7 +173,13 @@ async function attachDiagram(replies, text) {
   try {
     const fp = await renderDiagram(workspaceRoot, text);
     if (fp && fs.existsSync(fp)) {
-      replies.push({ type: 'image', filePath: fp, caption: 'Diagram. Not to scale unless lengths are marked.' });
+      const k = figureKind(text);
+      const cap = k === 'triangle'
+        ? 'Right-angled triangle. Right angle at B (the little square). Hypotenuse is AC. Not to scale unless lengths are marked.'
+        : k === 'pythagoras'
+        ? 'Squares on the three sides. a² + b² = c². Not to scale unless lengths are marked.'
+        : 'Diagram. Not to scale unless lengths are marked.';
+      replies.push({ type: 'image', filePath: fp, caption: cap });
       return true;
     }
   } catch (e) {
