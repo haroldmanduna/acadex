@@ -16,10 +16,41 @@ async function font() {
   fontReady = true;
 }
 
+export function figureKind(text) {
+  const t = normFig(text);
+  if (/\bvenn\b/.test(t)) return 'venn';
+  if (/\b(bar chart|histogram|bar graph)\b/.test(t)) return 'bar';
+  if (/\b(number line)\b/.test(t)) return 'numberline';
+  if (/\b(bearing|060°|060 degrees)\b/.test(t)) return 'bearing';
+  if (/\b(vector)\b/.test(t)) return 'vector';
+  if (/\b(cuboid|cube|net of)\b/.test(t)) return 'cuboid';
+  if (/\b(parabola|x\^2|x²)\b/.test(t)) return 'parabola';
+  if (/\b(circle|radius|chord|tangent|diameter)\b/.test(t)) return 'circle';
+  if (/\b(graph|plot|axes|y\s*=)\b/.test(t)) return 'graph';
+  if (/\b(angle|protractor)\b/.test(t) && !/\btriangle\b/.test(t)) return 'angle';
+  if (/\b(pythagoras|a\s*\^?\s*2\s*\+|hypotenuse)\b/.test(t) && !/\bright/.test(t)) return 'pythagoras';
+  if (/\b(pythagoras)\b/.test(t)) return 'pythagoras';
+  if (/\b(right[- ]?angl|3.?4.?5|triangle)\b/.test(t)) return 'triangle';
+  if (ASK_FIG.test(t)) return 'triangle';
+  return null;
+}
+
+const ASK_FIG = /\b(draw|sketch|diagram|figure|illustrat|picture|graph it|plot it|show me|visual|label the|send .{0,28}(diagram|picture|sketch|figure|triangle|circle|graph))\b/i;
+
+function normFig(s) {
+  return String(s || '').toLowerCase()
+    .replace(/triangl\w*/g, 'triangle')
+    .replace(/diagra\w*/g, 'diagram')
+    .replace(/hypotenus\w*/g, 'hypotenuse')
+    .replace(/pythagor\w*/g, 'pythagoras')
+    .replace(/right\s*angl\w*/g, 'right-angled');
+}
+
 export function wantsDiagram(text) {
-  const t = String(text || '');
-  if (/\b(draw|sketch|diagram|figure|illustrat|picture|graph it|plot it|show the (triangle|circle|graph|diagram)|draw it)\b/i.test(t)) return true;
-  if (/(don'?t get|confused|lost|show me|visual)/i.test(t) && /\b(pythagoras|hypotenuse|bearing|vector|triangle|circle|gradient|graph|y\s*=)/i.test(t)) return true;
+  const t = normFig(text);
+  if (ASK_FIG.test(t)) return true;
+  if (/\b(right-angled|pythagoras|hypotenuse|bearing|vector|venn|cuboid|tangent|chord|number line|bar chart|histogram|parabola|y\s*=\s*-?\d)/.test(t)) return true;
+  if (/\btriangle\b/.test(t) && /\b(right|draw|sketch|diagram|figure|send|picture|show)\b/.test(t)) return true;
   return false;
 }
 
@@ -28,19 +59,7 @@ function nums(text) {
 }
 
 function kind(text) {
-  const t = String(text || '').toLowerCase();
-  if (/\bvenn\b/.test(t)) return 'venn';
-  if (/\b(bar chart|histogram|bar graph)\b/.test(t)) return 'bar';
-  if (/\b(number line)\b/.test(t)) return 'numberline';
-  if (/\b(bearing|north)\b/.test(t)) return 'bearing';
-  if (/\b(vector)\b/.test(t)) return 'vector';
-  if (/\b(cuboid|cube|net of)\b/.test(t)) return 'cuboid';
-  if (/\b(circle|radius|chord|tangent|diameter)\b/.test(t)) return 'circle';
-  if (/\b(graph|plot|axes|y\s*=)\b/.test(t)) return 'graph';
-  if (/\b(angle|protractor)\b/.test(t) && !/\btriangle\b/.test(t)) return 'angle';
-  if (/\b(right[- ]?angl|pythag|3.?4.?5|triangle|trig)\b/.test(t)) return 'triangle';
-  if (/\btriangle\b/.test(t)) return 'triangle';
-  return 'triangle';
+  return figureKind(text) || 'triangle';
 }
 
 function parseLine(text) {
@@ -159,27 +178,32 @@ function drawPythagoras(ctx) {
 }
 
 function drawTriangle(ctx) {
-  const A = [450, 140], B = [160, 720], C = [760, 720];
-  ctx.lineWidth = 5;
+  // True right angle at B: AB vertical, BC horizontal (3-4-5).
+  const scale = 110;
+  const B = [220, 700];
+  const A = [220, 700 - 3 * scale];
+  const C = [220 + 4 * scale, 700];
+  ctx.lineWidth = 6;
   ctx.beginPath();
   ctx.moveTo(A[0], A[1]);
   ctx.lineTo(B[0], B[1]);
   ctx.lineTo(C[0], C[1]);
   ctx.closePath();
   ctx.stroke();
-  // right-angle box at B
-  ctx.lineWidth = 3;
-  line(ctx, B[0] + 36, B[1], B[0] + 36, B[1] - 36);
-  line(ctx, B[0] + 36, B[1] - 36, B[0], B[1] - 36);
-  label(ctx, 'A', A[0] - 10, A[1] - 16);
-  label(ctx, 'B', B[0] - 40, B[1] + 40);
-  label(ctx, 'C', C[0] + 10, C[1] + 40);
-  label(ctx, 'c', (A[0] + B[0]) / 2 - 30, (A[1] + B[1]) / 2);
-  label(ctx, 'a', (B[0] + C[0]) / 2 - 10, B[1] + 45, '#111');
-  label(ctx, 'b', (A[0] + C[0]) / 2 + 16, (A[1] + C[1]) / 2);
+  const s = 44;
+  ctx.lineWidth = 4;
+  line(ctx, B[0], B[1] - s, B[0] + s, B[1] - s);
+  line(ctx, B[0] + s, B[1] - s, B[0] + s, B[1]);
+  label(ctx, 'A', A[0] - 28, A[1] - 12);
+  label(ctx, 'B', B[0] - 44, B[1] + 42);
+  label(ctx, 'C', C[0] + 12, C[1] + 42);
+  label(ctx, 'leg', (A[0] + B[0]) / 2 - 52, (A[1] + B[1]) / 2);
+  label(ctx, 'leg', (B[0] + C[0]) / 2 - 10, B[1] + 48, '#111');
+  label(ctx, 'hypotenuse', (A[0] + C[0]) / 2 + 8, (A[1] + C[1]) / 2 - 8);
+  label(ctx, 'Right angle at B', 40, 48);
 }
 
-function drawCircle(ctx) {
+function drawCircle(ctx, withTangent) {
   const x = 450, y = 430, r = 260;
   ctx.lineWidth = 5;
   oval(ctx, x, y, r);
@@ -190,6 +214,13 @@ function drawCircle(ctx) {
   label(ctx, 'O', x - 28, y - 16);
   label(ctx, 'r', x + r / 2 - 10, y - 16);
   label(ctx, 'A', x + r + 12, y + 10);
+  if (withTangent) {
+    ctx.strokeStyle = '#0a7a3c';
+    ctx.lineWidth = 5;
+    line(ctx, x + r, y - 280, x + r, y + 280);
+    ctx.strokeStyle = '#111';
+    label(ctx, 'tangent', x + r + 16, y - 200);
+  }
 }
 
 function drawGraph(ctx, slope, c) {
@@ -336,8 +367,10 @@ async function save(img, dir) {
 export async function renderDiagram(workspaceRoot, text) {
   await font();
   const { img, ctx } = canvas();
-  const k = kind(text);
-  if (k === 'circle') drawCircle(ctx);
+  const k = figureKind(text) || 'triangle';
+  if (k === 'circle') drawCircle(ctx, /\btangent\b/i.test(text));
+  else if (k === 'pythagoras') drawPythagoras(ctx);
+  else if (k === 'parabola') drawParabola(ctx);
   else if (k === 'graph') {
     const { m, c } = parseLine(text);
     drawGraph(ctx, m, c);
@@ -350,7 +383,7 @@ export async function renderDiagram(workspaceRoot, text) {
   else if (k === 'angle') drawAngle(ctx);
   else drawTriangle(ctx);
   const n = nums(text);
-  if (k === 'triangle' && n.length >= 2) {
+  if ((k === 'triangle' || k === 'pythagoras') && n.length >= 2) {
     ctx.font = '24pt DejaVu';
     ctx.fillStyle = '#0a7a3c';
     ctx.fillText('sides: ' + n.slice(0, 3).join(', '), 40, 50);

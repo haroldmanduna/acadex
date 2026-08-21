@@ -5,7 +5,7 @@ import { loadBank, handleTurn, resetFree } from './tutor.js';
 import { solveMath, explainScience, helpEnglish, teachConcept, isConfused, searchBank, fallback } from './brain.js';
 import { wantsVoice, ttsFile, speechScript, chunkSpeech } from './voice.js';
 import { commandWord } from './zimsec.js';
-import { wantsDiagram } from './diagrams.js';
+import { wantsDiagram, figureKind } from './diagrams.js';
 
 process.env.DISABLE_LLM = '1';
 process.env.DISABLE_VOICE = '1';
@@ -86,6 +86,12 @@ expect('no diagram on 2x', !(silent.replies||[]).some(x=>x.type==='image'), '');
 expect('wantsDiagram', wantsDiagram('draw a triangle') && !wantsDiagram('2x+3=11'), '');
 const dr = await handleTurn({ from: '263771000088', text: 'draw a right angled triangle', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
 expect('drew triangle', (dr.replies||[]).some(x=>x.type==='image' && x.filePath), (dr.replies||[]).map(x=>x.type).join(','));
+
+expect('send diagram phrase', wantsDiagram('Send a diagram of a right angled trianglw') && wantsDiagram('sketch y=2x+1') && wantsDiagram('circle with a tangent') && !wantsDiagram('2x+3=11'), '');
+expect('kind right triangle', figureKind('Send a diagram of a right angled triangle') === 'triangle', figureKind('Send a diagram of a right angled triangle'));
+const sd = await handleTurn({ from: '263771000201', text: 'Send a diagram of a right angled triangle', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+expect('send diagram image', (sd.replies||[]).some(x=>x.type==='image' && x.filePath), (sd.replies||[]).map(x=>x.type).join(','));
+expect('no cannot send', !/cannot send image/i.test(firstText(sd)), firstText(sd).slice(0,120));
 
 expect('show that square', /6x|9/.test(solveMath('Show that (x+3)^2 = x^2 + 6x + 9')?.answer || ''), JSON.stringify(solveMath('Show that (x+3)^2 = x^2 + 6x + 9')));
 expect('gradient points', solveMath('Calculate the gradient of the line through (2,3) and (6,11)')?.answer === '2', '');

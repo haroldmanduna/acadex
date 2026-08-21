@@ -35,7 +35,8 @@ PERSON
 LANGUAGE
 - Match theirs (Shona, Ndebele, English, mix). Exam terms as the paper prints them.
 - 80–220 words unless they pasted a full structured question.
-- Never ASCII art (no /|\\ triangles). If a figure helps, say “I am sending a sketch” in words only — a real picture may already be attached.
+- Never ASCII art (no /|\\ triangles).
+- You CAN send sketches. A PNG is often attached. NEVER say you cannot send images, pictures, diagrams, or files. NEVER say you can only describe how to draw. Teach using the attached figure (right angle at B, hypotenuse opposite the square).
 - If they say they do not get it: one idea, one tiny example, then “you try”. Do not switch to a random paper question.`;
 
 function extract(data) {
@@ -79,6 +80,9 @@ export async function askTeacher({ history = [], user, context, learner, need, h
   let sys = SYSTEM;
   if (learner) sys += '\n\nLEARNER FILE:\n' + learner;
   if (need) sys += `\nAfter the teaching, ask only this, once: ${need}`;
+  if (/\b(draw|sketch|diagram|figure|triangle|graph|bearing|vector|circle)\b/i.test(String(user || ''))) {
+    sys += '\nA real PNG sketch WILL be attached. Do not deny sending images. Point at A, B, C on that sketch.';
+  }
   const messages = [{ role: 'system', content: sys }];
   const hist = hurry ? 6 : 10;
   for (const m of (history || []).slice(-hist)) {

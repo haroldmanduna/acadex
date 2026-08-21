@@ -15,7 +15,7 @@ import { startMock, formatMockQ, scoreAnswer, finishMock } from './mock.js';
 import { parseNumbered, markAgainstPaper, markComposition, looksLikeEssay } from './marker.js';
 import { detectLang, ttsFile, wantsVoice, stripVoiceAsk, speechScript } from './voice.js';
 import { examLock, looksLikeExam } from './zimsec.js';
-import { wantsDiagram, renderDiagram } from './diagrams.js';
+import { wantsDiagram, renderDiagram, figureKind } from './diagrams.js';
 import { isBusy } from './inbox.js';
 
 const FREE_LIMIT = 10000;
@@ -133,7 +133,14 @@ function cleanWhatsApp(s) {
     .replace(/__/g, '')
     .replace(/`/g, '')
     .replace(/(^|[^\w])\*([^*\n]{1,80})\*(?=[^\w]|$)/g, '$1$2')
-    .replace(/^\s*\*\s/gm, '• ');
+    .replace(/^\s*\*\s/gm, '• ')
+    .replace(/I cannot send image files[^.!?\n]*/gi, '')
+    .replace(/I can'?t send (images?|pictures?|diagrams?|files?)[^.!?\n]*/gi, '')
+    .replace(/I am (not |un)?able to send (images?|pictures?|diagrams?)[^.!?\n]*/gi, '')
+    .replace(/but I can describe how to draw one[^.!?\n]*/gi, '')
+    .replace(/I can describe how to draw[^.!?\n]*/gi, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 function storeLast(phone, text, speak) {
@@ -295,7 +302,11 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   const replies = [];
   const digits = String(from || '').replace(/\D/g, '');
   const say = (t) => {
-    const clean = cleanWhatsApp(t);
+    let clean = cleanWhatsApp(t);
+    if (!clean && wantsDiagram(incoming)) {
+      clean = 'Here is the sketch. The little square is the right angle. The longest side opposite that square is the hypotenuse.';
+    }
+    if (!clean) return;
     replies.push({ type: 'text', text: clean });
     storeLast(digits, clean);
   };
