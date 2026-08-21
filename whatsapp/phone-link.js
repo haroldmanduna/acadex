@@ -62,7 +62,15 @@ export async function sendPhoneDocument(to, filePath, filename, caption) {
   });
 }
 
-export async function sendPhoneAudio(to, filePath) {
+export async function sendPhoneImage(to, filePath, caption) {
+  if (!sock) throw new Error('WhatsApp not linked');
+  if (!fs.existsSync(filePath)) throw new Error('image missing');
+  const buf = fs.readFileSync(filePath);
+  await sock.sendMessage(toJid(to), {
+    image: buf,
+    caption: caption || undefined,
+  });
+}
   if (!sock) throw new Error('WhatsApp not linked');
   if (!fs.existsSync(filePath)) throw new Error('audio missing ' + filePath);
   const buf = fs.readFileSync(filePath);

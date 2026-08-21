@@ -1,0 +1,289 @@
+/** Clear Maths diagrams as PNG — not ASCII. Only when the student asks to draw/sketch. */
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import PImage from 'pureimage';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const FONT = path.join(__dirname, 'fonts', 'DejaVuSans.ttf');
+let fontReady = false;
+
+async function font() {
+  if (fontReady) return;
+  const f = PImage.registerFont(FONT, 'DejaVu');
+  if (typeof f.loadSync === 'function') f.loadSync();
+  else await new Promise((res, rej) => f.load(e => (e ? rej(e) : res())));
+  fontReady = true;
+}
+
+export function wantsDiagram(text) {
+  return /\b(draw|sketch|diagram|figure|graph it|plot it|show the (triangle|circle|graph|diagram)|draw it)\b/i.test(String(text || ''));
+}
+
+function nums(text) {
+  return [...String(text || '').matchAll(/(\d+(?:\.\d+)?)/g)].map(m => +m[1]).filter(n => n > 0 && n < 10000);
+}
+
+function kind(text) {
+  const t = String(text || '').toLowerCase();
+  if (/\bvenn\b/.test(t)) return 'venn';
+  if (/\b(bar chart|histogram|bar graph)\b/.test(t)) return 'bar';
+  if (/\b(number line)\b/.test(t)) return 'numberline';
+  if (/\b(bearing|north)\b/.test(t)) return 'bearing';
+  if (/\b(vector)\b/.test(t)) return 'vector';
+  if (/\b(cuboid|cube|net of)\b/.test(t)) return 'cuboid';
+  if (/\b(circle|radius|chord|tangent|diameter)\b/.test(t)) return 'circle';
+  if (/\b(graph|plot|axes|y\s*=)\b/.test(t)) return 'graph';
+  if (/\b(angle|protractor)\b/.test(t) && !/\btriangle\b/.test(t)) return 'angle';
+  if (/\b(right[- ]?angl|pythag|3.?4.?5|triangle|trig)\b/.test(t)) return 'triangle';
+  if (/\btriangle\b/.test(t)) return 'triangle';
+  return 'triangle';
+}
+
+function parseLine(text) {
+  const m = String(text || '').replace(/\s+/g, '').match(/y=([+-]?\d*\.?\d*)x([+-]\d+\.?\d*)?/);
+  if (!m) return { m: 1, c: 0 };
+  const slope = m[1] === '' || m[1] === '+' ? 1 : m[1] === '-' ? -1 : +m[1];
+  const c = m[2] ? +m[2] : 0;
+  return { m: slope, c };
+}
+
+function canvas(w = 900, h = 900) {
+  const img = PImage.make(w, h);
+  const ctx = img.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = '#111111';
+  ctx.fillStyle = '#111111';
+  ctx.lineWidth = 4;
+  ctx.font = '28pt DejaVu';
+  return { img, ctx, w, h };
+}
+
+function line(ctx, x1, y1, x2, y2) {
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+}
+
+function oval(ctx, x, y, r, n = 96) {
+  ctx.beginPath();
+  for (let i = 0; i <= n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    const px = x + r * Math.cos(a);
+    const py = y + r * Math.sin(a);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.stroke();
+}
+
+function label(ctx, text, x, y, color = '#0a7a3c') {
+  ctx.fillStyle = color;
+  ctx.font = '26pt DejaVu';
+  ctx.fillText(String(text), x, y);
+  ctx.fillStyle = '#111111';
+}
+
+function drawTriangle(ctx) {
+  const A = [450, 140], B = [160, 720], C = [760, 720];
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(A[0], A[1]);
+  ctx.lineTo(B[0], B[1]);
+  ctx.lineTo(C[0], C[1]);
+  ctx.closePath();
+  ctx.stroke();
+  // right-angle box at B
+  ctx.lineWidth = 3;
+  line(ctx, B[0] + 36, B[1], B[0] + 36, B[1] - 36);
+  line(ctx, B[0] + 36, B[1] - 36, B[0], B[1] - 36);
+  label(ctx, 'A', A[0] - 10, A[1] - 16);
+  label(ctx, 'B', B[0] - 40, B[1] + 40);
+  label(ctx, 'C', C[0] + 10, C[1] + 40);
+  label(ctx, 'c', (A[0] + B[0]) / 2 - 30, (A[1] + B[1]) / 2);
+  label(ctx, 'a', (B[0] + C[0]) / 2 - 10, B[1] + 45, '#111');
+  label(ctx, 'b', (A[0] + C[0]) / 2 + 16, (A[1] + C[1]) / 2);
+}
+
+function drawCircle(ctx) {
+  const x = 450, y = 430, r = 260;
+  ctx.lineWidth = 5;
+  oval(ctx, x, y, r);
+  line(ctx, x, y, x + r, y);
+  ctx.beginPath();
+  oval(ctx, x, y, 6, 24);
+  ctx.fill();
+  label(ctx, 'O', x - 28, y - 16);
+  label(ctx, 'r', x + r / 2 - 10, y - 16);
+  label(ctx, 'A', x + r + 12, y + 10);
+}
+
+function drawGraph(ctx, slope, c) {
+  const ox = 120, oy = 760, s = 55;
+  ctx.lineWidth = 3;
+  line(ctx, 80, oy, 860, oy);
+  line(ctx, ox, 80, ox, 820);
+  ctx.font = '20pt DejaVu';
+  for (let i = 1; i <= 12; i++) {
+    line(ctx, ox + i * s, oy - 8, ox + i * s, oy + 8);
+    line(ctx, ox - 8, oy - i * s, ox + 8, oy - i * s);
+    if (i % 2 === 0) {
+      ctx.fillText(String(i), ox + i * s - 8, oy + 32);
+      ctx.fillText(String(i), ox - 36, oy - i * s + 8);
+    }
+  }
+  ctx.fillText('x', 840, oy + 36);
+  ctx.fillText('y', ox - 28, 70);
+  ctx.strokeStyle = '#0a7a3c';
+  ctx.lineWidth = 5;
+  const yAt = (x) => oy - (slope * x + c) * s;
+  line(ctx, ox + (-1) * s, yAt(-1), ox + 10 * s, yAt(10));
+  ctx.strokeStyle = '#111111';
+  label(ctx, `y = ${slope}x${c >= 0 ? '+' : ''}${c}`, 500, 120);
+}
+
+function drawVector(ctx) {
+  const ox = 160, oy = 720, s = 70;
+  ctx.lineWidth = 3;
+  line(ctx, 80, oy, 860, oy);
+  line(ctx, ox, 80, ox, 820);
+  ctx.strokeStyle = '#0a7a3c';
+  ctx.lineWidth = 6;
+  const x2 = ox + 5 * s, y2 = oy - 3 * s;
+  line(ctx, ox, oy, x2, y2);
+  // arrow
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - 24, y2 + 28);
+  ctx.lineTo(x2 - 32, y2 + 8);
+  ctx.closePath();
+  ctx.fillStyle = '#0a7a3c';
+  ctx.fill();
+  ctx.strokeStyle = '#111';
+  label(ctx, 'O', ox - 36, oy + 36);
+  label(ctx, 'a = (5 ; 3)', 480, 200);
+}
+
+function drawBearing(ctx) {
+  const x = 450, y = 450;
+  ctx.lineWidth = 4;
+  line(ctx, x, 80, x, 820);
+  label(ctx, 'N', x - 12, 70);
+  ctx.beginPath();
+  ctx.arc(x, y, 220, -Math.PI / 2, -Math.PI / 2 + (60 * Math.PI) / 180, false);
+  ctx.stroke();
+  ctx.strokeStyle = '#0a7a3c';
+  ctx.lineWidth = 5;
+  const ang = (60 - 90) * Math.PI / 180;
+  line(ctx, x, y, x + 280 * Math.cos(ang), y + 280 * Math.sin(ang));
+  ctx.strokeStyle = '#111';
+  label(ctx, '060°', x + 40, y - 80);
+  label(ctx, 'A', x - 16, y + 36);
+  label(ctx, 'B', x + 200, y - 40);
+}
+
+function drawCuboid(ctx) {
+  const x = 180, y = 280, w = 420, h = 260, d = 140;
+  ctx.lineWidth = 5;
+  ctx.strokeRect(x, y, w, h);
+  line(ctx, x, y, x + d, y - d);
+  line(ctx, x + w, y, x + w + d, y - d);
+  line(ctx, x + w, y + h, x + w + d, y + h - d);
+  line(ctx, x + d, y - d, x + w + d, y - d);
+  line(ctx, x + w + d, y - d, x + w + d, y + h - d);
+  ctx.setLineDash?.();
+  label(ctx, 'l', x + w / 2 - 10, y + h + 40);
+  label(ctx, 'h', x - 36, y + h / 2);
+  label(ctx, 'w', x + w + d / 2, y - d / 2);
+}
+
+function drawVenn(ctx) {
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.arc(340, 430, 220, 0, Math.PI * 2, false);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(560, 430, 220, 0, Math.PI * 2, false);
+  ctx.stroke();
+  label(ctx, 'A', 240, 240);
+  label(ctx, 'B', 640, 240);
+  label(ctx, 'ξ', 80, 80);
+}
+
+function drawNumberLine(ctx) {
+  ctx.lineWidth = 5;
+  line(ctx, 60, 450, 840, 450);
+  for (let i = -4; i <= 4; i++) {
+    const x = 450 + i * 90;
+    line(ctx, x, 430, x, 470);
+    ctx.fillText(String(i), x - 10, 520);
+  }
+  ctx.fillStyle = '#0a7a3c';
+  ctx.beginPath();
+  ctx.arc(450 + 2 * 90, 450, 12, 0, Math.PI * 2, false);
+  ctx.fill();
+}
+
+function drawBar(ctx) {
+  const vals = [4, 7, 3, 8, 5];
+  const labels = ['A', 'B', 'C', 'D', 'E'];
+  ctx.lineWidth = 4;
+  line(ctx, 120, 780, 120, 80);
+  line(ctx, 120, 780, 860, 780);
+  vals.forEach((v, i) => {
+    const x = 180 + i * 130;
+    const h = v * 70;
+    ctx.fillStyle = '#0a7a3c';
+    ctx.fillRect(x, 780 - h, 80, h);
+    ctx.fillStyle = '#111';
+    ctx.fillText(labels[i], x + 24, 820);
+  });
+}
+
+function drawAngle(ctx) {
+  const x = 200, y = 700;
+  ctx.lineWidth = 5;
+  line(ctx, x, y, 820, y);
+  const a = -40 * Math.PI / 180;
+  line(ctx, x, y, x + 500 * Math.cos(a), y + 500 * Math.sin(a));
+  ctx.beginPath();
+  ctx.arc(x, y, 90, a, 0, false);
+  ctx.stroke();
+  label(ctx, 'θ', x + 110, y - 40);
+}
+
+async function save(img, dir) {
+  fs.mkdirSync(dir, { recursive: true });
+  const fp = path.join(dir, `d-${Date.now()}-${Math.random().toString(16).slice(2, 8)}.png`);
+  await PImage.encodePNGToStream(img, fs.createWriteStream(fp));
+  return fp;
+}
+
+export async function renderDiagram(workspaceRoot, text) {
+  await font();
+  const { img, ctx } = canvas();
+  const k = kind(text);
+  if (k === 'circle') drawCircle(ctx);
+  else if (k === 'graph') {
+    const { m, c } = parseLine(text);
+    drawGraph(ctx, m, c);
+  } else if (k === 'vector') drawVector(ctx);
+  else if (k === 'bearing') drawBearing(ctx);
+  else if (k === 'cuboid') drawCuboid(ctx);
+  else if (k === 'venn') drawVenn(ctx);
+  else if (k === 'numberline') drawNumberLine(ctx);
+  else if (k === 'bar') drawBar(ctx);
+  else if (k === 'angle') drawAngle(ctx);
+  else drawTriangle(ctx);
+  const n = nums(text);
+  if (k === 'triangle' && n.length >= 2) {
+    ctx.font = '24pt DejaVu';
+    ctx.fillStyle = '#0a7a3c';
+    ctx.fillText('sides: ' + n.slice(0, 3).join(', '), 40, 50);
+  }
+  const dir = path.join(workspaceRoot || path.join(__dirname, '..'), 'data', 'diagrams');
+  return save(img, dir);
+}

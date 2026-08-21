@@ -5,6 +5,7 @@ import { loadBank, handleTurn, resetFree } from './tutor.js';
 import { solveMath, explainScience, helpEnglish } from './brain.js';
 import { wantsVoice, ttsFile, speechScript, chunkSpeech } from './voice.js';
 import { commandWord } from './zimsec.js';
+import { wantsDiagram } from './diagrams.js';
 
 process.env.DISABLE_LLM = '1';
 process.env.DISABLE_VOICE = '1';
@@ -81,6 +82,10 @@ const long = 'Subtract 3 from both sides so the x is less lonely. Then divide by
 const mp3 = await ttsFile(root, long, 'en', 'Anesu');
 expect('tts mp3', mp3 && fs.existsSync(mp3) && fs.statSync(mp3).size > 800 && !/solve\.mp3$/i.test(mp3), mp3 + ' ' + (mp3 && fs.statSync(mp3).size));
 
+expect('no diagram on 2x', !(silent.replies||[]).some(x=>x.type==='image'), '');
+expect('wantsDiagram', wantsDiagram('draw a triangle') && !wantsDiagram('2x+3=11'), '');
+const dr = await handleTurn({ from: '263771000088', text: 'draw a right angled triangle', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+expect('drew triangle', (dr.replies||[]).some(x=>x.type==='image' && x.filePath), (dr.replies||[]).map(x=>x.type).join(','));
 if (fail.length) {
   console.error('FAIL', fail.length);
   fail.forEach(f => console.error(' -', f));

@@ -14,6 +14,7 @@ import { startMock, formatMockQ, scoreAnswer, finishMock } from './mock.js';
 import { parseNumbered, markAgainstPaper, markComposition, looksLikeEssay } from './marker.js';
 import { detectLang, ttsFile, wantsVoice, stripVoiceAsk, speechScript } from './voice.js';
 import { examLock, looksLikeExam } from './zimsec.js';
+import { wantsDiagram, renderDiagram } from './diagrams.js';
 
 const FREE_LIMIT = 10000;
 const sessions = new Map();
@@ -154,6 +155,20 @@ async function attachVoice(replies, phone, spoken) {
     }
   } catch (e) {
     console.warn('voice', e.message);
+  }
+  return false;
+}
+
+async function attachDiagram(replies, text) {
+  if (!wantsDiagram(text)) return false;
+  try {
+    const fp = await renderDiagram(workspaceRoot, text);
+    if (fp && fs.existsSync(fp)) {
+      replies.push({ type: 'image', filePath: fp, caption: 'Diagram. Not to scale unless lengths are marked.' });
+      return true;
+    }
+  } catch (e) {
+    console.warn('diagram', e.message);
   }
   return false;
 }
@@ -475,6 +490,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
       const last = (sessions.get(digits) || {}).lastReply;
       if (last) await attachVoice(replies, digits, last);
     }
+    await attachDiagram(replies, incoming);
     return { replies, increment: true };
   }
 
@@ -494,6 +510,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     rememberTopic(digits, 'Algebra', true);
     incrementUse(digits);
     if (askVoice) await attachVoice(replies, digits, body);
+    await attachDiagram(replies, incoming);
     return { replies, increment: true };
   }
   const sci = explainScience(text);
@@ -516,6 +533,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     say(formatHit(hit));
     rememberTopic(digits, hit.qu.topic, true);
     incrementUse(digits);
+    await attachDiagram(replies, incoming);
     return { replies, increment: true };
   }
   say(fallback(text));

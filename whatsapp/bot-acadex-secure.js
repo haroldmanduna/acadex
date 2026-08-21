@@ -221,6 +221,11 @@ async function dispatchReplies(defaultTo, replies){
   for (const r of replies || []) {
     const to = r.to || defaultTo;
     if (r.type === 'document') await sendDocument(to, r.url, r.filename, r.caption || '');
+    else if (r.type === 'image') {
+      if (r.filePath && isLinked() && fs.existsSync(r.filePath)) {
+        await phoneLink.sendPhoneImage(to, r.filePath, r.caption || '');
+      }
+    }
     else if (r.type === 'audio') {
       try {
         if (r.filePath && isLinked() && fs.existsSync(r.filePath)) await phoneLink.sendPhoneAudio(to, r.filePath);

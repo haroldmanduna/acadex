@@ -8,6 +8,7 @@ __pycache__/
 *.pyc
 whatsapp/session/
 data/learners.json
+data/diagrams/
 audio/spoken/
 whatsapp/auth_info*/
 *.enc
