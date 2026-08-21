@@ -1,4 +1,4 @@
-/** Voice notes — speak THIS learner’s last working. Never the old Tatenda greeting files. */
+/** Voice notes — full working for THIS learner. Never Tatenda stock files. */
 import fs from 'fs';
 import path from 'path';
 import { createHash } from 'crypto';
@@ -58,28 +58,37 @@ export function detectLang(text, fallback = 'en') {
   return fallback;
 }
 
-/** Build a short spoken line from the last answer. Never a canned greeting. */
 export function speechScript(answer, name) {
   let t = String(answer || '')
     .replace(/[*_#`$]/g, ' ')
     .replace(/https?:\/\/\S+/g, '')
     .replace(/\bCOMMAND WORD:[^\n.]*/gi, ' ')
+    .replace(/\b(I am ACADEX|I'm ACADEX|Ndiri ACADEX|Ndirí ACADEX)\b/gi, ' ')
     .replace(/\bACADEX\.?/gi, ' ')
     .replace(/\bhey\s+[a-z]+\b/gi, ' ')
     .replace(/good to see you[^.]*\./gi, ' ')
     .replace(/\s+/g, ' ')
     .trim();
   const boxed = t.match(/\bx\s*=\s*[-0-9./]+/i);
-  const final = t.match(/final answer[:\s]+([^.]{2,80})/i);
-  const because = t.match(/\bbecause\b[^.!?]{0,120}/i);
-  let core = '';
-  if (boxed) core = 'x equals ' + boxed[0].split('=')[1].trim() + '. ' + t;
-  else if (final) core = final[1].trim() + '. ' + t;
-  else if (because) core = because[0] + '. ' + t;
-  else core = t;
-  core = core.replace(/\s+/g, ' ').trim();
   const who = (name && String(name).trim()) ? String(name).trim() + '. ' : '';
-  return (who + core).slice(0, 190);
+  let core = t;
+  if (boxed) core = 'x equals ' + boxed[0].split('=')[1].trim() + '. ' + t;
+  core = core.replace(/\s+/g, ' ').trim();
+  return (who + core).slice(0, 720);
+}
+
+export function chunkSpeech(s, max = 170) {
+  const parts = [];
+  let left = String(s || '').trim();
+  while (left.length) {
+    if (left.length <= max) { parts.push(left); break; }
+    let cut = left.lastIndexOf('. ', max);
+    if (cut < 50) cut = left.lastIndexOf(' ', max);
+    if (cut < 40) cut = max;
+    parts.push(left.slice(0, cut + 1).trim());
+    left = left.slice(cut + 1).trim();
+  }
+  return parts.filter(Boolean).slice(0, 5);
 }
 
 export function ttsCodeForScript(script, langHint) {
@@ -91,24 +100,29 @@ export function ttsCodeForScript(script, langHint) {
   return 'en';
 }
 
-export async function ttsFile(workspaceRoot, text, lang, name) {
-  const spoken = speechScript(text, name);
-  if (spoken.length < 8) return null;
-  if (/tatenda/i.test(spoken) && !/tatenda/i.test(name || '') && !/tatenda/i.test(text || '')) {
-    /* never invent Tatenda */
-  }
-  const tl = ttsCodeForScript(spoken, lang);
-  const dir = path.join(workspaceRoot, 'audio', 'spoken');
-  fs.mkdirSync(dir, { recursive: true });
-  const hash = createHash('sha1').update(tl + ':' + spoken).digest('hex').slice(0, 16);
-  const dest = path.join(dir, `${hash}.mp3`);
-  if (fs.existsSync(dest) && fs.statSync(dest).size > 1000) return dest;
+async function fetchChunk(tl, spoken) {
   const url = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl='
     + encodeURIComponent(tl) + '&q=' + encodeURIComponent(spoken);
   const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 ACADEX' }, signal: AbortSignal.timeout(12000) });
   if (!res.ok) throw new Error('tts ' + res.status);
   const buf = Buffer.from(await res.arrayBuffer());
-  if (buf.length < 500) throw new Error('tiny tts');
-  fs.writeFileSync(dest, buf);
+  if (buf.length < 400) throw new Error('tiny tts');
+  return buf;
+}
+
+export async function ttsFile(workspaceRoot, text, lang, name) {
+  const spoken = speechScript(text, name);
+  if (spoken.length < 8) return null;
+  const tl = ttsCodeForScript(spoken, lang);
+  const chunks = chunkSpeech(spoken, 170);
+  const dir = path.join(workspaceRoot, 'audio', 'spoken');
+  fs.mkdirSync(dir, { recursive: true });
+  const hash = createHash('sha1').update(tl + ':' + spoken).digest('hex').slice(0, 16);
+  const dest = path.join(dir, `${hash}.mp3`);
+  if (fs.existsSync(dest) && fs.statSync(dest).size > 2000) return dest;
+  const bufs = [];
+  for (const c of chunks) bufs.push(await fetchChunk(tl, c));
+  const all = Buffer.concat(bufs);
+  fs.writeFileSync(dest, all);
   return dest;
 }

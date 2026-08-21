@@ -30,6 +30,8 @@ export function blankLearner(phone) {
     name: '',
     lang: '',
     grade: '',
+    age: '',
+    school: '',
     subjects: [],
     parent: '',
     weak: [],
@@ -81,6 +83,10 @@ export function extractProfile(text) {
   if (g) out.grade = /grade/i.test(t) && g[1] === '7' ? 'Grade 7' : `Form ${g[1]}`;
   if (/\bo-?level\b/i.test(t)) out.grade = 'Form 4 (O-Level)';
   if (/\ba-?level\b/i.test(t)) out.grade = 'A-Level';
+  const age = t.match(/\b(?:i(?:'?m| am)|ndine|ndiri)\s*(\d{1,2})\b/i) || t.match(/\b(\d{1,2})\s*(?:years? old|yrs?|makore)\b/i);
+  if (age && +age[1] >= 8 && +age[1] <= 25) out.age = String(+age[1]);
+  const sch = t.match(/\b(?:school|chikoro)\s*(?:is|:)?\s*([A-Za-z][A-Za-z0-9 .'-]{2,40})/i);
+  if (sch) out.school = sch[1].trim();
   const parent = t.match(/parent(?:\s*(?:is|number|:))?\s*(\+?263\d{9}|\d{9,12})/i);
   if (parent) out.parent = parent[1].replace(/\D/g, '');
   return out;
@@ -90,7 +96,9 @@ export function card(phone) {
   const u = getLearner(phone);
   const bits = [];
   if (u.name) bits.push(`Name: ${u.name}`);
+  if (u.age) bits.push(`Age: ${u.age}`);
   if (u.grade) bits.push(`Grade: ${u.grade}`);
+  if (u.school) bits.push(`School: ${u.school}`);
   if (u.lang) bits.push(`Language: ${u.lang}`);
   if (u.lastTopic) bits.push(`Last topic: ${u.lastTopic}`);
   if (u.weak?.length) bits.push(`Weak: ${u.weak.slice(0, 4).join(', ')}`);
@@ -98,6 +106,15 @@ export function card(phone) {
   if (u.lastMock) bits.push(`Last mock: ${u.lastMock.score}/${u.lastMock.total} (${u.lastMock.subject})`);
   bits.push(`Questions this term: ${u.asked || 0}`);
   return bits.join('\n');
+}
+
+export function nextNeed(phone) {
+  const u = getLearner(phone);
+  if (!u.name) return 'What should I call you?';
+  if (!u.grade) return 'Which form or grade are you in?';
+  if (!u.age) return 'How old are you?';
+  if (!u.school) return 'Which school?';
+  return null;
 }
 
 export function parentReport(phone) {

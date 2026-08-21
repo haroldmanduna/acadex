@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { loadBank, handleTurn, resetFree } from './tutor.js';
 import { solveMath, explainScience, helpEnglish } from './brain.js';
-import { wantsVoice, ttsFile, speechScript } from './voice.js';
+import { wantsVoice, ttsFile, speechScript, chunkSpeech } from './voice.js';
 import { commandWord } from './zimsec.js';
 
 process.env.DISABLE_LLM = '1';
@@ -76,8 +76,10 @@ expect('english', !!helpEnglish('composition about drought'), '');
 expect('wantsVoice', wantsVoice('voice') && !wantsVoice('2x+3=11'), '');
 const script = speechScript('Subtract 3 from both sides. x = 4. Destarched so starch is new.', 'Anesu');
 expect('speech name', /anesu/i.test(script) && /4|destarch|starch|subtract/i.test(script) && !/tatenda/i.test(script), script);
-const mp3 = await ttsFile(root, 'Subtract 3. Final answer x = 4.', 'en', 'Anesu');
-expect('tts mp3', mp3 && fs.existsSync(mp3) && fs.statSync(mp3).size > 500 && !/solve\.mp3$/i.test(mp3), mp3);
+expect('chunks', chunkSpeech('Sentence one. Sentence two. Sentence three. Sentence four.', 25).length >= 2, '');
+const long = 'Subtract 3 from both sides so the x is less lonely. Then divide by 2. x equals 4. Check: 2 times 4 plus 3 is 11.';
+const mp3 = await ttsFile(root, long, 'en', 'Anesu');
+expect('tts mp3', mp3 && fs.existsSync(mp3) && fs.statSync(mp3).size > 800 && !/solve\.mp3$/i.test(mp3), mp3 + ' ' + (mp3 && fs.statSync(mp3).size));
 
 if (fail.length) {
   console.error('FAIL', fail.length);

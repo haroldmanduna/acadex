@@ -8,7 +8,7 @@ import {
 import { askTeacher } from './teacher.js';
 import {
   initLearners, getLearner, touchLearner, rememberTopic,
-  extractProfile, card, parentReport, allLearners,
+  extractProfile, card, parentReport, allLearners, nextNeed,
 } from './learner.js';
 import { startMock, formatMockQ, scoreAnswer, finishMock } from './mock.js';
 import { parseNumbered, markAgainstPaper, markComposition, looksLikeEssay } from './marker.js';
@@ -124,6 +124,15 @@ function buildContext(text, bank, phone) {
   return bits.join('\n\n');
 }
 
+function cleanWhatsApp(s) {
+  return String(s || '')
+    .replace(/\*\*/g, '')
+    .replace(/__/g, '')
+    .replace(/`/g, '')
+    .replace(/(^|[^\w])\*([^*\n]{1,80})\*(?=[^\w]|$)/g, '$1$2')
+    .replace(/^\s*\*\s/gm, '• ');
+}
+
 function storeLast(phone, text, speak) {
   const s = sessions.get(phone) || {};
   s.lastReply = String(text || '').slice(0, 2000);
@@ -156,6 +165,7 @@ async function teach(digits, text, bank, say, replies) {
     user: text,
     context: buildContext(text, bank, digits),
     learner: card(digits),
+    need: nextNeed(digits),
   });
   if (!taught) return false;
   const math = solveMath(text);
@@ -267,8 +277,9 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   const replies = [];
   const digits = String(from || '').replace(/\D/g, '');
   const say = (t) => {
-    replies.push({ type: 'text', text: t });
-    storeLast(digits, t);
+    const clean = cleanWhatsApp(t);
+    replies.push({ type: 'text', text: clean });
+    storeLast(digits, clean);
   };
   let work = String(text || '');
   const askVoice = wantsVoice(work);
