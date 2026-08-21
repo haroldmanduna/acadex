@@ -72,29 +72,31 @@ async function callModel(model, messages, timeoutMs) {
   }
 }
 
-export async function askTeacher({ history = [], user, context, learner, need }) {
+export async function askTeacher({ history = [], user, context, learner, need, hurry = false }) {
   if (process.env.DISABLE_LLM === '1') return null;
   let sys = SYSTEM;
   if (learner) sys += '\n\nLEARNER FILE:\n' + learner;
   if (need) sys += `\nAfter the teaching, ask only this, once: ${need}`;
   const messages = [{ role: 'system', content: sys }];
-  for (const m of (history || []).slice(-10)) {
+  const hist = hurry ? 6 : 10;
+  for (const m of (history || []).slice(-hist)) {
     if (!m?.content) continue;
     messages.push({
       role: m.role === 'assistant' ? 'assistant' : 'user',
-      content: String(m.content).slice(0, 1800),
+      content: String(m.content).slice(0, hurry ? 900 : 1800),
     });
   }
   if (context) {
     messages.push({
       role: 'system',
-      content: 'Trusted notes. Do not contradict MATH ENGINE. Do not invent extra facts.\n' + String(context).slice(0, 2800),
+      content: 'Trusted notes. Do not contradict MATH ENGINE. Do not invent extra facts.\n' + String(context).slice(0, hurry ? 1600 : 2800),
     });
   }
-  messages.push({ role: 'user', content: String(user || '').slice(0, 2500) });
-  const timeouts = [14000, 10000, 8000, 8000];
-  for (let i = 0; i < MODELS.length; i++) {
-    const model = MODELS[i];
+  messages.push({ role: 'user', content: String(user || '').slice(0, hurry ? 1800 : 2500) });
+  const models = hurry ? MODELS.slice(0, 2) : MODELS;
+  const timeouts = hurry ? [8000, 7000] : [14000, 10000, 8000, 8000];
+  for (let i = 0; i < models.length; i++) {
+    const model = models[i];
     try {
       const text = await callModel(model, messages, timeouts[i] || 8000);
       if (text) {

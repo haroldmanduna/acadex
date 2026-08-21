@@ -622,7 +622,13 @@ function escAttr(s) { return esc(s).replace(/`/g, ""); }
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.getRegistrations().then(regs => {
     Promise.all(regs.map(r => r.update())).finally(() => {
-      navigator.serviceWorker.register("./sw.js?v=10").catch(() => {});
+      navigator.serviceWorker.register("./sw.js?v=12").then(reg => {
+        if (reg.periodicSync && navigator.permissions) {
+          navigator.permissions.query({ name: "periodic-background-sync" }).then(st => {
+            if (st.state === "granted") reg.periodicSync.register("acadex-awake", { minInterval: 4 * 60 * 1000 }).catch(() => {});
+          }).catch(() => {});
+        }
+      }).catch(() => {});
     });
   });
 }

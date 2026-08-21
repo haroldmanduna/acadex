@@ -1,0 +1,32 @@
+# External ping — Render Free sleeps after ~15 min with no HTTP traffic.
+# Self-ping inside the bot dies with the process. This GitHub Action does not.
+name: Keep ACADEX awake
+on:
+  schedule:
+    - cron: '*/7 * * * *'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [ping]
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Wake Render
+        run: |
+          set +e
+          URL="https://acadex-r6z0.onrender.com"
+          ok=0
+          for i in 1 2 3 4 5; do
+            code=$(curl -sS -o /tmp/acadex-awake.txt -w "%{http_code}" --max-time 50 "$URL/awake" || echo 000)
+            echo "try $i awake=$code"
+            if [ "$code" = "200" ]; then ok=1; break; fi
+            sleep 10
+          done
+          curl -sS --max-time 40 "$URL/ping" || true
+          curl -sS --max-time 40 "$URL/health" || true
+          if [ "$ok" != "1" ]; then
+            echo "still waking (cold start is ok once); last body:"
+            cat /tmp/acadex-awake.txt 2>/dev/null || true
+          fi
+          exit 0

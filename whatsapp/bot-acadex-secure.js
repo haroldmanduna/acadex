@@ -11,6 +11,9 @@ import {
   getUser, isPaid, canUse, listUsers, sessionPhones,
   activateUser, resetFree, FREE_LIMIT,
 } from './tutor.js';
+import { inboxStats } from './inbox.js';
+import { startKeepAlive, keepaliveState } from './keepalive.js';
+import { restoreLearners, schedulePersist, sessionStoreMode } from './session-store.js';
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -47,6 +50,10 @@ const TRIGGER_PHRASE = (process.env.TRIGGER_PHRASE || 'mhoro acadex').toLowerCas
 const SESSION_MINUTES = parseInt(process.env.SESSION_MINUTES || '10080');
 const APP_SECRET = process.env.APP_SECRET || '';
 const BANK = loadBank(workspaceRoot);
+const learnersFile = path.join(workspaceRoot, 'data', 'learners.json');
+restoreLearners(learnersFile).then((r) => {
+  if (r?.restored) loadBank(workspaceRoot);
+}).catch(() => {});
 
 console.log(`Acadex Secure Bot | Trigger: "${TRIGGER_PHRASE}" | Session: ${SESSION_MINUTES}min | Admin: ${ADMIN_PHONE || 'NOT SET'} | Papers: ${(BANK.papers||[]).length}`);
 
@@ -68,11 +75,13 @@ async function ensurePhoneLink() {
     phoneLink = await import('./phone-link.js');
     await phoneLink.startPhoneLink({
       authDir: path.join(__dirname, 'session'),
+      learnersFile,
       phone: ADMIN_PHONE,
       onMessage: async ({ from, jid, text }) => {
         const result = await runTurn(from, text);
         if (result.ignored) return;
         await dispatchReplies(jid, result.replies);
+        schedulePersist(path.join(__dirname, 'session'), learnersFile);
       },
     });
   } catch (e) {
@@ -159,7 +168,9 @@ function adminAuth(req,res,next){
 }
 
 const hits = new Map();
+const SKIP_LIMIT = new Set(['/ping', '/health', '/awake', '/link/status']);
 function rateLimit(req,res,next){
+  if (SKIP_LIMIT.has(req.path)) return next();
   const ip = req.ip || req.headers['x-forwarded-for'] || 'local';
   const now = Date.now();
   const arr = (hits.get(ip)||[]).filter(t=>now-t<60000);
@@ -169,6 +180,10 @@ function rateLimit(req,res,next){
   next();
 }
 app.use(rateLimit);
+function noCacheCors(res) {
+  res.set('Cache-Control', 'no-store');
+  res.set('Access-Control-Allow-Origin', '*');
+}
 
 app.get('/', (req,res)=>res.sendFile(path.join(workspaceRoot, 'zimsec-super-tutor.html')));
 function whatsappMode(){
@@ -407,8 +422,11 @@ app.listen(PORT, '0.0.0.0', ()=>{
     return;
   }
   setTimeout(() => ensurePhoneLink(), 2000);
-  const wake = (PUBLIC_URL || '').replace(/\/$/, '') + '/ping';
-  setInterval(() => {
-    if (wake.startsWith('http')) fetch(wake).catch(() => {});
-  }, 8 * 60 * 1000);
+  const base = (PUBLIC_URL || 'https://acadex-r6z0.onrender.com').replace(/\/$/, '');
+  startKeepAlive([
+    base + '/awake',
+    base + '/ping',
+    'https://acadex-r6z0.onrender.com/awake',
+  ], 4 * 60 * 1000);
+  setInterval(() => schedulePersist(path.join(__dirname, 'session'), learnersFile), 2 * 60 * 1000);
 });

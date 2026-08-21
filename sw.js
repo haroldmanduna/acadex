@@ -1,5 +1,5 @@
-// ACADEX Service Worker v11 — always fetch fresh HTML/JS so paper bank updates
-const CACHE = 'acadex-v11';
+// ACADEX Service Worker v12 — always fetch fresh HTML/JS so paper bank updates
+const CACHE = 'acadex-v12';
 const ASSETS = [
   './manifest.json',
   './icon-192.png',
@@ -13,6 +13,11 @@ self.addEventListener('activate', e => {
     caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
+});
+self.addEventListener('periodicsync', e => {
+  if (e.tag === 'acadex-awake') {
+    e.waitUntil(fetch('https://acadex-r6z0.onrender.com/awake', { cache: 'no-store' }).catch(() => {}));
+  }
 });
 self.addEventListener('fetch', e => {
   const url = e.request.url;

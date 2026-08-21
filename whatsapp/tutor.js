@@ -15,6 +15,7 @@ import { parseNumbered, markAgainstPaper, markComposition, looksLikeEssay } from
 import { detectLang, ttsFile, wantsVoice, stripVoiceAsk, speechScript } from './voice.js';
 import { examLock, looksLikeExam } from './zimsec.js';
 import { wantsDiagram, renderDiagram } from './diagrams.js';
+import { isBusy } from './inbox.js';
 
 const FREE_LIMIT = 10000;
 const sessions = new Map();
@@ -181,6 +182,7 @@ async function teach(digits, text, bank, say, replies) {
     context: buildContext(text, bank, digits),
     learner: card(digits),
     need: nextNeed(digits),
+    hurry: isBusy(),
   });
   if (!taught) return false;
   const math = solveMath(text);

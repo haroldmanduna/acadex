@@ -4,6 +4,8 @@
  */
 import fs from 'fs';
 import path from 'path';
+import { enqueue, splitWhatsApp } from './inbox.js';
+import { restoreSession, schedulePersist, clearRemoteSession } from './session-store.js';
 
 const state = {
   status: 'idle',
@@ -18,10 +20,22 @@ const state = {
 let sock = null;
 let onMessage = async () => {};
 let authDir = '';
+let learnersFile = '';
 let phoneDigits = '';
 let restartTimer = null;
 let lastPairAt = 0;
 let connecting = false;
+let sendLock = Promise.resolve();
+const lastDropAt = new Map();
+
+function withSendLock(fn) {
+  const run = sendLock.then(fn, fn);
+  sendLock = run.then(
+    () => new Promise((r) => setTimeout(r, 80)),
+    () => new Promise((r) => setTimeout(r, 80)),
+  );
+  return run;
+}
 
 export function getLinkStatus() {
   return {
@@ -48,28 +62,31 @@ function toJid(to) {
 
 export async function sendPhoneText(to, text) {
   if (!sock) throw new Error('WhatsApp not linked');
-  await sock.sendMessage(toJid(to), { text: String(text || '').slice(0, 4000) });
+  const parts = splitWhatsApp(String(text || ''), 3500);
+  for (const part of parts) {
+    await withSendLock(() => sock.sendMessage(toJid(to), { text: part }));
+  }
 }
 
 export async function sendPhoneDocument(to, filePath, filename, caption) {
   if (!sock) throw new Error('WhatsApp not linked');
   const buf = fs.readFileSync(filePath);
-  await sock.sendMessage(toJid(to), {
+  await withSendLock(() => sock.sendMessage(toJid(to), {
     document: buf,
     mimetype: 'application/pdf',
     fileName: filename || path.basename(filePath),
     caption: caption || undefined,
-  });
+  }));
 }
 
 export async function sendPhoneImage(to, filePath, caption) {
   if (!sock) throw new Error('WhatsApp not linked');
   if (!fs.existsSync(filePath)) throw new Error('image missing');
   const buf = fs.readFileSync(filePath);
-  await sock.sendMessage(toJid(to), {
+  await withSendLock(() => sock.sendMessage(toJid(to), {
     image: buf,
     caption: caption || undefined,
-  });
+  }));
 }
 
 export async function sendPhoneAudio(to, filePath) {
@@ -78,12 +95,12 @@ export async function sendPhoneAudio(to, filePath) {
   const buf = fs.readFileSync(filePath);
   if (buf.length < 400) throw new Error('audio too small');
   // ptt:true + mpeg-24kHz often shows as a silent/grey note on WhatsApp. Send as a normal audio clip.
-  await sock.sendMessage(toJid(to), {
+  await withSendLock(() => sock.sendMessage(toJid(to), {
     audio: buf,
     mimetype: 'audio/mpeg',
     ptt: false,
     fileName: 'ACADEX.mp3',
-  });
+  }));
 }
 
 function pickBaileys(mod) {
@@ -163,12 +180,33 @@ async function handleIncoming(msg) {
     if (msg.messageStubType) return;
     const jid = msg.key.remoteJid;
     if (shouldIgnoreJid(jid)) return;
-    const text = extractText(msg).trim();
+    let text = extractText(msg).trim();
     if (!text) return;
+    if (text.length > 60000) text = text.slice(0, 60000);
     const from = senderPhone(msg) || String(jid).split('@')[0];
     console.log(`WA IN ${from}: ${text.slice(0, 120)}`);
     try { if (sock?.readMessages) await sock.readMessages([msg.key]); } catch { /* ticks */ }
-    await onMessage({ from, jid, text, msg });
+    const q = enqueue({
+      from,
+      jid,
+      run: async () => {
+        try { if (sock?.sendPresenceUpdate) await sock.sendPresenceUpdate('composing', jid); } catch { /* typing */ }
+        await onMessage({ from, jid, text, msg });
+      },
+      onBusy: async ({ jid: to }) => {
+        try {
+          await sendPhoneText(to, 'Got you. A few students are ahead of you — stay in this chat, I will answer.');
+        } catch { /* ignore */ }
+      },
+    });
+    if (!q.accepted) {
+      const phone = String(from || '').replace(/\D/g, '');
+      const now = Date.now();
+      if (now - (lastDropAt.get(phone) || 0) > 60000) {
+        lastDropAt.set(phone, now);
+        try { await sendPhoneText(jid, 'One question at a time. I am on it.'); } catch { /* ignore */ }
+      }
+    }
   } catch (e) {
     console.error('phone-link incoming', e.message);
   }
@@ -192,6 +230,7 @@ async function connect() {
   }
 
   fs.mkdirSync(authDir, { recursive: true });
+  try { await restoreSession(authDir); } catch (e) { console.warn('restore session', e.message); }
   const { state: authState, saveCreds } = await useMultiFileAuthState(authDir);
 
   let version;
@@ -212,6 +251,7 @@ async function connect() {
     logger: pino({ level: 'silent' }),
     markOnlineOnConnect: true,
     syncFullHistory: false,
+    keepAliveIntervalMs: 25_000,
     connectTimeoutMs: 60_000,
     defaultQueryTimeoutMs: 60_000,
   };
@@ -222,7 +262,10 @@ async function connect() {
   sock = makeWASocket(sockOpts);
   connecting = false;
 
-  sock.ev.on('creds.update', saveCreds);
+  sock.ev.on('creds.update', async () => {
+    try { await saveCreds(); } catch (e) { console.warn('saveCreds', e.message); }
+    schedulePersist(authDir, learnersFile);
+  });
 
   sock.ev.on('connection.update', async (update) => {
     const { connection, lastDisconnect, qr } = update;
@@ -261,6 +304,7 @@ async function connect() {
         const id = sock.user?.id || '';
         state.me = String(id).split(':')[0].split('@')[0] || phoneDigits;
         console.log(`PHONE LINK live as +${state.me}`);
+        schedulePersist(authDir, learnersFile);
         try {
           await sock.sendMessage(`${phoneDigits}@s.whatsapp.net`, {
             text: '✅ ACADEX is live 24/7 on this WhatsApp. Students can just say hi — no code word. Keep this phone number; you do not need to stay in the chat.',
@@ -280,7 +324,7 @@ async function connect() {
           state.status = 'logged-out';
           state.pairingCode = null;
           wipeSessionKeepQr();
-          scheduleRestart(8000);
+          clearRemoteSession(authDir).finally(() => scheduleRestart(8000));
         } else {
           scheduleRestart(code === 408 ? 20000 : 8000);
         }
@@ -290,13 +334,14 @@ async function connect() {
     }
   });
 
-  sock.ev.on('messages.upsert', async ({ messages }) => {
-    for (const msg of messages || []) await handleIncoming(msg);
+  sock.ev.on('messages.upsert', ({ messages }) => {
+    for (const msg of messages || []) handleIncoming(msg);
   });
 }
 
 export async function startPhoneLink(opts = {}) {
   authDir = opts.authDir;
+  learnersFile = opts.learnersFile || '';
   phoneDigits = String(opts.phone || '').replace(/\D/g, '');
   onMessage = opts.onMessage || onMessage;
   if (!authDir) throw new Error('authDir required');
