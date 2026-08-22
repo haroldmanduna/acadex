@@ -10,10 +10,11 @@ import { askTeacher } from './teacher.js';
 import {
   initLearners, getLearner, touchLearner, rememberTopic,
   extractProfile, card, parentReport, allLearners, nextNeed,
+  bumpStreak, appendChat, savedChat,
 } from './learner.js';
 import { startMock, formatMockQ, scoreAnswer, finishMock } from './mock.js';
 import { parseNumbered, markAgainstPaper, markComposition, looksLikeEssay } from './marker.js';
-import { detectLang, ttsFile, wantsVoice, stripVoiceAsk, speechScript } from './voice.js';
+import { detectLang, askedLanguage, ttsFile, wantsVoice, stripVoiceAsk, speechScript } from './voice.js';
 import { examLock, looksLikeExam } from './zimsec.js';
 import { wantsDiagram, renderDiagram, figureKind } from './diagrams.js';
 import { isBusy } from './inbox.js';
@@ -89,8 +90,10 @@ export function enterBotMode(phone, minutes) {
     ...prev,
     botModeUntil: Date.now() + minutes * 60 * 1000,
     at: new Date().toISOString(),
-    lang: prev.lang || getLearner(phone).lang || 'sn',
-    chat: prev.chat || [],
+    lang: prev.lang || getLearner(phone).lang || 'en',
+    chat: (prev.chat && prev.chat.length) ? prev.chat : (savedChat(phone) || []),
+    lastReply: prev.lastReply || getLearner(phone).lastReply || '',
+    lastSpeak: prev.lastSpeak || getLearner(phone).lastSpeak || '',
     mock: prev.mock || null,
   });
 }
@@ -102,13 +105,14 @@ export function setLang(phone, lang) {
   touchLearner(phone, { lang });
 }
 export function getLang(phone) {
-  return (sessions.get(phone) || {}).lang || getLearner(phone).lang || 'sn';
+  return (sessions.get(phone) || {}).lang || getLearner(phone).lang || 'en';
 }
 
 function pushChat(phone, role, content) {
   const s = sessions.get(phone) || {};
-  s.chat = (s.chat || []).concat({ role, content: String(content || '').slice(0, 1800) }).slice(-12);
+  s.chat = (s.chat || []).concat({ role, content: String(content || '').slice(0, 1800) }).slice(-30);
   sessions.set(phone, s);
+  appendChat(phone, role, content);
 }
 
 function buildContext(text, bank, phone) {
@@ -146,9 +150,10 @@ function cleanWhatsApp(s) {
 function storeLast(phone, text, speak) {
   const s = sessions.get(phone) || {};
   s.lastReply = String(text || '').slice(0, 2000);
-  if (speak) s.lastSpeak = String(speak).slice(0, 400);
+  if (speak) s.lastSpeak = String(speak).slice(0, 1400);
   else s.lastSpeak = s.lastReply;
   sessions.set(phone, s);
+  touchLearner(phone, { lastReply: s.lastReply, lastSpeak: s.lastSpeak });
 }
 
 async function attachVoice(replies, phone, spoken) {
@@ -259,17 +264,18 @@ export function findQuestion(bank, text) {
 function personality(text, phone) {
   const L = getLearner(phone);
   const t = String(text || '').toLowerCase();
+  const streakBit = L.streak ? ` Day ${L.streak} streak.` : '';
   if (/your name|who are you|who r u|who is this|zita rako|unonzi ani|comment tu t.?appelles|whats your name|what.?s your name|ninani|ngubani/.test(t)) {
     return L.name
-      ? `${L.name}, I'm ACADEX — your ZIMSEC tutor. We last touched ${L.lastTopic || 'the work'}. What shall we do now?`
-      : "I'm ACADEX — your ZIMSEC tutor on WhatsApp. What should I call you?";
+      ? `${L.name}, ACADEX. Last topic: ${L.lastTopic || 'none yet'}.${streakBit} Send the question.`
+      : 'ACADEX. What should I call you? Then send the question.';
   }
   if (/^(hi|hello|hey|hie|yo|mhoro|salut|bonjour|sawubona|hola|sup|morning|evening|good morning|good evening)\b/.test(t) && t.split(/\s+/).length <= 6) {
     if (L.name && L.lastTopic) {
-      return `Hey ${L.name} — ACADEX. Last time we were on ${L.lastTopic}. Want to pick that up, start a mock, or send a new question?`;
+      return `${L.name}.${streakBit} Last time: ${L.lastTopic}. Send the next question or type mock.`;
     }
-    if (L.name) return `Hey ${L.name} — ACADEX here. Mock, mark, or a question?`;
-    return 'Hey — ACADEX here. What should I call you, and what are we working on?';
+    if (L.name) return `${L.name}.${streakBit} Send the question — equation, topic, or a full exam sentence.`;
+    return 'Hello. ACADEX. Send the question. English until you ask for another language.';
   }
   return null;
 }
@@ -341,11 +347,18 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
 
   if (!tl) return { replies: [], ignored: true };
   enterBotMode(digits, sessionMinutes);
+  bumpStreak(digits);
 
   const prof = extractProfile(text);
   if (prof.name || prof.grade || prof.parent) touchLearner(digits, prof);
-  const guessed = detectLang(text, getLang(digits));
-  if (guessed) setLang(digits, guessed);
+  const asked = askedLanguage(text);
+  if (asked) setLang(digits, asked);
+  if (asked && tl.split(/\s+/).length <= 8 && /^(speak|reply|switch|use|in|chi ?shona|shona|ndebele|english|chirungu)\b/i.test(tl)) {
+    if (asked === 'sn') say('Zvakanaka. Kubva zvino ndinotaura chiShona. Tumira mubvunzo.');
+    else if (asked === 'nd') say('Kulungile. Ngizophendula ngesiNdebele. Thumela umbuzo.');
+    else say('Switched to English. Send the question.');
+    return { replies };
+  }
 
   if (tl.startsWith('admin') && adminPhone && digits === adminPhone) {
     const parts = text.trim().split(/\s+/);

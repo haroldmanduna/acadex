@@ -3,6 +3,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { loadBank, handleTurn, resetFree } from './tutor.js';
 import { solveMath, explainScience, helpEnglish, teachConcept, isConfused, searchBank, fallback } from './brain.js';
+import { askedLanguage } from './voice.js';
+import { bumpStreak, getLearner, appendChat, savedChat, harareDay } from './learner.js';
 import { wantsVoice, ttsFile, speechScript, chunkSpeech } from './voice.js';
 import { commandWord } from './zimsec.js';
 import { wantsDiagram, figureKind } from './diagrams.js';
@@ -105,6 +107,22 @@ const br = await handleTurn({ from: '263771000099', text: "I don't understand be
 expect('bearings not mean', /bearing|north|clockwise/i.test(firstText(br)) && !/mean of 6/i.test(firstText(br)), firstText(br).slice(0, 160));
 const sh = await handleTurn({ from: '263771000100', text: 'Show that (x+3)^2 = x^2 + 6x + 9', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
 expect('show that turn', /9/.test(firstText(sh)) && !/dump the menu/i.test(firstText(sh)), firstText(sh).slice(0, 160));
+
+const gHi = await handleTurn({ from: '263771000401', text: 'hi', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+const gMh = await handleTurn({ from: '263771000402', text: 'mhoro', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+expect('greeting english', /hello|english|send the question/i.test(firstText(gHi)) && /hello|english|send the question/i.test(firstText(gMh)) && !/zvakanaka|ndinotaura/i.test(firstText(gHi)+firstText(gMh)), firstText(gHi)+' | '+firstText(gMh));
+expect('asked shona', askedLanguage('speak Shona') === 'sn' && askedLanguage('hi') === null && askedLanguage('mhoro') === null, '');
+const pStreak = '263771000301';
+bumpStreak(pStreak);
+const s1 = getLearner(pStreak).streak;
+bumpStreak(pStreak);
+expect('streak same day', s1 === 1 && getLearner(pStreak).streak === 1, String(getLearner(pStreak).streak));
+appendChat(pStreak, 'user', 'pythagoras yesterday');
+expect('chat saved', (savedChat(pStreak) || []).some(m => /pythagoras/.test(m.content)), '');
+const longA = 'The marker wants working. '.repeat(40);
+expect('speech long', speechScript(longA, 'Rudo').length > 700, String(speechScript(longA, 'Rudo').length));
+expect('chunks more', chunkSpeech(longA + ' End.', 80).length >= 5, String(chunkSpeech(longA + ' End.', 80).length));
+
 if (fail.length) {
   console.error('FAIL', fail.length);
   fail.forEach(f => console.error(' -', f));

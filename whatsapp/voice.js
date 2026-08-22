@@ -41,21 +41,31 @@ export function stripVoiceAsk(text) {
     .trim();
 }
 
+
+export function askedLanguage(text) {
+  const t = String(text || '').toLowerCase();
+  if (/\b(speak|reply|answer|teach|switch|use|in)\b.{0,20}\b(shona|chishona)\b/.test(t)
+    || /^(shona|chishona)$/.test(t.trim())
+    || /\bchi ?shona\b/.test(t)) return 'sn';
+  if (/\b(speak|reply|answer|teach|switch|use|in)\b.{0,20}\b(ndebele|isindebele)\b/.test(t)
+    || /^(ndebele|isindebele)$/.test(t.trim())) return 'nd';
+  if (/\b(speak|reply|answer|teach|switch|use|in)\b.{0,20}\benglish\b/.test(t)
+    || /\bchirungu\b/.test(t)
+    || /^(english)$/.test(t.trim())) return 'en';
+  if (/\b(speak|reply|switch|in)\b.{0,16}\b(xhosa)\b/.test(t)) return 'xh';
+  if (/\b(speak|reply|switch|in)\b.{0,16}\b(sotho)\b/.test(t)) return 'st';
+  if (/\b(speak|reply|switch|in)\b.{0,16}\b(tswana)\b/.test(t)) return 'tn';
+  if (/\b(speak|reply|switch|in)\b.{0,16}\b(venda)\b/.test(t)) return 've';
+  if (/\b(speak|reply|switch|in)\b.{0,16}\b(chewa|nyanja)\b/.test(t)) return 'ny';
+  if (/\b(speak|reply|switch|in)\b.{0,16}\b(french|francais|français)\b/.test(t)) return 'fr';
+  if (/\b(speak|reply|switch|in)\b.{0,16}\b(portuguese)\b/.test(t)) return 'pt';
+  return null;
+}
+
 export function detectLang(text, fallback = 'en') {
-  const t = String(text || '');
-  if (/\b(bonjour|salut|merci|je suis)\b/i.test(t)) return 'fr';
-  if (/\b(ola|obrigad|voce)\b/i.test(t)) return 'pt';
-  if (/\b(sawubona|yebo|ngiyabonga|isindebele|ndebele)\b/i.test(t)) return 'nd';
-  if (/\b(ndinonzi|ndapota|chishona|mashizha|nekuti)\b/i.test(t)) return 'sn';
-  if (/^mhoro\b/i.test(t.trim()) && t.split(/\s+/).length <= 4) return 'sn';
-  if (/\b(xhosa|molo)\b/i.test(t)) return 'xh';
-  if (/\b(sotho|lumela)\b/i.test(t)) return 'st';
-  if (/\b(tswana|dumela)\b/i.test(t)) return 'tn';
-  if (/\b(venda|ndaa)\b/i.test(t)) return 've';
-  if (/\b(chewa|nyanja|moni)\b/i.test(t)) return 'ny';
-  if (/\b(english|chirungu)\b/i.test(t) && t.split(/\s+/).length < 8) return 'en';
-  if (/^[A-Za-z0-9 ,.'’?!+\-=x/()]+$/.test(t) && t.split(/\s+/).length > 4) return 'en';
-  return fallback;
+  const asked = askedLanguage(text);
+  if (asked) return asked;
+  return fallback || 'en';
 }
 
 export function speechScript(answer, name) {
@@ -74,10 +84,10 @@ export function speechScript(answer, name) {
   let core = t;
   if (boxed) core = 'x equals ' + boxed[0].split('=')[1].trim() + '. ' + t;
   core = core.replace(/\s+/g, ' ').trim();
-  return (who + core).slice(0, 720);
+  return (who + core).slice(0, 1400);
 }
 
-export function chunkSpeech(s, max = 170) {
+export function chunkSpeech(s, max = 180) {
   const parts = [];
   let left = String(s || '').trim();
   while (left.length) {
@@ -88,15 +98,15 @@ export function chunkSpeech(s, max = 170) {
     parts.push(left.slice(0, cut + 1).trim());
     left = left.slice(cut + 1).trim();
   }
-  return parts.filter(Boolean).slice(0, 5);
+  return parts.filter(Boolean).slice(0, 8);
 }
 
 export function ttsCodeForScript(script, langHint) {
+  const hint = VOICE[langHint];
+  if (hint) return hint.tts;
   if (/\b(ndi|kuti|nekuti|shizha|mubvunzo|mhoro|ndinonzi)\b/i.test(script)) return 'sn';
   if (/\b(yebo|ukuthi|sawubona)\b/i.test(script)) return 'zu';
   if (/\b(bonjour|merci)\b/i.test(script)) return 'fr';
-  const hint = VOICE[langHint];
-  if (hint && !/^[A-Za-z0-9 ,.'’?!x=\-]+$/.test(script)) return hint.tts;
   return 'en';
 }
 

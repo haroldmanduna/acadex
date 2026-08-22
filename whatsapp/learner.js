@@ -28,7 +28,7 @@ export function blankLearner(phone) {
   return {
     phone,
     name: '',
-    lang: '',
+    lang: 'en',
     grade: '',
     age: '',
     school: '',
@@ -41,6 +41,12 @@ export function blankLearner(phone) {
     mocks: [],
     asked: 0,
     namedAt: null,
+    streak: 0,
+    bestStreak: 0,
+    lastDay: '',
+    chat: [],
+    lastReply: '',
+    lastSpeak: '',
     updated: new Date().toISOString(),
   };
 }
@@ -48,7 +54,49 @@ export function blankLearner(phone) {
 export function getLearner(phone) {
   const p = String(phone || '').replace(/\D/g, '');
   if (!cache.has(p)) cache.set(p, blankLearner(p));
-  return cache.get(p);
+  const u = cache.get(p);
+  if (!u.lang) u.lang = 'en';
+  if (!u.chat) u.chat = [];
+  if (u.streak == null) u.streak = 0;
+  return u;
+}
+
+export function harareDay(d = new Date()) {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Harare',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(d);
+}
+
+export function bumpStreak(phone) {
+  const u = getLearner(phone);
+  const today = harareDay();
+  if (u.lastDay === today) return u;
+  const y = new Date();
+  y.setDate(y.getDate() - 1);
+  const yest = harareDay(y);
+  const next = u.lastDay === yest ? (u.streak || 0) + 1 : 1;
+  return touchLearner(phone, {
+    streak: next,
+    bestStreak: Math.max(u.bestStreak || 0, next),
+    lastDay: today,
+  });
+}
+
+export function appendChat(phone, role, content) {
+  const u = getLearner(phone);
+  const chat = (u.chat || []).concat({
+    role,
+    content: String(content || '').slice(0, 1600),
+    at: new Date().toISOString(),
+  }).slice(-30);
+  return touchLearner(phone, { chat });
+}
+
+export function savedChat(phone) {
+  return getLearner(phone).chat || [];
 }
 
 export function touchLearner(phone, patch) {
