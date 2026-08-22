@@ -11,6 +11,7 @@ import {
   initLearners, getLearner, touchLearner, rememberTopic,
   extractProfile, card, parentReport, allLearners, nextNeed,
   bumpStreak, appendChat, savedChat,
+  awardMerit, maybeStreakPrize, prizeBook, meritSlip, examinerChallenge, rankOf,
 } from './learner.js';
 import { startMock, formatMockQ, scoreAnswer, finishMock } from './mock.js';
 import { parseNumbered, markAgainstPaper, markComposition, looksLikeEssay } from './marker.js';
@@ -205,7 +206,7 @@ async function teach(digits, text, bank, say, replies) {
   });
   if (!taught) return false;
   const math = solveMath(text);
-  say(taught);
+  say(glue(taught, awardPractice(digits)));
   if (math) storeLast(digits, taught, `x equals ${math.answer}. ${math.steps.map(s => s.t + ' ' + (s.d || '')).join('. ')}`);
   pushChat(digits, 'user', text);
   pushChat(digits, 'assistant', taught);
@@ -265,28 +266,63 @@ function personality(text, phone) {
   const L = getLearner(phone);
   const t = String(text || '').toLowerCase();
   const streakBit = L.streak ? ` Day ${L.streak} streak.` : '';
+  const r = rankOf(L);
+  const rankBit = r.id !== 'new' ? ` ${r.title}.` : '';
+  const weakBit = L.weak?.[0] ? ` Last leak: ${L.weak[0]}.` : '';
   if (/your name|who are you|who r u|who is this|zita rako|unonzi ani|comment tu t.?appelles|whats your name|what.?s your name|ninani|ngubani/.test(t)) {
     return L.name
-      ? `${L.name}, ACADEX. Last topic: ${L.lastTopic || 'none yet'}.${streakBit} Send the question.`
+      ? `${L.name}, ACADEX.${rankBit} Last topic: ${L.lastTopic || 'none yet'}.${streakBit} I mark as the paper marks. Send the question.`
       : 'ACADEX. What should I call you? Then send the question.';
   }
   if (/^(hi|hello|hey|hie|yo|mhoro|salut|bonjour|sawubona|hola|sup|morning|evening|good morning|good evening)\b/.test(t) && t.split(/\s+/).length <= 6) {
     if (L.name && L.lastTopic) {
-      return `${L.name}.${streakBit} Last time: ${L.lastTopic}. Send the next question or type mock.`;
+      return `${L.name}.${streakBit}${rankBit} Last time: ${L.lastTopic}.${weakBit} I want A work today, not a pass. Send the next question or type mock.`;
     }
-    if (L.name) return `${L.name}.${streakBit} Send the question — equation, topic, or a full exam sentence.`;
+    if (L.name) return `${L.name}.${streakBit}${rankBit} I have your file. Send the question — equation, topic, or a full exam sentence. I mark as the paper marks.`;
     return 'Hello. ACADEX. Send the question. English until you ask for another language.';
   }
   return null;
 }
 
 function helpText() {
-  return `ACADEX — ZIMSEC teacher. I answer the way the marker wants (command word → working → final answer).
+  return `ACADEX — ZIMSEC teacher. I mark as the paper marks. A / Distinction is the target, not a pass.
 
 Send the question. Say VOICE only if you want a voice note of that working.
 mock / full mock / mark 1. … / Download 2024 Maths Paper 1
+PRIZES · SLIP · CHALLENGE
 
 Original ACADEX practice — not leaked scripts.`;
+}
+
+function isProfileOnly(text, prof) {
+  if (!prof || !(prof.name || prof.grade || prof.age || prof.school)) return false;
+  const rest = String(text || '')
+    .replace(/(?:ndinonzi|zita rangu(?: ndi)?|ngingu|i(?:'?m| am)|my name is|ndini)\s+[A-Za-zÀ-ÿ]{2,20}/ig, ' ')
+    .replace(/\b(?:form|giredhi|grade)\s*[1-7]\b/ig, ' ')
+    .replace(/\bo-?level\b/ig, ' ')
+    .replace(/\ba-?level\b/ig, ' ')
+    .replace(/\b(?:i(?:'?m| am)|ndine|ndiri)\s*\d{1,2}\b/ig, ' ')
+    .replace(/\b\d{1,2}\s*(?:years? old|yrs?|makore)\b/ig, ' ')
+    .replace(/\b(?:school|chikoro)\s*(?:is|:)?\s*[A-Za-z][A-Za-z0-9 .'-]{2,40}/ig, ' ')
+    .replace(/[^a-z0-9]+/gi, ' ')
+    .trim();
+  return rest.split(/\s+/).filter(Boolean).length <= 2;
+}
+
+function glue(text, award) {
+  if (!award?.line) return text;
+  return String(text || '').trim() + '\n\n' + award.line;
+}
+
+function awardPractice(phone) {
+  return awardMerit(phone, { stars: 1, reason: 'desk work' });
+}
+
+function awardMockScore(phone, pct) {
+  if (pct >= 80) return awardMerit(phone, { stars: 5, house: 2, badge: 'Mock distinction', announce: true });
+  if (pct >= 70) return awardMerit(phone, { stars: 3, house: 1, badge: 'Mock pass', announce: true });
+  if (pct >= 50) return awardMerit(phone, { stars: 1, announce: true });
+  return null;
 }
 
 function predictorText(bank) {
@@ -313,17 +349,38 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   let text = incoming;
   const replies = [];
   const digits = String(from || '').replace(/\D/g, '');
+  let pendingPrize = null;
   const say = (t) => {
     let clean = cleanWhatsApp(t);
     if (!clean && wantsDiagram(incoming)) {
       clean = 'Here is the sketch. The little square is the right angle. The longest side opposite that square is the hypotenuse.';
     }
     if (!clean) return;
+    if (pendingPrize?.line) {
+      clean = clean + '\n\n' + pendingPrize.line;
+      pendingPrize = null;
+    }
     replies.push({ type: 'text', text: clean });
     storeLast(digits, clean);
   };
+  const incomingAsk = askedLanguage(incoming);
+  const langRest = String(incoming || '').toLowerCase()
+    .replace(/\b(speak|reply|answer|teach|switch|use|in|please|ndapota|chi ?shona|shona|ndebele|isindebele|english|chirungu)\b/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+  if (incomingAsk && !langRest) {
+    enterBotMode(digits, sessionMinutes);
+    bumpStreak(digits);
+    pendingPrize = maybeStreakPrize(digits);
+    setLang(digits, incomingAsk);
+    if (incomingAsk === 'sn') say('Zvakanaka. Kubva zvino ndinotaura chiShona. Tumira mubvunzo.');
+    else if (incomingAsk === 'nd') say('Kulungile. Ngizophendula ngesiNdebele. Thumela umbuzo.');
+    else say('Switched to English. Send the question.');
+    return { replies };
+  }
+
   let work = String(text || '');
-  const askVoice = wantsVoice(work);
+  const askVoice = wantsVoice(work) && !incomingAsk;
   if (askVoice) {
     const stripped = stripVoiceAsk(work);
     const langOnly = work.toLowerCase().match(/^voice\s+(\w+)$/);
@@ -348,15 +405,46 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   if (!tl) return { replies: [], ignored: true };
   enterBotMode(digits, sessionMinutes);
   bumpStreak(digits);
+  pendingPrize = maybeStreakPrize(digits);
 
   const prof = extractProfile(text);
-  if (prof.name || prof.grade || prof.parent) touchLearner(digits, prof);
+  if (Object.keys(prof).length) touchLearner(digits, prof);
   const asked = askedLanguage(text);
   if (asked) setLang(digits, asked);
   if (asked && tl.split(/\s+/).length <= 8 && /^(speak|reply|switch|use|in|chi ?shona|shona|ndebele|english|chirungu)\b/i.test(tl)) {
     if (asked === 'sn') say('Zvakanaka. Kubva zvino ndinotaura chiShona. Tumira mubvunzo.');
     else if (asked === 'nd') say('Kulungile. Ngizophendula ngesiNdebele. Thumela umbuzo.');
     else say('Switched to English. Send the question.');
+    return { replies };
+  }
+
+  if (isProfileOnly(text, prof) && tl.split(/\s+/).length <= 12) {
+    const L = getLearner(digits);
+    const bits = [L.name || 'I have that'].filter(Boolean);
+    if (L.grade) bits.push(L.grade);
+    if (L.school) bits.push(L.school);
+    const ack = `${bits.join('. ')}. On the file. I want an A, not a pass. Send the first question — equation, topic, or a full exam sentence.`;
+    say(ack);
+    pushChat(digits, 'user', text);
+    pushChat(digits, 'assistant', ack);
+    return { replies };
+  }
+
+  if (/^(prizes|prize|stars|rank|merit book)$/i.test(tl)) {
+    say(prizeBook(digits));
+    return { replies };
+  }
+  if (/^(slip|merit slip|certificate)$/i.test(tl)) {
+    say(meritSlip(digits));
+    return { replies };
+  }
+  if (/^(challenge|examiner|harder)$/i.test(tl)) {
+    const L = getLearner(digits);
+    if (!L.challengeReady && (L.stars || 0) < 1 && (L.asked || 0) < 1) {
+      say((L.name ? L.name + '. ' : '') + 'Do the first question properly. Then you earn the examiner question. A is the target.');
+      return { replies };
+    }
+    say(examinerChallenge(digits));
     return { replies };
   }
 
@@ -373,7 +461,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
       say(card(target) || 'No file yet.');
     } else if (parts[1] === 'class' || parts[1] === 'report') {
       const rows = allLearners().slice(0, 20).map(u =>
-        `${u.name || u.phone} · asked ${u.asked || 0} · mock ${u.lastMock ? u.lastMock.score + '/' + u.lastMock.total : '—'} · weak ${(u.weak || [])[0] || '—'}`
+        `${u.name || u.phone} · ${rankOf(u).title} · ${u.stars || 0}★ · asked ${u.asked || 0} · mock ${u.lastMock ? u.lastMock.score + '/' + u.lastMock.total : '—'} · weak ${(u.weak || [])[0] || '—'}`
       );
       say(rows.length ? `Class snapshot\n${rows.join('\n')}` : 'No learners yet.');
     } else {
@@ -390,14 +478,14 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
       sess.mock = null;
       sessions.set(digits, sess);
       touchLearner(digits, { lastMock: { score: fin.score, total: fin.total, subject: fin.text.slice(0, 40) } });
-      say(fin.text);
+      say(glue(fin.text, awardMockScore(digits, fin.pct)));
       return { replies };
     }
     if (Date.now() > sess.mock.endsAt) {
       const fin = finishMock(sess.mock);
       sess.mock = null;
       sessions.set(digits, sess);
-      say('Time. ' + fin.text);
+      say(glue('Time. ' + fin.text, awardMockScore(digits, fin.pct)));
       return { replies };
     }
     const q = sess.mock.qs[sess.mock.i];
@@ -410,11 +498,13 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
       sess.mock = null;
       sessions.set(digits, sess);
       touchLearner(digits, { lastMock: { score: fin.score, total: fin.total, subject: 'mock' } });
-      say((sc.skip ? 'Skipped.\n' : (sc.ok ? '✓\n' : `✗ Answer was ${sc.correct}\n`)) + fin.text);
+      if (sc.ok) awardMerit(digits, { stars: 1, announce: false });
+      say(glue((sc.skip ? 'Skipped.\n' : (sc.ok ? '✓\n' : `✗ Answer was ${sc.correct}\n`)) + fin.text, awardMockScore(digits, fin.pct)));
       incrementUse(digits);
       return { replies, increment: true };
     }
     sessions.set(digits, sess);
+    if (sc.ok) awardMerit(digits, { stars: 1, announce: false });
     say(sc.skip ? 'Skipped.' : (sc.ok ? '✓ Keep going.' : `✗ It was ${String(sc.correct).slice(0, 80)}. Next:`));
     const nxt = pushMockQ(sess.mock, say);
     if (nxt.expired) {
@@ -431,7 +521,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     if (mock.error) { say(mock.error); return { replies }; }
     sess.mock = mock;
     sessions.set(digits, sess);
-    say(`Starting: ${mock.title}\nI will send one question at a time. No calculator on 4004/1.`);
+    say(`Starting: ${mock.title}\nI will send one question at a time. No calculator on 4004/1. A / Distinction is the target — a pass is not enough.`);
     pushMockQ(mock, say);
     return { replies };
   }
@@ -462,7 +552,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     if (nums.length && paper) {
       const marked = markAgainstPaper(paper, nums);
       if (marked) {
-        say(marked.text);
+        say(glue(marked.text, awardMockScore(digits, marked.pct)));
         marked.weak.forEach(w => rememberTopic(digits, w, false));
         incrementUse(digits);
         return { replies, increment: true };
@@ -472,7 +562,8 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
 
   if (looksLikeEssay(text) || /^mark (essay|composition)/i.test(tl)) {
     const m = markComposition(text);
-    say(m.text);
+    const essayAward = /A/.test(m.band) ? awardMerit(digits, { stars: 2, house: 1, badge: '1122 band', announce: true }) : null;
+    say(glue(m.text, essayAward));
     rememberTopic(digits, 'Composition', m.words >= 280);
     incrementUse(digits);
     if (askVoice) await attachVoice(replies, digits, m.text);
@@ -545,7 +636,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
 
   const concept = teachConcept(text);
   if (concept) {
-    say(`${concept.title}\n\n${concept.answer}`);
+    say(glue(`${concept.title}\n\n${concept.answer}`, awardPractice(digits)));
     rememberTopic(digits, concept.title, true);
     incrementUse(digits);
     await attachDiagram(replies, incoming);
@@ -556,7 +647,9 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   const solved = solveMath(text);
   if (solved) {
     const body = formatMath(solved, lang);
-    say(body);
+    const L = getLearner(digits);
+    const who = L.name ? L.name + '. ' : '';
+    say(glue(who + body, awardPractice(digits)));
     rememberTopic(digits, 'Algebra', true);
     incrementUse(digits);
     if (askVoice) await attachVoice(replies, digits, body);
@@ -565,7 +658,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   }
   const sci = explainScience(text);
   if (sci) {
-    say(`${sci.title}\n\n${sci.answer}`);
+    say(glue(`${sci.title}\n\n${sci.answer}\n\n5006: command word first. State is short. Explain needs because.`, awardPractice(digits)));
     rememberTopic(digits, sci.title, true);
     incrementUse(digits);
     if (askVoice) await attachVoice(replies, digits, sci.answer);
@@ -573,14 +666,14 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   }
   const eng = helpEnglish(text);
   if (eng) {
-    say(`${eng.title}\n\n${eng.answer}`);
+    say(glue(`${eng.title}\n\n${eng.answer}\n\n1122: the command word is the mark scheme. I want A work.`, awardPractice(digits)));
     rememberTopic(digits, eng.title, true);
     incrementUse(digits);
     return { replies, increment: true };
   }
   const hit = (!isConfused(text) && searchBank(bank, text));
   if (hit) {
-    say(formatHit(hit));
+    say(glue(formatHit(hit), awardPractice(digits)));
     rememberTopic(digits, hit.qu.topic, true);
     incrementUse(digits);
     await attachDiagram(replies, incoming);

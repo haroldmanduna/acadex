@@ -4,9 +4,10 @@ import { fileURLToPath } from 'url';
 import { loadBank, handleTurn, resetFree } from './tutor.js';
 import { solveMath, explainScience, helpEnglish, teachConcept, isConfused, searchBank, fallback } from './brain.js';
 import { askedLanguage } from './voice.js';
-import { bumpStreak, getLearner, appendChat, savedChat, harareDay } from './learner.js';
+import { bumpStreak, getLearner, appendChat, savedChat, harareDay, awardMerit, rankOf, prizeBook, extractProfile } from './learner.js';
 import { wantsVoice, ttsFile, speechScript, chunkSpeech } from './voice.js';
 import { commandWord } from './zimsec.js';
+import { SYSTEM } from './teacher.js';
 import { wantsDiagram, figureKind } from './diagrams.js';
 
 process.env.DISABLE_LLM = '1';
@@ -122,6 +123,34 @@ expect('chat saved', (savedChat(pStreak) || []).some(m => /pythagoras/.test(m.co
 const longA = 'The marker wants working. '.repeat(40);
 expect('speech long', speechScript(longA, 'Rudo').length > 700, String(speechScript(longA, 'Rudo').length));
 expect('chunks more', chunkSpeech(longA + ' End.', 80).length >= 5, String(chunkSpeech(longA + ' End.', 80).length));
+
+expect('strict system', /Distinction|A-candidate|command word/i.test(SYSTEM) && /No sugarcoating/i.test(SYSTEM), SYSTEM.slice(0, 180));
+expect('system zimsec papers', /4004\/1/.test(SYSTEM) && /5006\/2/.test(SYSTEM) && /1122\/1/.test(SYSTEM), '');
+
+const pz = '263771000701';
+const rEq = await handleTurn({ from: pz, text: '2x+3=11', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+const eqTxt = firstText(rEq);
+expect('teach has 4', /4/.test(eqTxt), eqTxt.slice(0, 160));
+expect('teach wants A', /A work|method|4004/i.test(eqTxt), eqTxt.slice(0, 160));
+expect('star after work', getLearner(pz).stars >= 1, String(getLearner(pz).stars));
+const book = await handleTurn({ from: pz, text: 'PRIZES', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+const bookTxt = firstText(book);
+expect('prize book', /merit book|Stars:|Rank:/i.test(bookTxt) && !/\*\*/.test(bookTxt), bookTxt.slice(0, 180));
+const slip = await handleTurn({ from: pz, text: 'SLIP', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+expect('merit slip', /merit slip/i.test(firstText(slip)), firstText(slip).slice(0, 120));
+const ch = await handleTurn({ from: pz, text: 'CHALLENGE', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+expect('examiner challenge', /examiner|show that|working/i.test(firstText(ch)), firstText(ch).slice(0, 160));
+
+const named = '263771000801';
+await handleTurn({ from: named, text: 'Ndinonzi Rudo. Form 4.', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+const hiN = await handleTurn({ from: named, text: 'hi', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+expect('personal english hi', /rudo/i.test(firstText(hiN)) && /question|mock|A work|file/i.test(firstText(hiN)) && !/zvakanaka|ndinotaura/i.test(firstText(hiN)), firstText(hiN).slice(0, 180));
+const sw = await handleTurn({ from: named, text: 'speak Shona', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+expect('lang switch keeps name', getLearner(named).name === 'Rudo' && /zvakanaka|chishona/i.test(firstText(sw)), getLearner(named).name + ' | ' + firstText(sw).slice(0, 80));
+expect('not named shona', extractProfile('Shona').name !== 'Shona' && extractProfile('Ndinonzi Tadiwa').name === 'Tadiwa', JSON.stringify(extractProfile('Shona')));
+
+expect('rank prefect', rankOf({ stars: 16 }).title === 'Prefect' && rankOf({ stars: 0 }).title === 'New book' && rankOf({ stars: 90 }).title === 'Distinction', rankOf({ stars: 16 }).title);
+expect('book no stars markdown', !/\*\*/.test(prizeBook(named)), prizeBook(named).slice(0, 80));
 
 if (fail.length) {
   console.error('FAIL', fail.length);

@@ -47,8 +47,40 @@ export function blankLearner(phone) {
     chat: [],
     lastReply: '',
     lastSpeak: '',
+    stars: 0,
+    housePoints: 0,
+    rank: 'new',
+    badges: [],
+    prizes: [],
+    lastPrize: '',
+    justEarned: '',
+    prizeDay: '',
+    lastMistake: '',
+    challengeReady: false,
     updated: new Date().toISOString(),
   };
+}
+
+/** School-style ranks. Stars are ticks in the book — not coins. */
+export const RANKS = [
+  { min: 0, id: 'new', title: 'New book' },
+  { min: 6, id: 'monitor', title: 'Monitor' },
+  { min: 15, id: 'prefect', title: 'Prefect' },
+  { min: 30, id: 'head', title: 'Head Prefect' },
+  { min: 55, id: 'acandidate', title: 'A-candidate' },
+  { min: 90, id: 'distinction', title: 'Distinction' },
+];
+
+export function rankOf(u) {
+  const stars = Number(u?.stars) || 0;
+  let r = RANKS[0];
+  for (const row of RANKS) if (stars >= row.min) r = row;
+  return r;
+}
+
+export function nextRank(u) {
+  const stars = Number(u?.stars) || 0;
+  return RANKS.find(row => row.min > stars) || null;
 }
 
 export function getLearner(phone) {
@@ -58,6 +90,11 @@ export function getLearner(phone) {
   if (!u.lang) u.lang = 'en';
   if (!u.chat) u.chat = [];
   if (u.streak == null) u.streak = 0;
+  if (u.stars == null) u.stars = 0;
+  if (u.housePoints == null) u.housePoints = 0;
+  if (!Array.isArray(u.badges)) u.badges = [];
+  if (!Array.isArray(u.prizes)) u.prizes = [];
+  if (!u.rank) u.rank = rankOf(u).id;
   return u;
 }
 
@@ -115,10 +152,143 @@ export function rememberTopic(phone, topic, ok) {
   if (ok === false) {
     u.weak = [t, ...(u.weak || []).filter(x => x !== t)].slice(0, 8);
     u.strong = (u.strong || []).filter(x => x !== t);
+    u.lastMistake = t;
   } else if (ok === true) {
     u.strong = [t, ...(u.strong || []).filter(x => x !== t)].slice(0, 8);
   }
-  return touchLearner(phone, { lastTopic: u.lastTopic, weak: u.weak, strong: u.strong });
+  return touchLearner(phone, { lastTopic: u.lastTopic, weak: u.weak, strong: u.strong, lastMistake: u.lastMistake || '' });
+}
+
+export function awardMerit(phone, { stars = 0, house = 0, badge = '', reason = '', announce = 'auto' } = {}) {
+  const u = getLearner(phone);
+  const prevRank = rankOf(u);
+  const nextStars = Math.max(0, (u.stars || 0) + (Number(stars) || 0));
+  const nextHouse = Math.max(0, (u.housePoints || 0) + (Number(house) || 0));
+  const badges = [...(u.badges || [])];
+  const badgesAdded = [];
+  if (badge && !badges.includes(badge)) {
+    badges.push(String(badge).slice(0, 40));
+    badgesAdded.push(String(badge).slice(0, 40));
+  }
+  const newRank = rankOf({ stars: nextStars });
+  const rankUp = newRank.min > prevRank.min;
+  const today = harareDay();
+  const firstToday = u.prizeDay !== today && (Number(stars) || 0) > 0;
+  const milestone = (Number(stars) || 0) > 0 && nextStars > 0 && nextStars % 5 === 0;
+  const should = announce === true
+    || rankUp
+    || badgesAdded.length > 0
+    || (announce !== false && (firstToday || milestone));
+  const who = u.name || '';
+  const starWord = nextStars === 1 ? 'star' : 'stars';
+  let line = '';
+  if (rankUp) {
+    line = `${who ? who + '. ' : ''}You are ${newRank.title} now. Small prize for work that would take marks. Distinction is still the target. Type PRIZES.`;
+  } else if (badgesAdded.length) {
+    line = `${who ? who + '. ' : ''}Badge: ${badgesAdded[0]}. ${nextStars} ${starWord}. I still mark as the paper marks.`;
+  } else if (should && (Number(stars) || 0) > 0) {
+    line = `Merit star. ${nextStars} ${starWord}. Rank: ${newRank.title}. A is the target, not a pass.`;
+  }
+  const just = [u.justEarned, line || reason].filter(Boolean).join(' ').slice(0, 200);
+  touchLearner(phone, {
+    stars: nextStars,
+    housePoints: nextHouse,
+    rank: newRank.id,
+    badges: badges.slice(-12),
+    lastPrize: (line || reason || u.lastPrize || '').slice(0, 160),
+    justEarned: should ? just : (u.justEarned || ''),
+    prizeDay: (Number(stars) || 0) > 0 ? today : u.prizeDay,
+    challengeReady: u.challengeReady || rankUp || nextStars >= 6,
+    prizes: [...(u.prizes || []), (should && line) ? { at: new Date().toISOString(), line, stars: nextStars } : null]
+      .filter(Boolean)
+      .slice(-20),
+  });
+  return {
+    stars: nextStars,
+    housePoints: nextHouse,
+    rank: newRank,
+    prevRank,
+    rankUp,
+    badgesAdded,
+    announce: should,
+    line: should ? line : '',
+  };
+}
+
+export function maybeStreakPrize(phone) {
+  const u = getLearner(phone);
+  const s = u.streak || 0;
+  const have = u.badges || [];
+  if (s >= 30 && !have.includes('Month at the desk')) {
+    return awardMerit(phone, { stars: 5, house: 1, badge: 'Month at the desk', announce: true });
+  }
+  if (s >= 14 && !have.includes('14-day desk')) {
+    return awardMerit(phone, { stars: 3, badge: '14-day desk', announce: true });
+  }
+  if (s >= 7 && !have.includes('7-day desk')) {
+    return awardMerit(phone, { stars: 2, badge: '7-day desk', announce: true });
+  }
+  return null;
+}
+
+export function prizeBook(phone) {
+  const u = getLearner(phone);
+  const r = rankOf(u);
+  const nxt = nextRank(u);
+  const who = u.name || 'Student';
+  const badges = (u.badges || []).length ? u.badges.join(', ') : 'none yet';
+  const need = nxt
+    ? `${nxt.min - (u.stars || 0)} more stars to ${nxt.title}`
+    : 'Distinction held. Do not drop the standard.';
+  return `${who} — merit book
+Rank: ${r.title}
+Stars: ${u.stars || 0}
+House points: ${u.housePoints || 0}
+Streak: Day ${u.streak || 0} (best ${u.bestStreak || 0})
+Badges: ${badges}
+${need}
+
+Prizes are earned: correct mock items, marked scripts, days at the desk, work that would take marks.
+Not for saying hi. Not for guessing.
+Type SLIP for a parent merit slip. Type CHALLENGE for the examiner question.
+I want A / Distinction. A pass is not the finish.`;
+}
+
+export function meritSlip(phone) {
+  const u = getLearner(phone);
+  const r = rankOf(u);
+  return `ACADEX merit slip
+${u.name || 'Student'}${u.grade ? ' · ' + u.grade : ''}${u.school ? ' · ' + u.school : ''}
+Rank: ${r.title}
+Stars: ${u.stars || 0} · House points: ${u.housePoints || 0}
+Streak: Day ${u.streak || 0}
+Last topic: ${u.lastTopic || '—'}
+Weak: ${(u.weak || []).slice(0, 2).join(', ') || 'none logged'}
+
+This is earned work, not a sticker for turning up.
+Screenshot for your parent if you want. Next lesson: drill the weak topic.`;
+}
+
+export function examinerChallenge(phone) {
+  const u = getLearner(phone);
+  const who = u.name ? u.name + '. ' : '';
+  const weak = (u.weak && u.weak[0]) || '';
+  const last = (u.lastTopic || '').toLowerCase();
+  let q;
+  if (/photo|chloro|destarch|bio|cell|5006|science/.test(weak + ' ' + last)) {
+    q = 'STATE the word equation for photosynthesis. Then EXPLAIN why a destarched leaf is used before a starch test. [2 + 2]';
+  } else if (/1122|compos|summar|register|english/.test(weak + ' ' + last)) {
+    q = 'EXPLAIN, in two sentences, the difference between describe and explain. Then write the opening 40 words of a composition set at a kombi rank.';
+  } else if (/bearing/.test(weak + ' ' + last)) {
+    q = 'Point B is on a bearing of 060° from A. What is the bearing of A from B? Show the North lines. No calculator.';
+  } else {
+    q = 'Show that (x + 4)^2 = x^2 + 8x + 16. Then, without a calculator, find the value when x = 3. Working on the page.';
+  }
+  return `${who}Examiner question. This is the prize — harder work, not a toy.
+
+${q}
+
+Send your working. I mark as ZIMSEC marks: command word, method, units. A is the target.`;
 }
 
 export function extractProfile(text) {
@@ -126,7 +296,8 @@ export function extractProfile(text) {
   const out = {};
   const name = t.match(/(?:ndinonzi|zita rangu(?: ndi)?|ngingu|ngingu|i(?:'?m| am)|my name is|ndini)\s+([A-Za-zÀ-ÿ]{2,20})/i)
     || t.match(/^([A-Z][a-z]{2,20})$/);
-  if (name) out.name = name[1].replace(/[^A-Za-zÀ-ÿ]/g, '');
+  const blocked = /^(shona|chishona|ndebele|isindebele|english|chirungu|french|portuguese|sotho|tswana|venda|xhosa|chewa|nyanja|voice|acadex|hello|hi|form)$/i;
+  if (name && !blocked.test(name[1])) out.name = name[1].replace(/[^A-Za-zÀ-ÿ]/g, '');
   const g = t.match(/\b(?:form|giredhi|grade)\s*([1-7])\b/i);
   if (g) out.grade = /grade/i.test(t) && g[1] === '7' ? 'Grade 7' : `Form ${g[1]}`;
   if (/\bo-?level\b/i.test(t)) out.grade = 'Form 4 (O-Level)';
@@ -151,8 +322,17 @@ export function card(phone) {
   if (u.lastTopic) bits.push(`Last topic: ${u.lastTopic}`);
   if (u.weak?.length) bits.push(`Weak: ${u.weak.slice(0, 4).join(', ')}`);
   if (u.strong?.length) bits.push(`Strong: ${u.strong.slice(0, 3).join(', ')}`);
+  if (u.lastMistake) bits.push(`Last leak: ${u.lastMistake}`);
   if (u.lastMock) bits.push(`Last mock: ${u.lastMock.score}/${u.lastMock.total} (${u.lastMock.subject})`);
+  const rk = rankOf(u);
+  bits.push(`Rank: ${rk.title}`);
+  bits.push(`Stars: ${u.stars || 0}`);
+  if (u.housePoints) bits.push(`House points: ${u.housePoints}`);
+  if (u.streak) bits.push(`Streak: Day ${u.streak} (best ${u.bestStreak || u.streak})`);
+  if (u.badges?.length) bits.push(`Badges: ${u.badges.slice(0, 6).join(', ')}`);
+  if (u.lastPrize) bits.push(`Last prize: ${u.lastPrize}`);
   bits.push(`Questions this term: ${u.asked || 0}`);
+  bits.push('Target: A / Distinction. A pass is not the finish.');
   return bits.join('\n');
 }
 
@@ -172,15 +352,17 @@ export function parentReport(phone) {
   const mock = u.lastMock
     ? `Last mock: ${u.lastMock.score}/${u.lastMock.total} on ${u.lastMock.subject}.`
     : 'No timed mock yet this week.';
+  const r = rankOf(u);
   return `ACADEX parent note for ${who}
 
 ${mock}
 Work done: ${u.asked || 0} questions.
+Rank: ${r.title} · Stars: ${u.stars || 0} · Streak: Day ${u.streak || 0}
 Still shaky: ${weak}.
 Last topic: ${u.lastTopic || '—'}.
 
 This is practice (original ACADEX papers), not a leaked ZIMSEC script.
-Next: one short drill every day on the weak topic.`;
+Target is A / Distinction, not a pass. Next: one short drill every day on the weak topic.`;
 }
 
 export function allLearners() {
