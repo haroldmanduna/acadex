@@ -1,10 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { loadBank, handleTurn, resetFree } from './tutor.js';
+import { loadBank, handleTurn, resetFree, isChat } from './tutor.js';
 import { solveMath, explainScience, helpEnglish, teachConcept, isConfused, searchBank, fallback } from './brain.js';
 import { askedLanguage } from './voice.js';
-import { bumpStreak, getLearner, appendChat, savedChat, harareDay, awardMerit, rankOf, prizeBook, extractProfile } from './learner.js';
+import { bumpStreak, getLearner, appendChat, savedChat, harareDay, awardMerit, rankOf, prizeBook, extractProfile, touchLearner } from './learner.js';
 import { wantsVoice, ttsFile, speechScript, chunkSpeech } from './voice.js';
 import { commandWord } from './zimsec.js';
 import { SYSTEM } from './teacher.js';
@@ -39,7 +39,7 @@ function expect(name, cond, detail) {
 }
 
 const cases = [
-  ['hi', r => !r.ignored && /acadex|call you|working|mock/i.test(firstText(r))],
+  ['hi', r => !r.ignored && /here|talk|hello|english|acadex|question/i.test(firstText(r))],
   ['Ndinonzi Anesu. Form 4.', r => /anesu/i.test(firstText(r)) || !r.ignored],
   ['Help 2+2', r => /4/.test(firstText(r)) && !/PAPERS/.test(firstText(r))],
   ['2x+3=11', r => /4/.test(firstText(r))],
@@ -109,8 +109,12 @@ expect('bearings not mean', /bearing|north|clockwise/i.test(firstText(br)) && !/
 const sh = await handleTurn({ from: '263771000100', text: 'Show that (x+3)^2 = x^2 + 6x + 9', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
 expect('show that turn', /9/.test(firstText(sh)) && !/dump the menu/i.test(firstText(sh)), firstText(sh).slice(0, 160));
 
-const gHi = await handleTurn({ from: '263771000401', text: 'hi', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
-const gMh = await handleTurn({ from: '263771000402', text: 'mhoro', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+const gHiFrom = '263771009421';
+const gMhFrom = '263771009422';
+touchLearner(gHiFrom, { heardPrizes: false, name: '', lastTopic: '' });
+touchLearner(gMhFrom, { heardPrizes: false, name: '', lastTopic: '' });
+const gHi = await handleTurn({ from: gHiFrom, text: 'hi', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+const gMh = await handleTurn({ from: gMhFrom, text: 'mhoro', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
 expect('greeting english', /hello|english|send the question/i.test(firstText(gHi)) && /hello|english|send the question/i.test(firstText(gMh)) && !/zvakanaka|ndinotaura/i.test(firstText(gHi)+firstText(gMh)), firstText(gHi)+' | '+firstText(gMh));
 expect('first greeting prizes', /how prizes work|merit stars|house points|PRIZES/i.test(firstText(gHi)) && /Grade A/i.test(firstText(gHi)), firstText(gHi).slice(0, 280));
 expect('no rude greeting', !/not a pass|lonely number|do not relax|not a toy/i.test(firstText(gHi)+firstText(gMh)), (firstText(gHi)+firstText(gMh)).slice(0, 160));
@@ -126,7 +130,7 @@ const longA = 'The marker wants working. '.repeat(40);
 expect('speech long', speechScript(longA, 'Rudo').length > 700, String(speechScript(longA, 'Rudo').length));
 expect('chunks more', chunkSpeech(longA + ' End.', 80).length >= 5, String(chunkSpeech(longA + ' End.', 80).length));
 
-expect('strict system', /Grade A|A-candidate|command word/i.test(SYSTEM) && /No sugarcoating/i.test(SYSTEM) && !/A \/ Distinction/.test(SYSTEM), SYSTEM.slice(0, 180));
+expect('strict system', /Grade A|A-candidate|command word/i.test(SYSTEM) && /No sugarcoating/i.test(SYSTEM) && /Give them room|CONVERSATION|talk like/i.test(SYSTEM) && !/A \/ Distinction/.test(SYSTEM), SYSTEM.slice(0, 180));
 expect('system zimsec papers', /4004\/1/.test(SYSTEM) && /5006\/2/.test(SYSTEM) && /1122\/1/.test(SYSTEM), '');
 
 const pz = '263771000701';
@@ -146,11 +150,16 @@ expect('examiner challenge', /examiner|show that|working/i.test(firstText(ch)), 
 const named = '263771000801';
 await handleTurn({ from: named, text: 'Ndinonzi Rudo. Form 4.', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
 const hiN = await handleTurn({ from: named, text: 'hi', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
-expect('personal english hi', /rudo/i.test(firstText(hiN)) && /question|mock|A work|file/i.test(firstText(hiN)) && !/zvakanaka|ndinotaura/i.test(firstText(hiN)), firstText(hiN).slice(0, 180));
+expect('personal english hi', /rudo/i.test(firstText(hiN)) && /week|here|talk|start|question/i.test(firstText(hiN)) && !/zvakanaka|ndinotaura/i.test(firstText(hiN)), firstText(hiN).slice(0, 180));
 const sw = await handleTurn({ from: named, text: 'speak Shona', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
 expect('lang switch keeps name', getLearner(named).name === 'Rudo' && /zvakanaka|chishona/i.test(firstText(sw)), getLearner(named).name + ' | ' + firstText(sw).slice(0, 80));
 expect('not named shona', extractProfile('Shona').name !== 'Shona' && extractProfile('Ndinonzi Tadiwa').name === 'Tadiwa', JSON.stringify(extractProfile('Shona')));
+expect('tired not a name', !extractProfile("I'm tired").name && extractProfile('I am Tadiwa').name === 'Tadiwa', JSON.stringify(extractProfile("I'm tired")));
 
+expect('isChat hi', isChat('hi') && isChat('how are you') && isChat("I'm tired") && !isChat('2x+3=11') && !isChat("I don't understand bearings"), '');
+const tired = await handleTurn({ from: '263771000811', text: "I'm tired today", bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
+expect('room to talk', /here|week|school|talk|start|with you|how/i.test(firstText(tired)) && !/Send the question\.$/i.test(firstText(tired).trim()), firstText(tired).slice(0, 180));
+expect('chat no star', (getLearner('263771000811').stars || 0) === 0, String(getLearner('263771000811').stars));
 expect('rank prefect', rankOf({ stars: 16 }).title === 'Prefect' && rankOf({ stars: 0 }).title === 'New book' && rankOf({ stars: 90 }).title === 'Grade A', rankOf({ stars: 90 }).title);
 expect('book no stars markdown', !/\*\*/.test(prizeBook(named)), prizeBook(named).slice(0, 80));
 

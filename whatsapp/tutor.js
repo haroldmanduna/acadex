@@ -9,7 +9,7 @@ import {
 import { askTeacher } from './teacher.js';
 import {
   initLearners, getLearner, touchLearner, rememberTopic,
-  extractProfile, card, parentReport, allLearners, nextNeed,
+  extractProfile, extractLife, card, parentReport, allLearners, nextNeed,
   bumpStreak, appendChat, savedChat,
   awardMerit, maybeStreakPrize, prizeBook, prizeHow, meritSlip, examinerChallenge, rankOf,
 } from './learner.js';
@@ -194,25 +194,70 @@ async function attachDiagram(replies, text) {
   return false;
 }
 
+function isGreeting(text) {
+  const t = String(text || '').toLowerCase().trim();
+  return /^(hi|hello|hey|hie|yo|mhoro|salut|bonjour|sawubona|hola|sup|morning|evening|good morning|good evening)\b/.test(t)
+    && t.split(/\s+/).length <= 10;
+}
+
+export function isChat(text) {
+  const raw = String(text || '').trim();
+  const t = raw.toLowerCase();
+  if (!raw) return false;
+  if (solveMath(raw) || looksLikeExam(raw)) return false;
+  if (isConfused(raw)) return false;
+  if (explainScience(raw) && !/\bi (don'?t|hate|love|failed)\b/.test(t)) return false;
+  if (helpEnglish(raw) && /composition|summary|register|comprehension|essay/.test(t)) return false;
+  if (isGreeting(raw)) return true;
+  if (/how are you|how'?s (it|school|the week)|how is (it|school)|i('?m| am) (tired|sad|scared|worried|fine|ok|okay|lost|back)|i failed|i got a [a-eu]\b|thank(s| you)|ndatenda|see you|good ?night|good ?day|missed you|my teacher|at school|in hostel|can we talk|i want to talk|i need to talk|i'?m struggling|eish/.test(t)) return true;
+  if (raw.split(/\s+/).length <= 12 && !/\d/.test(raw) && !/(download|mock|prize|pdf|predictor|challenge|slip|voice)/i.test(t)) {
+    if (/^(ok|okay|yes|yeah|yebo|ehe|no|nope|hmm|lol|haha|sure|thanks|cool|alright|right|wow|eish|shame|fine)\b/.test(t)) return true;
+  }
+  return false;
+}
+
+function greetingFallback(phone) {
+  const L = getLearner(phone);
+  const first = !L.heardPrizes;
+  if (first) touchLearner(phone, { heardPrizes: true });
+  const prizes = first ? '\n\n' + prizeHow() : '';
+  const streakBit = L.streak ? ` Day ${L.streak}.` : '';
+  if (L.name && L.lastTopic) {
+    return `${L.name}.${streakBit} Last time we did ${L.lastTopic}. I'm here — tell me how you are, or we can pick up from there.` + prizes;
+  }
+  if (L.name) {
+    return `${L.name}.${streakBit} Good to have you. How is the week — or what do you want to start with?` + prizes;
+  }
+  return `Hello. I'm here. We can talk, or we can go straight into a question. English until you ask for another language.` + prizes;
+}
+
 async function teach(digits, text, bank, say, replies) {
   const s = sessions.get(digits) || {};
-  const taught = await askTeacher({
+  const chatting = isChat(text);
+  const L0 = getLearner(digits);
+  let taught = await askTeacher({
     history: s.chat || [],
     user: text,
     context: buildContext(text, bank, digits),
     learner: card(digits),
-    need: nextNeed(digits),
+    need: chatting ? (L0.name ? null : nextNeed(digits)) : nextNeed(digits),
     hurry: isBusy(),
+    chat: chatting,
   });
   if (!taught) return false;
+  if (chatting && !L0.heardPrizes) {
+    touchLearner(digits, { heardPrizes: true });
+    if (!/prize|merit star|house point/i.test(taught)) taught = String(taught).trim() + '\n\n' + prizeHow();
+  }
+  const academic = !chatting && (solveMath(text) || looksLikeExam(text) || explainScience(text) || helpEnglish(text) || teachConcept(text));
+  say(glue(taught, academic ? awardPractice(digits) : null));
   const math = solveMath(text);
-  say(glue(taught, awardPractice(digits)));
   if (math) storeLast(digits, taught, `x equals ${math.answer}. ${math.steps.map(s => s.t + ' ' + (s.d || '')).join('. ')}`);
   pushChat(digits, 'user', text);
   pushChat(digits, 'assistant', taught);
   incrementUse(digits);
   const topic = (explainScience(text) || helpEnglish(text) || {}).title || (solveMath(text) ? 'Algebra' : '');
-  if (topic) rememberTopic(digits, topic, true);
+  if (topic && !chatting) rememberTopic(digits, topic, true);
   return true;
 }
 
@@ -264,27 +309,14 @@ export function findQuestion(bank, text) {
 
 function personality(text, phone) {
   const L = getLearner(phone);
-  const t = String(text || '').toLowerCase();
+  const tl = String(text || '').toLowerCase();
   const streakBit = L.streak ? ` Day ${L.streak} streak.` : '';
   const r = rankOf(L);
   const rankBit = r.id !== 'new' ? ` ${r.title}.` : '';
-  const weakBit = L.weak?.[0] ? ` Last weak: ${L.weak[0]}.` : '';
-  const first = !L.heardPrizes;
-  const prizesBit = first ? '\n\n' + prizeHow() : '';
-  if (first && /^(hi|hello|hey|hie|yo|mhoro|salut|bonjour|sawubona|hola|sup|morning|evening|good morning|good evening)\b/.test(t)) {
-    touchLearner(phone, { heardPrizes: true });
-  }
-  if (/your name|who are you|who r u|who is this|zita rako|unonzi ani|comment tu t.?appelles|whats your name|what.?s your name|ninani|ngubani/.test(t)) {
+  if (/your name|who are you|who r u|who is this|zita rako|unonzi ani|comment tu t.?appelles|whats your name|what.?s your name|ninani|ngubani/.test(tl)) {
     return L.name
-      ? `${L.name}, ACADEX.${rankBit} Last topic: ${L.lastTopic || 'none yet'}.${streakBit} I mark as the paper marks. Send the question.`
-      : 'ACADEX. What should I call you? Then send the question.';
-  }
-  if (/^(hi|hello|hey|hie|yo|mhoro|salut|bonjour|sawubona|hola|sup|morning|evening|good morning|good evening)\b/.test(t) && t.split(/\s+/).length <= 6) {
-    if (L.name && L.lastTopic) {
-      return `${L.name}.${streakBit}${rankBit} Last time: ${L.lastTopic}.${weakBit} Send the next question or type mock.` + prizesBit;
-    }
-    if (L.name) return `${L.name}.${streakBit}${rankBit} Send the question — equation, topic, or a full exam sentence.` + prizesBit;
-    return 'Hello. ACADEX. Send the question. English until you ask for another language.' + prizesBit;
+      ? `${L.name}, ACADEX.${rankBit} Last topic: ${L.lastTopic || 'none yet'}.${streakBit} I'm here if you want to talk or work.`
+      : 'ACADEX. What should I call you?';
   }
   return null;
 }
@@ -414,6 +446,8 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
 
   const prof = extractProfile(text);
   if (Object.keys(prof).length) touchLearner(digits, prof);
+  const life = extractLife(text);
+  if (life) touchLearner(digits, { lastLife: life });
   const asked = askedLanguage(text);
   if (asked) setLang(digits, asked);
   if (asked && tl.split(/\s+/).length <= 8 && /^(speak|reply|switch|use|in|chi ?shona|shona|ndebele|english|chirungu)\b/i.test(tl)) {
@@ -424,11 +458,14 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   }
 
   if (isProfileOnly(text, prof) && tl.split(/\s+/).length <= 12) {
+    if (await teach(digits, text, bank, say, replies)) {
+      return { replies, increment: true };
+    }
     const L = getLearner(digits);
-    const bits = [L.name || 'I have that'].filter(Boolean);
+    const bits = [L.name || 'Alright'].filter(Boolean);
     if (L.grade) bits.push(L.grade);
     if (L.school) bits.push(L.school);
-    const ack = `${bits.join('. ')}. On the file. Send the first question — equation, topic, or a full exam sentence.`;
+    const ack = `${bits.join('. ')}. I'll remember. How has school been — or shall we start with something from class?`;
     say(ack);
     pushChat(digits, 'user', text);
     pushChat(digits, 'assistant', ack);
@@ -636,6 +673,14 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     }
     await attachDiagram(replies, incoming);
     return { replies, increment: true };
+  }
+
+  if (isChat(text) || isGreeting(text)) {
+    const g = greetingFallback(digits);
+    say(g);
+    pushChat(digits, 'user', text);
+    pushChat(digits, 'assistant', g);
+    return { replies };
   }
 
   const person = personality(text, digits);

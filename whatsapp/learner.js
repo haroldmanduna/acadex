@@ -58,6 +58,7 @@ export function blankLearner(phone) {
     lastMistake: '',
     challengeReady: false,
     heardPrizes: false,
+    lastLife: '',
     updated: new Date().toISOString(),
   };
 }
@@ -303,9 +304,10 @@ Send your working. I mark as ZIMSEC marks: command word, method, units. Aim: Gra
 export function extractProfile(text) {
   const t = String(text || '').trim();
   const out = {};
-  const name = t.match(/(?:ndinonzi|zita rangu(?: ndi)?|ngingu|ngingu|i(?:'?m| am)|my name is|ndini)\s+([A-Za-zÀ-ÿ]{2,20})/i)
+  const name = t.match(/(?:ndinonzi|zita rangu(?: ndi)?|ngingu|my name is|ndini)\s+([A-Za-zÀ-ÿ]{2,20})/i)
+    || t.match(/\b(?:I(?:'?m| am)|i(?:'?m| am))\s+([A-Z][a-zÀ-ÿ]{2,20})\b/)
     || t.match(/^([A-Z][a-z]{2,20})$/);
-  const blocked = /^(shona|chishona|ndebele|isindebele|english|chirungu|french|portuguese|sotho|tswana|venda|xhosa|chewa|nyanja|voice|acadex|hello|hi|form)$/i;
+  const blocked = /^(shona|chishona|ndebele|isindebele|english|chirungu|french|portuguese|sotho|tswana|venda|xhosa|chewa|nyanja|voice|acadex|hello|hi|form|tired|fine|scared|worried|lost|back|okay|sad|good|here)$/i;
   if (name && !blocked.test(name[1])) out.name = name[1].replace(/[^A-Za-zÀ-ÿ]/g, '');
   const g = t.match(/\b(?:form|giredhi|grade)\s*([1-7])\b/i);
   if (g) out.grade = /grade/i.test(t) && g[1] === '7' ? 'Grade 7' : `Form ${g[1]}`;
@@ -318,6 +320,18 @@ export function extractProfile(text) {
   const parent = t.match(/parent(?:\s*(?:is|number|:))?\s*(\+?263\d{9}|\d{9,12})/i);
   if (parent) out.parent = parent[1].replace(/\D/g, '');
   return out;
+}
+
+export function extractLife(text) {
+  const t = String(text || '').trim();
+  if (t.length < 6 || t.length > 240) return '';
+  if (/=/.test(t) || /\b(calculate|show that|solve|download|mock)\b/i.test(t)) return '';
+  if (/i (failed|got a [bcdeu]\b|am tired|i'?m tired|am scared|am worried|hate|want to drop|can't sleep|cant sleep)/i.test(t)
+    || /my (mum|mother|dad|father|teacher|school|hostel|friends?)/i.test(t)
+    || /how are you|i'?m (fine|ok|okay|lost|back)/i.test(t)) {
+    return t.slice(0, 160);
+  }
+  return '';
 }
 
 export function card(phone) {
@@ -340,6 +354,7 @@ export function card(phone) {
   if (u.streak) bits.push(`Streak: Day ${u.streak} (best ${u.bestStreak || u.streak})`);
   if (u.badges?.length) bits.push(`Badges: ${u.badges.slice(0, 6).join(', ')}`);
   if (u.lastPrize) bits.push(`Last prize: ${u.lastPrize}`);
+  if (u.lastLife) bits.push(`They told you: ${u.lastLife}`);
   bits.push(`Questions this term: ${u.asked || 0}`);
   bits.push('Target: Grade A (ZIMSEC A, B, C, D, E, U). No Distinction.');
   return bits.join('\n');
@@ -371,7 +386,7 @@ Still shaky: ${weak}.
 Last topic: ${u.lastTopic || '—'}.
 
 This is practice (original ACADEX papers), not a leaked ZIMSEC script.
-Target is A / Distinction, not a pass. Next: one short drill every day on the weak topic.`;
+Aim: Grade A on the ZIMSEC scale (A, B, C, D, E, U). Next: one short drill every day on the weak topic.`;
 }
 
 export function allLearners() {

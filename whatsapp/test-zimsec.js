@@ -1,6 +1,7 @@
 import { commandWord, PAPER_RULES, OLEVEL_GRADES, zimsecExplain, looksLikeExam, examLock } from './zimsec.js';
 import { SYSTEM } from './teacher.js';
 import { loadBank, handleTurn } from './tutor.js';
+import { touchLearner } from './learner.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -52,15 +53,17 @@ async function ask(from, text) {
   return (r.replies || []).filter(x => x.type === 'text').map(x => x.text).join('\n');
 }
 
-const t1 = await ask('263771008801', 'Are there distinctions in ZIMSEC?');
+const t1 = await ask('263771009901', 'Are there distinctions in ZIMSEC?');
 expect('live no distinction', /A, B, C, D, E, U/.test(t1) && /no Distinction/i.test(t1) && !/A \/ Distinction/.test(t1), t1.slice(0, 200));
-const t2 = await ask('263771008802', 'How is Maths 4004 Paper 1 set?');
+const t2 = await ask('263771009902', 'How is Maths 4004 Paper 1 set?');
 expect('live 4004', /no calculator/i.test(t2) && /100/.test(t2), t2.slice(0, 200));
-const t3 = await ask('263771008803', 'hi');
-expect('live first prizes', /How prizes work/i.test(t3) && /Merit stars/i.test(t3) && /PRIZES/i.test(t3) && /Grade A/i.test(t3) && /hello/i.test(t3), t3.slice(0, 280));
+const prizePhone = '263771009925';
+touchLearner(prizePhone, { heardPrizes: false, name: '', lastTopic: '', lastDay: '', streak: 0 });
+const t3 = await ask(prizePhone, 'hi');
+expect('live first prizes', /How prizes work/i.test(t3) && /Merit stars/i.test(t3) && /PRIZES/i.test(t3) && /Grade A/i.test(t3) && /hello|here|talk/i.test(t3), t3.slice(0, 280));
 expect('live not rude', !/not a pass|lonely number|do not relax|not a toy|a pass is not enough/i.test(t3), t3.slice(0, 160));
-const t4 = await ask('263771008803', 'hi');
-expect('second hi no prize dump', !/How prizes work/i.test(t4) && /send the question/i.test(t4), t4.slice(0, 160));
+const t4 = await ask(prizePhone, 'hi');
+expect('second hi no prize dump', !/How prizes work/i.test(t4) && /here|talk|week|question|start/i.test(t4), t4.slice(0, 160));
 
 if (fail.length) {
   console.error('ZIMSEC FAIL', fail.length);
