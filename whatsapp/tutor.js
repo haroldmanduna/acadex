@@ -512,6 +512,14 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     return { replies };
   }
 
+  const personFirst = personality(text, digits);
+  if (personFirst) {
+    say(personFirst);
+    pushChat(digits, 'user', text);
+    pushChat(digits, 'assistant', personFirst);
+    return { replies };
+  }
+
   const sub = canUse(digits);
   if (!sub.allowed) {
     say('Free drill is used up. $0.75/week or $3/month. Admin activates after EcoCash.');
