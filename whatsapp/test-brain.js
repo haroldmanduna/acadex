@@ -112,6 +112,8 @@ expect('show that turn', /9/.test(firstText(sh)) && !/dump the menu/i.test(first
 const gHi = await handleTurn({ from: '263771000401', text: 'hi', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
 const gMh = await handleTurn({ from: '263771000402', text: 'mhoro', bank, publicUrl: '', adminPhone: '263716987183', trigger: 'x', sessionMinutes: 30 });
 expect('greeting english', /hello|english|send the question/i.test(firstText(gHi)) && /hello|english|send the question/i.test(firstText(gMh)) && !/zvakanaka|ndinotaura/i.test(firstText(gHi)+firstText(gMh)), firstText(gHi)+' | '+firstText(gMh));
+expect('first greeting prizes', /how prizes work|merit stars|house points|PRIZES/i.test(firstText(gHi)) && /Grade A/i.test(firstText(gHi)), firstText(gHi).slice(0, 280));
+expect('no rude greeting', !/not a pass|lonely number|do not relax|not a toy/i.test(firstText(gHi)+firstText(gMh)), (firstText(gHi)+firstText(gMh)).slice(0, 160));
 expect('asked shona', askedLanguage('speak Shona') === 'sn' && askedLanguage('hi') === null && askedLanguage('mhoro') === null, '');
 const pStreak = '263771000301';
 bumpStreak(pStreak);
@@ -124,7 +126,7 @@ const longA = 'The marker wants working. '.repeat(40);
 expect('speech long', speechScript(longA, 'Rudo').length > 700, String(speechScript(longA, 'Rudo').length));
 expect('chunks more', chunkSpeech(longA + ' End.', 80).length >= 5, String(chunkSpeech(longA + ' End.', 80).length));
 
-expect('strict system', /Distinction|A-candidate|command word/i.test(SYSTEM) && /No sugarcoating/i.test(SYSTEM), SYSTEM.slice(0, 180));
+expect('strict system', /Grade A|A-candidate|command word/i.test(SYSTEM) && /No sugarcoating/i.test(SYSTEM) && !/A \/ Distinction/.test(SYSTEM), SYSTEM.slice(0, 180));
 expect('system zimsec papers', /4004\/1/.test(SYSTEM) && /5006\/2/.test(SYSTEM) && /1122\/1/.test(SYSTEM), '');
 
 const pz = '263771000701';
@@ -149,7 +151,7 @@ const sw = await handleTurn({ from: named, text: 'speak Shona', bank, publicUrl:
 expect('lang switch keeps name', getLearner(named).name === 'Rudo' && /zvakanaka|chishona/i.test(firstText(sw)), getLearner(named).name + ' | ' + firstText(sw).slice(0, 80));
 expect('not named shona', extractProfile('Shona').name !== 'Shona' && extractProfile('Ndinonzi Tadiwa').name === 'Tadiwa', JSON.stringify(extractProfile('Shona')));
 
-expect('rank prefect', rankOf({ stars: 16 }).title === 'Prefect' && rankOf({ stars: 0 }).title === 'New book' && rankOf({ stars: 90 }).title === 'Distinction', rankOf({ stars: 16 }).title);
+expect('rank prefect', rankOf({ stars: 16 }).title === 'Prefect' && rankOf({ stars: 0 }).title === 'New book' && rankOf({ stars: 90 }).title === 'Grade A', rankOf({ stars: 90 }).title);
 expect('book no stars markdown', !/\*\*/.test(prizeBook(named)), prizeBook(named).slice(0, 80));
 
 if (fail.length) {

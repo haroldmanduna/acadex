@@ -11,12 +11,12 @@ import {
   initLearners, getLearner, touchLearner, rememberTopic,
   extractProfile, card, parentReport, allLearners, nextNeed,
   bumpStreak, appendChat, savedChat,
-  awardMerit, maybeStreakPrize, prizeBook, meritSlip, examinerChallenge, rankOf,
+  awardMerit, maybeStreakPrize, prizeBook, prizeHow, meritSlip, examinerChallenge, rankOf,
 } from './learner.js';
 import { startMock, formatMockQ, scoreAnswer, finishMock } from './mock.js';
 import { parseNumbered, markAgainstPaper, markComposition, looksLikeEssay } from './marker.js';
 import { detectLang, askedLanguage, ttsFile, wantsVoice, stripVoiceAsk, speechScript } from './voice.js';
-import { examLock, looksLikeExam } from './zimsec.js';
+import { examLock, looksLikeExam, zimsecExplain } from './zimsec.js';
 import { wantsDiagram, renderDiagram, figureKind } from './diagrams.js';
 import { isBusy } from './inbox.js';
 
@@ -268,7 +268,12 @@ function personality(text, phone) {
   const streakBit = L.streak ? ` Day ${L.streak} streak.` : '';
   const r = rankOf(L);
   const rankBit = r.id !== 'new' ? ` ${r.title}.` : '';
-  const weakBit = L.weak?.[0] ? ` Last leak: ${L.weak[0]}.` : '';
+  const weakBit = L.weak?.[0] ? ` Last weak: ${L.weak[0]}.` : '';
+  const first = !L.heardPrizes;
+  const prizesBit = first ? '\n\n' + prizeHow() : '';
+  if (first && /^(hi|hello|hey|hie|yo|mhoro|salut|bonjour|sawubona|hola|sup|morning|evening|good morning|good evening)\b/.test(t)) {
+    touchLearner(phone, { heardPrizes: true });
+  }
   if (/your name|who are you|who r u|who is this|zita rako|unonzi ani|comment tu t.?appelles|whats your name|what.?s your name|ninani|ngubani/.test(t)) {
     return L.name
       ? `${L.name}, ACADEX.${rankBit} Last topic: ${L.lastTopic || 'none yet'}.${streakBit} I mark as the paper marks. Send the question.`
@@ -276,16 +281,16 @@ function personality(text, phone) {
   }
   if (/^(hi|hello|hey|hie|yo|mhoro|salut|bonjour|sawubona|hola|sup|morning|evening|good morning|good evening)\b/.test(t) && t.split(/\s+/).length <= 6) {
     if (L.name && L.lastTopic) {
-      return `${L.name}.${streakBit}${rankBit} Last time: ${L.lastTopic}.${weakBit} I want A work today, not a pass. Send the next question or type mock.`;
+      return `${L.name}.${streakBit}${rankBit} Last time: ${L.lastTopic}.${weakBit} Send the next question or type mock.` + prizesBit;
     }
-    if (L.name) return `${L.name}.${streakBit}${rankBit} I have your file. Send the question — equation, topic, or a full exam sentence. I mark as the paper marks.`;
-    return 'Hello. ACADEX. Send the question. English until you ask for another language.';
+    if (L.name) return `${L.name}.${streakBit}${rankBit} Send the question — equation, topic, or a full exam sentence.` + prizesBit;
+    return 'Hello. ACADEX. Send the question. English until you ask for another language.' + prizesBit;
   }
   return null;
 }
 
 function helpText() {
-  return `ACADEX — ZIMSEC teacher. I mark as the paper marks. A / Distinction is the target, not a pass.
+  return `ACADEX — ZIMSEC teacher. I mark as the paper marks. We aim for Grade A (A, B, C, D, E, U).
 
 Send the question. Say VOICE only if you want a voice note of that working.
 mock / full mock / mark 1. … / Download 2024 Maths Paper 1
@@ -319,7 +324,7 @@ function awardPractice(phone) {
 }
 
 function awardMockScore(phone, pct) {
-  if (pct >= 80) return awardMerit(phone, { stars: 5, house: 2, badge: 'Mock distinction', announce: true });
+  if (pct >= 80) return awardMerit(phone, { stars: 5, house: 2, badge: 'Mock Grade A', announce: true });
   if (pct >= 70) return awardMerit(phone, { stars: 3, house: 1, badge: 'Mock pass', announce: true });
   if (pct >= 50) return awardMerit(phone, { stars: 1, announce: true });
   return null;
@@ -423,7 +428,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     const bits = [L.name || 'I have that'].filter(Boolean);
     if (L.grade) bits.push(L.grade);
     if (L.school) bits.push(L.school);
-    const ack = `${bits.join('. ')}. On the file. I want an A, not a pass. Send the first question — equation, topic, or a full exam sentence.`;
+    const ack = `${bits.join('. ')}. On the file. Send the first question — equation, topic, or a full exam sentence.`;
     say(ack);
     pushChat(digits, 'user', text);
     pushChat(digits, 'assistant', ack);
@@ -441,7 +446,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   if (/^(challenge|examiner|harder)$/i.test(tl)) {
     const L = getLearner(digits);
     if (!L.challengeReady && (L.stars || 0) < 1 && (L.asked || 0) < 1) {
-      say((L.name ? L.name + '. ' : '') + 'Do the first question properly. Then you earn the examiner question. A is the target.');
+      say((L.name ? L.name + '. ' : '') + 'Send a question first. Then you can take the examiner question.');
       return { replies };
     }
     say(examinerChallenge(digits));
@@ -521,7 +526,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     if (mock.error) { say(mock.error); return { replies }; }
     sess.mock = mock;
     sessions.set(digits, sess);
-    say(`Starting: ${mock.title}\nI will send one question at a time. No calculator on 4004/1. A / Distinction is the target — a pass is not enough.`);
+    say(`Starting: ${mock.title}\nI will send one question at a time. No calculator on 4004/1. Aim: Grade A.`);
     pushMockQ(mock, say);
     return { replies };
   }
@@ -611,6 +616,13 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     return { replies };
   }
 
+  const zFacts = zimsecExplain(text);
+  if (zFacts) {
+    say(`${zFacts.title}\n\n${zFacts.answer}`);
+    incrementUse(digits);
+    return { replies, increment: true };
+  }
+
   const sub = canUse(digits);
   if (!sub.allowed) {
     say('Free drill is used up. $0.75/week or $3/month. Admin activates after EcoCash.');
@@ -666,7 +678,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   }
   const eng = helpEnglish(text);
   if (eng) {
-    say(glue(`${eng.title}\n\n${eng.answer}\n\n1122: the command word is the mark scheme. I want A work.`, awardPractice(digits)));
+    say(glue(`${eng.title}\n\n${eng.answer}\n\n1122: the command word is the mark scheme.`, awardPractice(digits)));
     rememberTopic(digits, eng.title, true);
     incrementUse(digits);
     return { replies, increment: true };

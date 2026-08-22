@@ -87,6 +87,6 @@ export function finishMock(mock) {
     total,
     pct: Math.round(100 * right / (total || 1)),
     weak,
-    text: `Mock closed: ${right}/${total} (${Math.round(100 * right / (total || 1))}%)\n${mock.title}\n${Math.round(100 * right / (total || 1)) >= 80 ? 'A-range. Do not relax.' : 'That is not A work. We drill the weak topics until this is 80%+.'}\n\n${lines.join('\n')}\n\nWeak topics: ${[...new Set(weak)].slice(0, 5).join(', ') || '—'}\nThis is an ACADEX practice mock, not a leaked ZIMSEC script.\nSay MOCK to try another, or send a topic to drill.`,
+    text: `Mock closed: ${right}/${total} (${Math.round(100 * right / (total || 1))}%)\n${mock.title}\n${Math.round(100 * right / (total || 1)) >= 80 ? 'Grade A range on this mock. Keep the same standard.' : 'Below Grade A for now. Next we drill the weak topics.'}\n\n${lines.join('\n')}\n\nWeak topics: ${[...new Set(weak)].slice(0, 5).join(', ') || '—'}\nThis is an ACADEX practice mock, not a leaked ZIMSEC script.\nSay MOCK to try another, or send a topic to drill.`,
   };
 }

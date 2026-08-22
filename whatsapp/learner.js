@@ -57,6 +57,7 @@ export function blankLearner(phone) {
     prizeDay: '',
     lastMistake: '',
     challengeReady: false,
+    heardPrizes: false,
     updated: new Date().toISOString(),
   };
 }
@@ -68,7 +69,7 @@ export const RANKS = [
   { min: 15, id: 'prefect', title: 'Prefect' },
   { min: 30, id: 'head', title: 'Head Prefect' },
   { min: 55, id: 'acandidate', title: 'A-candidate' },
-  { min: 90, id: 'distinction', title: 'Distinction' },
+  { min: 90, id: 'gradea', title: 'Grade A' },
 ];
 
 export function rankOf(u) {
@@ -183,11 +184,11 @@ export function awardMerit(phone, { stars = 0, house = 0, badge = '', reason = '
   const starWord = nextStars === 1 ? 'star' : 'stars';
   let line = '';
   if (rankUp) {
-    line = `${who ? who + '. ' : ''}You are ${newRank.title} now. Small prize for work that would take marks. Distinction is still the target. Type PRIZES.`;
+    line = `${who ? who + '. ' : ''}You are ${newRank.title} now. Earned for work that would take marks. We are still aiming for Grade A. Type PRIZES.`;
   } else if (badgesAdded.length) {
     line = `${who ? who + '. ' : ''}Badge: ${badgesAdded[0]}. ${nextStars} ${starWord}. I still mark as the paper marks.`;
   } else if (should && (Number(stars) || 0) > 0) {
-    line = `Merit star. ${nextStars} ${starWord}. Rank: ${newRank.title}. A is the target, not a pass.`;
+    line = `Merit star. ${nextStars} ${starWord}. Rank: ${newRank.title}. Next aim: Grade A.`;
   }
   const just = [u.justEarned, line || reason].filter(Boolean).join(' ').slice(0, 200);
   touchLearner(phone, {
@@ -231,6 +232,14 @@ export function maybeStreakPrize(phone) {
   return null;
 }
 
+export function prizeHow() {
+  return `How prizes work — earned for real work, not for saying hi.
+Merit stars: a tick when we finish proper working.
+House points: for a strong mock.
+Ranks: New book → Monitor → Prefect → Head Prefect → A-candidate → Grade A.
+Type PRIZES to see your book, SLIP for a parent note, CHALLENGE for a harder question.`;
+}
+
 export function prizeBook(phone) {
   const u = getLearner(phone);
   const r = rankOf(u);
@@ -239,7 +248,7 @@ export function prizeBook(phone) {
   const badges = (u.badges || []).length ? u.badges.join(', ') : 'none yet';
   const need = nxt
     ? `${nxt.min - (u.stars || 0)} more stars to ${nxt.title}`
-    : 'Distinction held. Do not drop the standard.';
+    : 'Grade A rank held. Keep the same standard.';
   return `${who} — merit book
 Rank: ${r.title}
 Stars: ${u.stars || 0}
@@ -251,7 +260,7 @@ ${need}
 Prizes are earned: correct mock items, marked scripts, days at the desk, work that would take marks.
 Not for saying hi. Not for guessing.
 Type SLIP for a parent merit slip. Type CHALLENGE for the examiner question.
-I want A / Distinction. A pass is not the finish.`;
+Aim: Grade A on the ZIMSEC scale (A, B, C, D, E, U).`;
 }
 
 export function meritSlip(phone) {
@@ -265,7 +274,7 @@ Streak: Day ${u.streak || 0}
 Last topic: ${u.lastTopic || '—'}
 Weak: ${(u.weak || []).slice(0, 2).join(', ') || 'none logged'}
 
-This is earned work, not a sticker for turning up.
+This is earned work.
 Screenshot for your parent if you want. Next lesson: drill the weak topic.`;
 }
 
@@ -284,11 +293,11 @@ export function examinerChallenge(phone) {
   } else {
     q = 'Show that (x + 4)^2 = x^2 + 8x + 16. Then, without a calculator, find the value when x = 3. Working on the page.';
   }
-  return `${who}Examiner question. This is the prize — harder work, not a toy.
+  return `${who}Examiner question. This is the prize — a harder question you earned.
 
 ${q}
 
-Send your working. I mark as ZIMSEC marks: command word, method, units. A is the target.`;
+Send your working. I mark as ZIMSEC marks: command word, method, units. Aim: Grade A.`;
 }
 
 export function extractProfile(text) {
@@ -322,7 +331,7 @@ export function card(phone) {
   if (u.lastTopic) bits.push(`Last topic: ${u.lastTopic}`);
   if (u.weak?.length) bits.push(`Weak: ${u.weak.slice(0, 4).join(', ')}`);
   if (u.strong?.length) bits.push(`Strong: ${u.strong.slice(0, 3).join(', ')}`);
-  if (u.lastMistake) bits.push(`Last leak: ${u.lastMistake}`);
+  if (u.lastMistake) bits.push(`Last weak topic: ${u.lastMistake}`);
   if (u.lastMock) bits.push(`Last mock: ${u.lastMock.score}/${u.lastMock.total} (${u.lastMock.subject})`);
   const rk = rankOf(u);
   bits.push(`Rank: ${rk.title}`);
@@ -332,7 +341,7 @@ export function card(phone) {
   if (u.badges?.length) bits.push(`Badges: ${u.badges.slice(0, 6).join(', ')}`);
   if (u.lastPrize) bits.push(`Last prize: ${u.lastPrize}`);
   bits.push(`Questions this term: ${u.asked || 0}`);
-  bits.push('Target: A / Distinction. A pass is not the finish.');
+  bits.push('Target: Grade A (ZIMSEC A, B, C, D, E, U). No Distinction.');
   return bits.join('\n');
 }
 

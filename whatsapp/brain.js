@@ -579,8 +579,8 @@ export function formatMath(solved, lang) {
   const body = fmtSteps(solved.steps || []);
   const xish = solved.kind === 'linear' || solved.kind === 'quad' ? `x = ${solved.answer}` : solved.answer;
   const stamp = (solved.kind === 'linear' || solved.kind === 'quad' || solved.kind === 'simultaneous' || solved.kind === 'expand')
-    ? 'On 4004/1: working on the page, box the answer. Answer-only is often 0 of 2. No calculator. I want A work, not a lonely number.'
-    : 'Write the working. The marker awards method, not a lonely number. I want A work.';
+    ? 'On 4004/1: working on the page, box the answer. Answer-only is often 0 of 2. No calculator.'
+    : 'Write the working. The marker awards method as well as the final number.';
   return `${head}: ${xish}\n${body}\n\n${stamp}`.slice(0, 3500);
 }
 
