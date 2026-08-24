@@ -132,10 +132,51 @@ function extractText(msg) {
     || inner.templateButtonReplyMessage?.selectedId
     || inner.listResponseMessage?.singleSelectReply?.selectedRowId
     || (inner.imageMessage ? '[photo]' : '')
+    || (inner.videoMessage ? '[video]' : '')
     || (inner.audioMessage ? '[audio]' : '')
     || (inner.documentMessage ? `[document ${inner.documentMessage.fileName || ''}]` : '')
     || ''
   );
+}
+
+function innerMessage(msg) {
+  const m = msg?.message || {};
+  return m.ephemeralMessage?.message || m.viewOnceMessageV2?.message || m;
+}
+
+async function saveIncomingMedia(msg) {
+  const inner = innerMessage(msg);
+  const img = inner.imageMessage;
+  const vid = inner.videoMessage;
+  if (!img && !vid) return null;
+  const kind = img ? 'image' : 'video';
+  const mime = (img || vid).mimetype || (kind === 'image' ? 'image/jpeg' : 'video/mp4');
+  let buf = null;
+  try {
+    const baileys = await import('@whiskeysockets/baileys');
+    const downloadMediaMessage = baileys.downloadMediaMessage || baileys.default?.downloadMediaMessage;
+    if (typeof downloadMediaMessage === 'function') {
+      buf = await downloadMediaMessage(msg, 'buffer', {});
+    } else {
+      const downloadContentFromMessage = baileys.downloadContentFromMessage || baileys.default?.downloadContentFromMessage;
+      const media = img || vid;
+      if (typeof downloadContentFromMessage !== 'function' || !media) return null;
+      const stream = await downloadContentFromMessage(media, kind);
+      const chunks = [];
+      for await (const c of stream) chunks.push(c);
+      buf = Buffer.concat(chunks);
+    }
+  } catch (e) {
+    console.warn('media download', e.message);
+    return null;
+  }
+  if (!buf || buf.length < 80) return null;
+  const ext = /png/i.test(mime) ? 'png' : /webp/i.test(mime) ? 'webp' : kind === 'video' ? 'mp4' : 'jpg';
+  const dir = path.join(path.dirname(authDir), '..', 'data', 'vision');
+  fs.mkdirSync(dir, { recursive: true });
+  const fp = path.join(dir, `${Date.now()}-${kind}.${ext}`);
+  fs.writeFileSync(fp, buf);
+  return { kind, mime, filePath: fp, bytes: buf.length };
 }
 
 function senderPhone(msg) {
@@ -191,7 +232,17 @@ async function handleIncoming(msg) {
       jid,
       run: async () => {
         try { if (sock?.sendPresenceUpdate) await sock.sendPresenceUpdate('composing', jid); } catch { /* typing */ }
-        await onMessage({ from, jid, text, msg });
+        let media = null;
+        try { media = await saveIncomingMedia(msg); } catch (e) { console.warn('save media', e.message); }
+        await onMessage({
+          from,
+          jid,
+          text,
+          msg,
+          mediaPath: media?.filePath || '',
+          mediaKind: media?.kind || '',
+          mediaMime: media?.mime || '',
+        });
       },
       onBusy: async ({ jid: to }) => {
         try {

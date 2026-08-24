@@ -9,6 +9,7 @@ __pycache__/
 whatsapp/session/
 data/learners.json
 data/diagrams/
+data/vision/
 audio/spoken/
 whatsapp/auth_info*/
 *.enc

@@ -14,6 +14,7 @@ import {
 import { inboxStats } from './inbox.js';
 import { startKeepAlive, keepaliveState } from './keepalive.js';
 import { restoreLearners, schedulePersist, sessionStoreMode } from './session-store.js';
+import { visionOn } from './vision.js';
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -77,8 +78,8 @@ async function ensurePhoneLink() {
       authDir: path.join(__dirname, 'session'),
       learnersFile,
       phone: ADMIN_PHONE,
-      onMessage: async ({ from, jid, text }) => {
-        const result = await runTurn(from, text);
+      onMessage: async ({ from, jid, text, mediaPath, mediaKind, mediaMime }) => {
+        const result = await runTurn(from, text, { mediaPath, mediaKind, mediaMime });
         if (result.ignored) return;
         await dispatchReplies(jid, result.replies);
         schedulePersist(path.join(__dirname, 'session'), learnersFile);
@@ -207,6 +208,7 @@ app.get('/health', (req,res)=>{
     queue: inboxStats(),
     keepalive: keepaliveState(),
     sessionStore: sessionStoreMode(),
+    vision: visionOn() ? 'ox-alpha-read' : 'off',
     time: new Date().toISOString()
   });
 });
@@ -261,13 +263,16 @@ async function dispatchReplies(defaultTo, replies){
   }
 }
 
-function runTurn(from, text){
+function runTurn(from, text, media = {}){
   return handleTurn({
     from, text, bank: BANK,
     publicUrl: PUBLIC_URL,
     adminPhone: ADMIN_PHONE,
     trigger: TRIGGER_PHRASE,
     sessionMinutes: SESSION_MINUTES,
+    mediaPath: media.mediaPath || '',
+    mediaKind: media.mediaKind || '',
+    mediaMime: media.mediaMime || '',
   });
 }
 

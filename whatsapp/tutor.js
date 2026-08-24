@@ -18,6 +18,7 @@ import { parseNumbered, markAgainstPaper, markComposition, looksLikeEssay } from
 import { detectLang, askedLanguage, ttsFile, wantsVoice, stripVoiceAsk, speechScript } from './voice.js';
 import { examLock, looksLikeExam, zimsecExplain } from './zimsec.js';
 import { wantsDiagram, renderDiagram, figureKind } from './diagrams.js';
+import { readVisual, visionOn, visionUserText } from './vision.js';
 import { isBusy } from './inbox.js';
 
 const FREE_LIMIT = 10000;
@@ -116,10 +117,11 @@ function pushChat(phone, role, content) {
   appendChat(phone, role, content);
 }
 
-function buildContext(text, bank, phone) {
+function buildContext(text, bank, phone, visionNotes) {
   const bits = [];
   const lc = card(phone);
   if (lc) bits.push('LEARNER FILE:\n' + lc);
+  if (visionNotes) bits.push('VISION NOTES (from the learner photo/clip — use these numbers, do not invent):\n' + String(visionNotes).slice(0, 2800));
   const math = solveMath(text);
   if (math) bits.push('MATH ENGINE (correct numbers):\n' + formatMath(math, 'en'));
   const sci = explainScience(text);
@@ -144,6 +146,7 @@ function cleanWhatsApp(s) {
     .replace(/I am (not |un)?able to send (images?|pictures?|diagrams?)[^.!?\n]*/gi, '')
     .replace(/but I can describe how to draw one[^.!?\n]*/gi, '')
     .replace(/I can describe how to draw[^.!?\n]*/gi, '')
+    .replace(/\b(stealth\/ox-alpha|ox-?alpha|openrouter|as an AI)\b/gi, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
@@ -233,12 +236,12 @@ function greetingFallback(phone) {
 
 async function teach(digits, text, bank, say, replies) {
   const s = sessions.get(digits) || {};
-  const chatting = isChat(text);
+  const chatting = isChat(text) && !s.visionNotes;
   const L0 = getLearner(digits);
   let taught = await askTeacher({
     history: s.chat || [],
     user: text,
-    context: buildContext(text, bank, digits),
+    context: buildContext(text, bank, digits, s.visionNotes),
     learner: card(digits),
     need: chatting ? (L0.name ? null : nextNeed(digits)) : nextNeed(digits),
     hurry: isBusy(),
@@ -324,7 +327,7 @@ function personality(text, phone) {
 function helpText() {
   return `ACADEX — ZIMSEC teacher. I mark as the paper marks. We aim for Grade A (A, B, C, D, E, U).
 
-Send the question. Say VOICE only if you want a voice note of that working.
+Send the question, or a photo / short clip of the paper. Say VOICE only if you want a voice note of that working.
 mock / full mock / mark 1. … / Download 2024 Maths Paper 1
 PRIZES · SLIP · CHALLENGE
 
@@ -382,7 +385,7 @@ function pushMockQ(mock, say) {
   return { ok: true };
 }
 
-export async function handleTurn({ from, text: incoming, bank, publicUrl, adminPhone, trigger, sessionMinutes }) {
+export async function handleTurn({ from, text: incoming, bank, publicUrl, adminPhone, trigger, sessionMinutes, mediaPath, mediaKind, mediaMime }) {
   let text = incoming;
   const replies = [];
   const digits = String(from || '').replace(/\D/g, '');
@@ -436,13 +439,28 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     }
     work = stripped;
   }
-  const tl = work.toLowerCase().trim();
+  let tl = work.toLowerCase().trim();
   text = work;
 
   if (!tl) return { replies: [], ignored: true };
   enterBotMode(digits, sessionMinutes);
   bumpStreak(digits);
   pendingPrize = maybeStreakPrize(digits);
+
+  let visionNotes = '';
+  if (mediaPath) {
+    const seen = await readVisual({ filePath: mediaPath, kind: mediaKind || 'image', mime: mediaMime, caption: incoming });
+    if (seen?.ok && seen.text) {
+      visionNotes = seen.text;
+      text = visionUserText(seen, incoming);
+      const sessV = sessions.get(digits) || {};
+      sessV.visionNotes = visionNotes;
+      sessions.set(digits, sessV);
+      tl = String(text || '').toLowerCase().trim();
+    } else if (seen?.text) {
+      visionNotes = '';
+    }
+  }
 
   const prof = extractProfile(text);
   if (Object.keys(prof).length) touchLearner(digits, prof);
@@ -635,8 +653,10 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     return { replies, increment: true };
   }
 
-  if (tl === '[photo]' || tl.startsWith('[image]')) {
-    say('Put the question as the photo caption, or type it. I mark working best when I can see the numbers.');
+  if ((tl === '[photo]' || tl.startsWith('[image]') || tl === '[video]') && !visionNotes) {
+    say(visionOn()
+      ? 'I could not read that file yet. Send the photo again in a moment, or type the question.'
+      : 'Put the question as the photo caption, or type it. I mark working best when I can see the numbers.');
     return { replies };
   }
 
