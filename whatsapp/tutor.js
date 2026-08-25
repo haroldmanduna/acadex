@@ -1,4 +1,6 @@
-/** ACADEX WhatsApp tutor — personal marker + mocks + voice. */
+/** ACADEX WhatsApp Tutor — Master Engine across Primary, O-Level & A-Level
+ *  Multi-channel ZIMSEC examiner with live PDF past papers, timed mocks & Supabase sync.
+ */
 import fs from 'fs';
 import path from 'path';
 import {
@@ -20,6 +22,11 @@ import { examLock, looksLikeExam, zimsecExplain } from './zimsec.js';
 import { wantsDiagram, renderDiagram, figureKind } from './diagrams.js';
 import { readVisual, visionOn, visionUserText } from './vision.js';
 import { isBusy } from './inbox.js';
+import {
+  isPaperRequest, parsePaperDetails, formatPaperCaption,
+  getAvailablePapersMenu, findPdfFile,
+} from './papers.js';
+import { syncStudent, syncGrade, initSupabase } from './supabase-sync.js';
 
 const FREE_LIMIT = 10000;
 const sessions = new Map();
@@ -29,6 +36,7 @@ let workspaceRoot = '';
 export function loadBank(root) {
   workspaceRoot = root;
   initLearners(root);
+  initSupabase().catch(() => {});
   const p = path.join(root, 'data', 'acadex-maths.json');
   try {
     return JSON.parse(fs.readFileSync(p, 'utf8'));
@@ -58,6 +66,7 @@ export function incrementUse(phone) {
   users.set(phone, u);
   const L = getLearner(phone);
   touchLearner(phone, { asked: (L.asked || 0) + 1 });
+  syncStudent(phone, L).catch(() => {});
 }
 export function activateUser(phone, days) {
   const exp = new Date();
@@ -119,101 +128,94 @@ function pushChat(phone, role, content) {
 
 function buildContext(text, bank, phone, visionNotes) {
   const bits = [];
-  const lc = card(phone);
-  if (lc) bits.push('LEARNER FILE:\n' + lc);
-  if (visionNotes) bits.push('VISION NOTES (from the learner photo/clip — use these numbers, do not invent):\n' + String(visionNotes).slice(0, 2800));
-  const math = solveMath(text);
-  if (math) bits.push('MATH ENGINE (correct numbers):\n' + formatMath(math, 'en'));
+  if (visionNotes) bits.push(`VISION READ FROM ATTACHED PHOTO/VIDEO:\n${visionNotes}`);
+  const solved = solveMath(text);
+  if (solved) {
+    bits.push(`MATH ENGINE (do not contradict these numbers): ${solved.kind}. Result: ${solved.latex || solved.sol || ''}. Working: ${solved.steps.join('; ')}`);
+  }
   const sci = explainScience(text);
-  if (sci) bits.push('SCIENCE NOTES:\n' + sci.title + '\n' + sci.answer);
+  if (sci) bits.push(`SCIENCE NOTES: ${sci.title}. Key idea: ${sci.answer.slice(0, 300)}`);
   const eng = helpEnglish(text);
-  if (eng) bits.push('ENGLISH 1122 NOTES:\n' + eng.title + '\n' + eng.answer);
+  if (eng) bits.push(`ENGLISH NOTES: ${eng.title}. Rule: ${eng.answer.slice(0, 300)}`);
   const hit = searchBank(bank, text);
-  if (hit) bits.push('SIMILAR ACADEX PAPER ITEM (practice, not a leaked official script):\n' + formatHit(hit).slice(0, 1100));
+  if (hit) {
+    const pcode = hit.paper?.code || hit.paper?.syllabus || '4004';
+    const qtop = hit.qu?.topic || 'General';
+    const qans = hit.qu?.answer || '';
+    const qsch = hit.qu?.markscheme || '';
+    bits.push(`ACADEX QUESTION BANK HIT (${pcode}): ${qtop}. Answer: ${qans}. Scheme: ${qsch}`);
+  }
   if (looksLikeExam(text)) bits.push(examLock(text));
   return bits.join('\n\n');
 }
 
-function cleanWhatsApp(s) {
-  return String(s || '')
-    .replace(/\*\*/g, '')
-    .replace(/__/g, '')
-    .replace(/`/g, '')
-    .replace(/(^|[^\w])\*([^*\n]{1,80})\*(?=[^\w]|$)/g, '$1$2')
-    .replace(/^\s*\*\s/gm, '• ')
-    .replace(/I cannot send image files[^.!?\n]*/gi, '')
-    .replace(/I can'?t send (images?|pictures?|diagrams?|files?)[^.!?\n]*/gi, '')
-    .replace(/I am (not |un)?able to send (images?|pictures?|diagrams?)[^.!?\n]*/gi, '')
-    .replace(/but I can describe how to draw one[^.!?\n]*/gi, '')
-    .replace(/I can describe how to draw[^.!?\n]*/gi, '')
-    .replace(/\b(stealth\/ox-alpha|ox-?alpha|openrouter|as an AI)\b/gi, '')
+function cleanWhatsApp(raw) {
+  if (!raw) return '';
+  return String(raw)
+    .replace(/\r/g, '')
+    .replace(/\\\[/g, '').replace(/\\\]/g, '')
+    .replace(/\\\(/g, '').replace(/\\\)/g, '')
+    .replace(/(\*\*|__)/g, '*')
+    .replace(/#{1,6}\s+/g, '')
+    .replace(/```[a-z]*\n?/gi, '')
+    .replace(/\[Attached:[^\]]+\]/gi, '')
+    .replace(/\[Image:[^\]]+\]/gi, '')
+    .replace(/\[Audio:[^\]]+\]/gi, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
 
-function storeLast(phone, text, speak) {
+function storeLast(phone, reply) {
   const s = sessions.get(phone) || {};
-  s.lastReply = String(text || '').slice(0, 2000);
-  if (speak) s.lastSpeak = String(speak).slice(0, 1400);
-  else s.lastSpeak = s.lastReply;
+  s.lastReply = reply;
+  s.lastSpeak = speechScript(reply, getLang(phone));
   sessions.set(phone, s);
-  touchLearner(phone, { lastReply: s.lastReply, lastSpeak: s.lastSpeak });
+  touchLearner(phone, { lastReply: reply, lastSpeak: s.lastSpeak });
 }
 
-async function attachVoice(replies, phone, spoken) {
-  if (process.env.DISABLE_VOICE === '1') return false;
+async function attachVoice(replies, phone, text) {
+  if (!text) return false;
   const lang = getLang(phone);
-  const name = getLearner(phone).name || '';
-  const root = workspaceRoot || path.join(path.dirname(new URL(import.meta.url).pathname), '..');
-  try {
-    const fp = await ttsFile(root, spoken, lang, name);
-    if (fp && fs.existsSync(fp) && fs.statSync(fp).size > 400 && !/solve\.mp3$/i.test(fp)) {
-      replies.push({ type: 'audio', filePath: fp, url: fp, script: speechScript(spoken, name) });
-      return true;
-    }
-  } catch (e) {
-    console.warn('voice', e.message);
+  const script = speechScript(text, lang);
+  if (!script) return false;
+  const voice = await ttsFile(script, lang, workspaceRoot);
+  if (voice?.filePath && fs.existsSync(voice.filePath)) {
+    replies.push({ type: 'audio', filePath: voice.filePath, url: voice.url, lang });
+    return true;
   }
   return false;
 }
 
 async function attachDiagram(replies, text) {
   if (!wantsDiagram(text)) return false;
+  const fig = figureKind(text);
+  if (!fig) return false;
   try {
-    const fp = await renderDiagram(workspaceRoot, text);
-    if (fp && fs.existsSync(fp)) {
-      const k = figureKind(text);
-      const cap = k === 'triangle'
-        ? 'Right-angled triangle. Right angle at B (the little square). Hypotenuse is AC. Not to scale unless lengths are marked.'
-        : k === 'pythagoras'
-        ? 'Squares on the three sides. a² + b² = c². Not to scale unless lengths are marked.'
-        : 'Diagram. Not to scale unless lengths are marked.';
-      replies.push({ type: 'image', filePath: fp, caption: cap });
+    const png = await renderDiagram(fig, workspaceRoot);
+    if (png?.filePath && fs.existsSync(png.filePath)) {
+      replies.push({ type: 'image', filePath: png.filePath, caption: png.caption || 'ZIMSEC Diagram' });
       return true;
     }
   } catch (e) {
-    console.warn('diagram', e.message);
+    console.warn('diagram render failed', e.message);
   }
   return false;
 }
 
 function isGreeting(text) {
   const t = String(text || '').toLowerCase().trim();
-  return /^(hi|hello|hey|hie|yo|mhoro|salut|bonjour|sawubona|hola|sup|morning|evening|good morning|good evening)\b/.test(t)
-    && t.split(/\s+/).length <= 10;
+  return /^(hi|hello|hey|mhoro|masikati|mangwanani|manheru|salibonani|sawubona|good\s*(morning|afternoon|day|evening)|hie|holla|xup|morning|afternoon|evening)\b/i.test(t);
 }
 
-export function isChat(text) {
-  const raw = String(text || '').trim();
-  const t = raw.toLowerCase();
-  if (!raw) return false;
+function isChat(raw) {
+  const t = String(raw || '').toLowerCase().trim();
   if (solveMath(raw) || looksLikeExam(raw)) return false;
   if (isConfused(raw)) return false;
   if (explainScience(raw) && !/\bi (don'?t|hate|love|failed)\b/.test(t)) return false;
   if (helpEnglish(raw) && /composition|summary|register|comprehension|essay/.test(t)) return false;
   if (isGreeting(raw)) return true;
   if (/how are you|how'?s (it|school|the week)|how is (it|school)|i('?m| am) (tired|sad|scared|worried|fine|ok|okay|lost|back)|i failed|i got a [a-eu]\b|thank(s| you)|ndatenda|see you|good ?night|good ?day|missed you|my teacher|at school|in hostel|can we talk|i want to talk|i need to talk|i'?m struggling|eish/.test(t)) return true;
-  if (raw.split(/\s+/).length <= 12 && !/\d/.test(raw) && !/(download|mock|prize|pdf|predictor|challenge|slip|voice)/i.test(t)) {
+  if (raw.split(/\s+/).length <= 12 && !/\d/.test(raw) && !/(download|mock|prize|pdf|predictor|challenge|slip|voice|send paper|past paper|exam)/i.test(t)) {
     if (/^(ok|okay|yes|yeah|yebo|ehe|no|nope|hmm|lol|haha|sure|thanks|cool|alright|right|wow|eish|shame|fine)\b/.test(t)) return true;
   }
   return false;
@@ -226,88 +228,42 @@ function greetingFallback(phone) {
   const prizes = first ? '\n\n' + prizeHow() : '';
   const streakBit = L.streak ? ` Day ${L.streak}.` : '';
   if (L.name && L.lastTopic) {
-    return `${L.name}.${streakBit} Last time we did ${L.lastTopic}. I'm here — tell me how you are, or we can pick up from there.` + prizes;
+    return `${L.name}.${streakBit} Last time we drilled ${L.lastTopic}. I'm here — tell me how school is going, or send your next question.` + prizes;
   }
   if (L.name) {
-    return `${L.name}.${streakBit} Good to have you. How is the week — or what do you want to start with?` + prizes;
+    return `${L.name}.${streakBit} Good to have you. What would you like to drill today? (Maths, Science, English, Grade 7, A-Level, or type "Past Papers")` + prizes;
   }
-  return `Hello. I'm here. We can talk, or we can go straight into a question. English until you ask for another language.` + prizes;
+  return `Hello. I'm ACADEX — your ZIMSEC tutor across Primary, O-Level & A-Level.\nSend any question, or type *Past Papers* to download exams, or *Start Mock* to practice!` + prizes;
 }
 
 async function teach(digits, text, bank, say, replies) {
   const s = sessions.get(digits) || {};
   const chatting = isChat(text) && !s.visionNotes;
   const L0 = getLearner(digits);
-  let taught = await askTeacher({
-    history: s.chat || [],
+  const academic = !chatting && (solveMath(text) || looksLikeExam(text) || explainScience(text) || helpEnglish(text) || Boolean(s.visionNotes));
+  if (academic && !L0.name) touchLearner(digits, { nameAskPending: true });
+  const L = getLearner(digits);
+  const need = nextNeed(digits);
+  const hist = (s.chat || []).slice(-10);
+  const ctx = buildContext(text, bank, digits, s.visionNotes);
+  const learnerStr = card(digits);
+  const busy = isBusy();
+  const reply = await askTeacher({
+    history: hist,
     user: text,
-    context: buildContext(text, bank, digits, s.visionNotes),
-    learner: card(digits),
-    need: chatting ? (L0.name ? null : nextNeed(digits)) : nextNeed(digits),
-    hurry: isBusy(),
+    context: ctx,
+    learner: learnerStr,
+    need,
+    hurry: busy,
     chat: chatting,
   });
-  if (!taught) return false;
-  if (chatting && !L0.heardPrizes) {
-    touchLearner(digits, { heardPrizes: true });
-    if (!/prize|merit star|house point/i.test(taught)) taught = String(taught).trim() + '\n\n' + prizeHow();
-  }
-  const academic = !chatting && (solveMath(text) || looksLikeExam(text) || explainScience(text) || helpEnglish(text) || teachConcept(text));
-  say(glue(taught, academic ? awardPractice(digits) : null));
-  const math = solveMath(text);
-  if (math) storeLast(digits, taught, `x equals ${math.answer}. ${math.steps.map(s => s.t + ' ' + (s.d || '')).join('. ')}`);
+  if (!reply) return false;
+  say(reply);
   pushChat(digits, 'user', text);
-  pushChat(digits, 'assistant', taught);
-  incrementUse(digits);
-  const topic = (explainScience(text) || helpEnglish(text) || {}).title || (solveMath(text) ? 'Algebra' : '');
-  if (topic && !chatting) rememberTopic(digits, topic, true);
+  pushChat(digits, 'assistant', reply);
+  s.visionNotes = '';
+  sessions.set(digits, s);
   return true;
-}
-
-export function checkTrigger(text, phrase) {
-  const t = (text || '').toLowerCase().trim();
-  const p = (phrase || 'mhoro acadex').toLowerCase();
-  if (t === p || t.startsWith(p) || t.includes(p)) return true;
-  if (t === 'acadex' || t === 'mhoro' || t === 'hi acadex' || t === 'hello acadex') return true;
-  return false;
-}
-
-export function solveLinear(input) {
-  const r = solveLinearEq(input);
-  return r ? { answer: r.answer, steps: r.steps } : null;
-}
-
-function pickSyllabus(tl) {
-  if (/\b(english|1122|essay|composition|summary|register|comprehension)\b/.test(tl)) return '1122';
-  if (/\b(science|5006|combined|bio|chem|phys|photosynth|acid|cell)\b/.test(tl)) return '5006';
-  if (/\b(grade\s*7|702)\b/.test(tl)) return '702';
-  if (/\b(further|9187)\b/.test(tl)) return '9187';
-  if (/\b(pure|6042)\b/.test(tl)) return '6042';
-  if (/\b(9164)\b/.test(tl)) return '9164';
-  if (/\b(math|4004|algebra|trig)\b/.test(tl)) return '4004';
-  return null;
-}
-
-export function parsePaperRequest(text) {
-  const tl = text.toLowerCase();
-  const year = (tl.match(/20\d{2}/) || ['2024'])[0];
-  const paperNo = (tl.includes('paper 2') || /\bp2\b/.test(tl)) ? 2 : 1;
-  let code = pickSyllabus(tl) || '4004';
-  const session = tl.includes('june') ? 'June' : 'November';
-  const fname = `${year}_${session}_${code}_Paper${paperNo}.pdf`;
-  const names = { '4004': 'Maths', '5006': 'Combined Science', '1122': 'English Language', '702': 'Grade 7 Maths', '6042': 'Pure Maths', '9164': 'Mathematics', '9187': 'Further Maths' };
-  return { year, session, code, paperNo, fname, title: `${year} ${session} ${names[code] || code} ${code} Paper ${paperNo}` };
-}
-
-export function findPaper(bank, year, session, code, paperNo) {
-  return (bank.papers || []).find(p =>
-    String(p.year) === String(year) && p.session === session &&
-    String(p.syllabus) === String(code) && Number(p.paperNo) === Number(paperNo)
-  );
-}
-
-export function findQuestion(bank, text) {
-  return searchBank(bank, text);
 }
 
 function personality(text, phone) {
@@ -318,25 +274,40 @@ function personality(text, phone) {
   const rankBit = r.id !== 'new' ? ` ${r.title}.` : '';
   if (/your name|who are you|who r u|who is this|zita rako|unonzi ani|comment tu t.?appelles|whats your name|what.?s your name|ninani|ngubani/.test(tl)) {
     return L.name
-      ? `${L.name}, ACADEX.${rankBit} Last topic: ${L.lastTopic || 'none yet'}.${streakBit} I'm here if you want to talk or work.`
-      : 'ACADEX. What should I call you?';
+      ? `${L.name}, I am ACADEX.${rankBit} Last topic: ${L.lastTopic || 'general drill'}.${streakBit} I'm ready — send any exam question or mock topic.`
+      : 'I am ACADEX — your ZIMSEC tutor. What is your name and form?';
   }
   return null;
 }
 
 function helpText() {
-  return `ACADEX — ZIMSEC teacher. I mark as the paper marks. We aim for Grade A (A, B, C, D, E, U).
+  return `🎓 *ACADEX ZIMSEC TUTOR & EXAM DESK*
 
-Send the question, or a photo / short clip of the paper. Say VOICE only if you want a voice note of that working.
-mock / full mock / mark 1. … / Download 2024 Maths Paper 1
-PRIZES · SLIP · CHALLENGE
+📚 *1. Send Any Question:*
+Type or snap a photo of your Maths, Science, English, Grade 7, or A-Level question.
 
-Original ACADEX practice — not leaked scripts.`;
+📄 *2. Download Past Question Papers (88 Available):*
+• Type *Past Papers* to view the library.
+• Or type e.g. *Send 2024 Maths P1* or *Send 2023 Science P2* to receive the PDF immediately.
+
+⏱️ *3. Interactive Timed Exam Room:*
+• Type *Start Mock Maths* (4004/1, no calculator)
+• Type *Start Mock Science* (5006/1)
+• Type *Start Mock Grade 7* (702/1)
+• Type *Start Mock Pure Maths* (6042/1)
+
+🏆 *4. Badges & Progress:*
+• Type *PRIZES* to see your stars and rank.
+• Type *SLIP* for your ACADEX merit certificate.
+• Type *VOICE* if you want the working spoken as an audio note.`;
 }
 
 function isProfileOnly(text, prof) {
   if (!prof || !(prof.name || prof.grade || prof.age || prof.school)) return false;
-  const rest = String(text || '')
+  const raw = String(text || '').trim();
+  if (/^(mock|start|exam|download|send|get|give|explain|what|how|why|solve|calculate|past|paper|pdf)\b/i.test(raw)) return false;
+  if (/\b(mock|exam|past\s*paper|paper\s*[12]|p[12]|calculate|solve|show that|units?|grading|grades?)\b/i.test(raw)) return false;
+  const rest = raw
     .replace(/(?:ndinonzi|zita rangu(?: ndi)?|ngingu|i(?:'?m| am)|my name is|ndini)\s+[A-Za-zÀ-ÿ]{2,20}/ig, ' ')
     .replace(/\b(?:form|giredhi|grade)\s*[1-7]\b/ig, ' ')
     .replace(/\bo-?level\b/ig, ' ')
@@ -373,7 +344,7 @@ function predictorText(bank) {
   ];
   return blocks.map(([title, list]) => {
     const lines = (list || []).slice(0, 5).map(t => `• ${t.topic} (${t.pct}%)`).join('\n');
-    return `🔮 ${title}\n${lines}`;
+    return `🔮 ${title} Exam Predictor\n${lines}`;
   }).join('\n\n');
 }
 
@@ -393,7 +364,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   const say = (t) => {
     let clean = cleanWhatsApp(t);
     if (!clean && wantsDiagram(incoming)) {
-      clean = 'Here is the sketch. The little square is the right angle. The longest side opposite that square is the hypotenuse.';
+      clean = 'Here is the sketch. The right-angle marker indicates 90°. The side opposite is the hypotenuse.';
     }
     if (!clean) return;
     if (pendingPrize?.line) {
@@ -403,6 +374,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     replies.push({ type: 'text', text: clean });
     storeLast(digits, clean);
   };
+
   const incomingAsk = askedLanguage(incoming);
   const langRest = String(incoming || '').toLowerCase()
     .replace(/\b(speak|reply|answer|teach|switch|use|in|please|ndapota|chi ?shona|shona|ndebele|isindebele|english|chirungu)\b/g, ' ')
@@ -413,8 +385,8 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     bumpStreak(digits);
     pendingPrize = maybeStreakPrize(digits);
     setLang(digits, incomingAsk);
-    if (incomingAsk === 'sn') say('Zvakanaka. Kubva zvino ndinotaura chiShona. Tumira mubvunzo.');
-    else if (incomingAsk === 'nd') say('Kulungile. Ngizophendula ngesiNdebele. Thumela umbuzo.');
+    if (incomingAsk === 'sn') say('Zvakanaka. Kubva zvino ndinokutsanangurira neChiShona. Tumira mubvunzo wako.');
+    else if (incomingAsk === 'nd') say('Kulungile. Ngizokuchasisela ngesiNdebele. Thumela umbuzo wakho.');
     else say('Switched to English. Send the question.');
     return { replies };
   }
@@ -430,11 +402,11 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
       const sess0 = sessions.get(digits) || {};
       const last = sess0.lastSpeak || sess0.lastReply;
       if (!last) {
-        say('Send the question first. Then say VOICE and I will speak that working only.');
+        say('Send the question first. Then say VOICE and I will record the step-by-step working.');
         return { replies };
       }
       const ok = await attachVoice(replies, digits, last);
-      say(ok ? 'Voice note of the last working.' : 'Audio failed — say VOICE again in a moment.');
+      say(ok ? '🎙️ Voice note of the working.' : 'Audio synthesis unavailable — say VOICE again in a moment.');
       return { replies };
     }
     work = stripped;
@@ -463,13 +435,16 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   }
 
   const prof = extractProfile(text);
-  if (Object.keys(prof).length) touchLearner(digits, prof);
+  if (Object.keys(prof).length) {
+    touchLearner(digits, prof);
+    syncStudent(digits, getLearner(digits)).catch(() => {});
+  }
   const life = extractLife(text);
   if (life) touchLearner(digits, { lastLife: life });
   const asked = askedLanguage(text);
   if (asked) setLang(digits, asked);
   if (asked && tl.split(/\s+/).length <= 8 && /^(speak|reply|switch|use|in|chi ?shona|shona|ndebele|english|chirungu)\b/i.test(tl)) {
-    if (asked === 'sn') say('Zvakanaka. Kubva zvino ndinotaura chiShona. Tumira mubvunzo.');
+    if (asked === 'sn') say('Zvakanaka. Ndinotsanangura neChiShona. Tumira mubvunzo.');
     else if (asked === 'nd') say('Kulungile. Ngizophendula ngesiNdebele. Thumela umbuzo.');
     else say('Switched to English. Send the question.');
     return { replies };
@@ -483,7 +458,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     const bits = [L.name || 'Alright'].filter(Boolean);
     if (L.grade) bits.push(L.grade);
     if (L.school) bits.push(L.school);
-    const ack = `${bits.join('. ')}. I'll remember. How has school been — or shall we start with something from class?`;
+    const ack = `${bits.join('. ')}. Noted on your learner file! How has school been — or which topic do you want to master today?`;
     say(ack);
     pushChat(digits, 'user', text);
     pushChat(digits, 'assistant', ack);
@@ -501,7 +476,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   if (/^(challenge|examiner|harder)$/i.test(tl)) {
     const L = getLearner(digits);
     if (!L.challengeReady && (L.stars || 0) < 1 && (L.asked || 0) < 1) {
-      say((L.name ? L.name + '. ' : '') + 'Send a question first. Then you can take the examiner question.');
+      say((L.name ? L.name + '. ' : '') + 'Solve one question first to warm up. Then you can tackle the examiner challenge!');
       return { replies };
     }
     say(examinerChallenge(digits));
@@ -515,7 +490,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
       const days = parseInt(parts[3] || '7', 10);
       const exp = activateUser(target, days);
       say(`Activated ${target} for ${days} days until ${exp.toDateString()}`);
-      replies.push({ type: 'text', text: `ACADEX is unlocked for ${days} days. Send a question or MOCK.`, to: target });
+      replies.push({ type: 'text', text: `ACADEX is unlocked for ${days} days. Send any question, past paper, or MOCK.`, to: target });
     } else if (parts[1] === 'status') {
       const target = (parts[2] || digits).replace(/\D/g, '');
       say(card(target) || 'No file yet.');
@@ -523,21 +498,23 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
       const rows = allLearners().slice(0, 20).map(u =>
         `${u.name || u.phone} · ${rankOf(u).title} · ${u.stars || 0}★ · asked ${u.asked || 0} · mock ${u.lastMock ? u.lastMock.score + '/' + u.lastMock.total : '—'} · weak ${(u.weak || [])[0] || '—'}`
       );
-      say(rows.length ? `Class snapshot\n${rows.join('\n')}` : 'No learners yet.');
+      say(rows.length ? `Class snapshot:\n${rows.join('\n')}` : 'No learners registered yet.');
     } else {
-      say('Admin: activate <phone> <days>\nstatus <phone>\nclass');
+      say('Admin commands:\n• activate <phone> <days>\n• status <phone>\n• class');
     }
     return { replies };
   }
 
   const sess = sessions.get(digits) || {};
 
+  // 1. LIVE INTERACTIVE MOCK EXAM ROOM
   if (sess.mock) {
     if (/^stop mock|end mock|cancel mock$/i.test(tl)) {
       const fin = finishMock(sess.mock);
       sess.mock = null;
       sessions.set(digits, sess);
-      touchLearner(digits, { lastMock: { score: fin.score, total: fin.total, subject: fin.text.slice(0, 40) } });
+      touchLearner(digits, { lastMock: { score: fin.score, total: fin.total, subject: fin.subject } });
+      syncGrade(digits, { subject: fin.subject, score: fin.score, pct: fin.pct, grade_letter: fin.gradeLetter }).catch(() => {});
       say(glue(fin.text, awardMockScore(digits, fin.pct)));
       return { replies };
     }
@@ -545,27 +522,35 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
       const fin = finishMock(sess.mock);
       sess.mock = null;
       sessions.set(digits, sess);
-      say(glue('Time. ' + fin.text, awardMockScore(digits, fin.pct)));
+      touchLearner(digits, { lastMock: { score: fin.score, total: fin.total, subject: fin.subject } });
+      syncGrade(digits, { subject: fin.subject, score: fin.score, pct: fin.pct, grade_letter: fin.gradeLetter }).catch(() => {});
+      say(glue('⏳ Time is up!\n\n' + fin.text, awardMockScore(digits, fin.pct)));
       return { replies };
     }
+
     const q = sess.mock.qs[sess.mock.i];
-    const sc = scoreAnswer(q, text);
+    const sc = scoreAnswer(q, text, visionNotes);
     sess.mock.answers.push(sc);
     rememberTopic(digits, sc.topic, sc.ok);
     sess.mock.i += 1;
+
     if (sess.mock.i >= sess.mock.qs.length) {
       const fin = finishMock(sess.mock);
       sess.mock = null;
       sessions.set(digits, sess);
-      touchLearner(digits, { lastMock: { score: fin.score, total: fin.total, subject: 'mock' } });
+      touchLearner(digits, { lastMock: { score: fin.score, total: fin.total, subject: fin.subject } });
+      syncGrade(digits, { subject: fin.subject, score: fin.score, pct: fin.pct, grade_letter: fin.gradeLetter }).catch(() => {});
       if (sc.ok) awardMerit(digits, { stars: 1, announce: false });
-      say(glue((sc.skip ? 'Skipped.\n' : (sc.ok ? '✓\n' : `✗ Answer was ${sc.correct}\n`)) + fin.text, awardMockScore(digits, fin.pct)));
+      const verdict = sc.skip ? '⏭️ Skipped.\n\n' : (sc.ok ? '✅ Correct!\n\n' : `❌ Correct answer was: *${sc.correct}*\n\n`);
+      say(glue(verdict + fin.text, awardMockScore(digits, fin.pct)));
       incrementUse(digits);
       return { replies, increment: true };
     }
+
     sessions.set(digits, sess);
     if (sc.ok) awardMerit(digits, { stars: 1, announce: false });
-    say(sc.skip ? 'Skipped.' : (sc.ok ? '✓ Keep going.' : `✗ It was ${String(sc.correct).slice(0, 80)}. Next:`));
+    const interim = sc.skip ? '⏭️ Skipped.' : (sc.ok ? '✅ Correct! Next question:' : `❌ Expected: *${String(sc.correct).slice(0, 80)}*. Next:`);
+    say(interim);
     const nxt = pushMockQ(sess.mock, say);
     if (nxt.expired) {
       const fin = finishMock(sess.mock);
@@ -576,21 +561,23 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     return { replies, increment: true };
   }
 
-  if (/^(mock|start mock|full mock|mock science|mock maths|mock english|start maths p1)\b/i.test(tl) || /^start mock/.test(tl)) {
+  // 2. TRIGGER NEW MOCK DRILL
+  if (/^(mock|start mock|full mock|mock science|mock maths|mock english|start maths p1|mock grade 7|mock pure maths|mock a level)\b/i.test(tl) || /^start\s*(mock|exam)/i.test(tl)) {
     const mock = startMock(bank, tl);
     if (mock.error) { say(mock.error); return { replies }; }
     sess.mock = mock;
     sessions.set(digits, sess);
-    say(`Starting: ${mock.title}\nI will send one question at a time. No calculator on 4004/1. Aim: Grade A.`);
+    say(`🚀 *Starting Exam Session:* ${mock.title}\nI will send questions one-by-one. Reply directly or send a photo of your working.`);
     pushMockQ(mock, say);
     return { replies };
   }
 
+  // 3. PARENT REPORTS
   if (/^parent\s+/i.test(tl)) {
     const num = tl.replace(/[^\d]/g, '');
     if (num.length >= 9) {
       touchLearner(digits, { parent: num });
-      say(`Parent number saved. Send REPORT to generate the note.`);
+      say(`Parent number saved (+${num}). Type REPORT to generate the official progress slip.`);
     } else say('Send: parent 2637…');
     return { replies };
   }
@@ -604,22 +591,25 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     return { replies };
   }
 
+  // 4. NUMBERED ANSWER SCRIPTS
   if (/^mark\b/i.test(tl) || parseNumbered(text).length >= 3) {
     const nums = parseNumbered(text.replace(/^mark\s*/i, ''));
-    const req = parsePaperRequest(text);
-    const paper = findPaper(bank, req.year, req.session, req.code, req.paperNo)
-      || findPaper(bank, '2024', 'November', '4004', 1);
+    const details = parsePaperDetails(text);
+    const paper = (bank.papers || []).find(p => String(p.year) === String(details.year) && String(p.syllabus) === String(details.code) && Number(p.paperNo) === Number(details.paperNo))
+      || (bank.papers || []).find(p => String(p.syllabus) === '4004' && Number(p.paperNo) === 1);
     if (nums.length && paper) {
       const marked = markAgainstPaper(paper, nums);
       if (marked) {
         say(glue(marked.text, awardMockScore(digits, marked.pct)));
         marked.weak.forEach(w => rememberTopic(digits, w, false));
+        syncGrade(digits, { subject: `${paper.subject || 'Maths'} ${paper.code}`, score: marked.right, pct: marked.pct, grade_letter: marked.pct >= 75 ? 'A' : marked.pct >= 50 ? 'C' : 'U' }).catch(() => {});
         incrementUse(digits);
         return { replies, increment: true };
       }
     }
   }
 
+  // 5. ESSAYS & 1122 COMPOSITIONS
   if (looksLikeEssay(text) || /^mark (essay|composition)/i.test(tl)) {
     const m = markComposition(text);
     const essayAward = /A/.test(m.band) ? awardMerit(digits, { stars: 2, house: 1, badge: '1122 band', announce: true }) : null;
@@ -630,24 +620,40 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     return { replies, increment: true };
   }
 
-  if (/download|pdf|past paper/.test(tl)) {
-    const req = parsePaperRequest(text);
-    const base = publicUrl || 'https://acadex-r6z0.onrender.com';
-    const url = `${base}/pdfs/${req.fname}`;
-    const exists = findPaper(bank, req.year, req.session, req.code, req.paperNo);
-    if (!exists) {
-      say(`No ACADEX paper for ${req.title}. Try: Download 2024 Maths Paper 1`);
+  // 6. QUESTION PAPERS & PDF DISPATCHER
+  if (isPaperRequest(text)) {
+    if (/^(past\s*papers?|papers?|question\s*papers?|all\s*papers?|exam\s*papers?|paper\s*list|list\s*papers?|grade\s*7\s*papers?|a\s*level\s*papers?)$/i.test(tl)) {
+      say(getAvailablePapersMenu(tl));
       return { replies };
     }
-    replies.push({ type: 'document', url, filename: req.fname, caption: `${req.title} (original ACADEX, not a leaked ZIMSEC script)` });
+
+    const details = parsePaperDetails(text);
+    const fp = findPdfFile(workspaceRoot, details.fname);
+    const base = publicUrl || 'https://acadex-r6z0.onrender.com';
+    const url = `${base}/pdfs/${details.fname}`;
+
+    if (!fp) {
+      say(`📄 *Paper Not in Local Index:* ${details.title}\n\nType *Past Papers* to view the complete list of 88 available ZIMSEC papers.`);
+      return { replies };
+    }
+
+    const caption = formatPaperCaption(details);
+    replies.push({
+      type: 'document',
+      filePath: fp,
+      url,
+      filename: details.fname,
+      caption,
+    });
     incrementUse(digits);
     return { replies, increment: true };
   }
 
+  // 7. PREDICTOR PAPERS
   if (/^(predictor|forecast|predict)$/i.test(tl) || /\bpredictor\b/.test(tl)) {
     const L = getLearner(digits);
     let extra = '';
-    if (L.weak?.length) extra = `\n\nFor you${L.name ? ', ' + L.name : ''}: drill ${L.weak[0]} first.`;
+    if (L.weak?.length) extra = `\n\n📌 *Personal Priority for ${L.name || 'you'}:* Drill ${L.weak[0]} first.`;
     say(predictorText(bank) + extra);
     incrementUse(digits);
     return { replies, increment: true };
@@ -655,8 +661,8 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
 
   if ((tl === '[photo]' || tl.startsWith('[image]') || tl === '[video]') && !visionNotes) {
     say(visionOn()
-      ? 'I could not read that file yet. Send the photo again in a moment, or type the question.'
-      : 'Put the question as the photo caption, or type it. I mark working best when I can see the numbers.');
+      ? 'I could not extract the text from that picture clearly. Send a closer snapshot of the question with good lighting, or type it out.'
+      : 'Type your question or add a short caption to the photo. I mark step-by-step working best when numbers are visible.');
     return { replies };
   }
 
@@ -675,17 +681,18 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
 
   const zFacts = zimsecExplain(text);
   if (zFacts) {
-    say(`${zFacts.title}\n\n${zFacts.answer}`);
+    say(`📖 *${zFacts.title}*\n\n${zFacts.answer}`);
     incrementUse(digits);
     return { replies, increment: true };
   }
 
   const sub = canUse(digits);
   if (!sub.allowed) {
-    say('Free drill is used up. $0.75/week or $3/month. Admin activates after EcoCash.');
+    say('Free drill limit reached. Unlimited access is $0.75/week or $3/month via EcoCash/Innbucks. Admin unlocks upon confirmation.');
     return { replies };
   }
 
+  // 8. SENIOR TEACHER & MULTI-SUBJECT SOLVER
   if (await teach(digits, text, bank, say, replies)) {
     if (askVoice) {
       const last = (sessions.get(digits) || {}).lastReply;
@@ -713,7 +720,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
 
   const concept = teachConcept(text);
   if (concept) {
-    say(glue(`${concept.title}\n\n${concept.answer}`, awardPractice(digits)));
+    say(glue(`📚 *${concept.title}*\n\n${concept.answer}`, awardPractice(digits)));
     rememberTopic(digits, concept.title, true);
     incrementUse(digits);
     await attachDiagram(replies, incoming);
@@ -727,27 +734,30 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     const L = getLearner(digits);
     const who = L.name ? L.name + '. ' : '';
     say(glue(who + body, awardPractice(digits)));
-    rememberTopic(digits, 'Algebra', true);
+    rememberTopic(digits, 'Algebra & Equations', true);
     incrementUse(digits);
     if (askVoice) await attachVoice(replies, digits, body);
     await attachDiagram(replies, incoming);
     return { replies, increment: true };
   }
+
   const sci = explainScience(text);
   if (sci) {
-    say(glue(`${sci.title}\n\n${sci.answer}\n\n5006: command word first. State is short. Explain needs because.`, awardPractice(digits)));
+    say(glue(`🔬 *${sci.title}*\n\n${sci.answer}\n\n📌 *ZIMSEC Science Tip:* Remember command words — State requires a short fact, Explain requires cause-and-effect ("because").`, awardPractice(digits)));
     rememberTopic(digits, sci.title, true);
     incrementUse(digits);
     if (askVoice) await attachVoice(replies, digits, sci.answer);
     return { replies, increment: true };
   }
+
   const eng = helpEnglish(text);
   if (eng) {
-    say(glue(`${eng.title}\n\n${eng.answer}\n\n1122: the command word is the mark scheme.`, awardPractice(digits)));
+    say(glue(`✍️ *${eng.title}*\n\n${eng.answer}\n\n📌 *ZIMSEC English 1122 Tip:* Command words dictate mark allocation. Keep summary within strict word limits.`, awardPractice(digits)));
     rememberTopic(digits, eng.title, true);
     incrementUse(digits);
     return { replies, increment: true };
   }
+
   const hit = (!isConfused(text) && searchBank(bank, text));
   if (hit) {
     say(glue(formatHit(hit), awardPractice(digits)));
@@ -756,6 +766,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     await attachDiagram(replies, incoming);
     return { replies, increment: true };
   }
+
   say(fallback(text));
   await attachDiagram(replies, incoming);
   return { replies };

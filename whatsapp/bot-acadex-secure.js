@@ -15,6 +15,8 @@ import { inboxStats } from './inbox.js';
 import { startKeepAlive, keepaliveState } from './keepalive.js';
 import { restoreLearners, schedulePersist, sessionStoreMode } from './session-store.js';
 import { visionOn } from './vision.js';
+import { getSupabaseStatus, initSupabase } from './supabase-sync.js';
+import { getAvailablePapersMenu } from './papers.js';
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -52,6 +54,10 @@ const SESSION_MINUTES = parseInt(process.env.SESSION_MINUTES || '10080');
 const APP_SECRET = process.env.APP_SECRET || '';
 const BANK = loadBank(workspaceRoot);
 const learnersFile = path.join(workspaceRoot, 'data', 'learners.json');
+
+// Initialize cloud sync
+initSupabase().catch(() => {});
+
 restoreLearners(learnersFile).then((r) => {
   if (r?.restored) loadBank(workspaceRoot);
 }).catch(() => {});
@@ -135,16 +141,19 @@ async function sendAudio(to, url){
     messaging_product:'whatsapp', to, type:'audio', audio:{ link:url }
   }, { headers:{ Authorization:`Bearer ${WHATSAPP_TOKEN}` }});
 }
-async function sendDocument(to, url, filename, caption){
-  const fp = localPdf(filename);
+async function sendDocument(to, url, filename, caption, filePath){
+  const fp = filePath || localPdf(filename);
   if (isLinked()) {
-    if (fp) { await phoneLink.sendPhoneDocument(to, fp, filename, caption); return; }
-    await phoneLink.sendPhoneText(to, `📄 ${filename}\n${caption || ''}\n${url}`);
+    if (fp && fs.existsSync(fp)) {
+      await phoneLink.sendPhoneDocument(to, fp, filename, caption);
+      return;
+    }
+    await phoneLink.sendPhoneText(to, `📄 ${filename}\n\n${caption || ''}\n\n📥 Direct download: ${url}`);
     return;
   }
   if(!WHATSAPP_TOKEN || !PHONE_NUMBER_ID){
     console.log(`[MOCK DOCUMENT to ${to}]: ${filename} -> ${url}`);
-    await sendText(to, `📄 ${filename}\n${caption}\nDirect download: ${url}`);
+    await sendText(to, `📄 ${filename}\n\n${caption}\n\nDirect download: ${url}`);
     return;
   }
   await axios.post(`https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`, {
@@ -169,7 +178,7 @@ function adminAuth(req,res,next){
 }
 
 const hits = new Map();
-const SKIP_LIMIT = new Set(['/ping', '/health', '/awake', '/link/status']);
+const SKIP_LIMIT = new Set(['/ping', '/health', '/awake', '/link/status', '/api/supabase/status', '/api/papers']);
 function rateLimit(req,res,next){
   if (SKIP_LIMIT.has(req.path)) return next();
   const ip = req.ip || req.headers['x-forwarded-for'] || 'local';
@@ -194,6 +203,7 @@ function whatsappMode(){
   if (st.status && st.status !== 'idle') return 'phone-link-'+st.status;
   return 'mock';
 }
+
 app.get('/health', (req,res)=>{
   noCacheCors(res);
   res.json({
@@ -209,9 +219,36 @@ app.get('/health', (req,res)=>{
     keepalive: keepaliveState(),
     sessionStore: sessionStoreMode(),
     vision: visionOn() ? 'ox-alpha-read' : 'off',
+    supabase: getSupabaseStatus(),
     time: new Date().toISOString()
   });
 });
+
+app.get('/api/supabase/status', (req, res) => {
+  noCacheCors(res);
+  res.json(getSupabaseStatus());
+});
+
+app.get('/api/papers', (req, res) => {
+  noCacheCors(res);
+  res.json({
+    total: (BANK.papers || []).length,
+    papers: (BANK.papers || []).map(p => ({
+      id: p.id,
+      year: p.year,
+      session: p.session,
+      level: p.level,
+      subject: p.subject,
+      code: p.code,
+      syllabus: p.syllabus,
+      paper: p.paper,
+      paperNo: p.paperNo,
+      qs: p.qs,
+      pdf: p.realUrl,
+    }))
+  });
+});
+
 app.get('/ping', (req,res)=>{ noCacheCors(res); res.type('text').send('ok'); });
 app.get('/awake', (req,res)=>{ noCacheCors(res); res.type('text').send('ok'); });
 app.get('/link', (req,res)=>{
@@ -223,12 +260,13 @@ app.get('/link/status', (req,res)=>{
   res.json(getLinkStatus());
 });
 app.get('/bot', (req,res)=>res.send(`
-  <h2>ACADEX Secure Bot Running</h2>
+  <h2>ACADEX Master ZIMSEC Platform Running</h2>
   <p>WhatsApp: <b>+${ADMIN_PHONE}</b></p>
   <p>Trigger phrase: <b>${TRIGGER_PHRASE}</b></p>
   <p>Bot Mode: ${SESSION_MINUTES} min</p>
-  <p>Papers in bank: ${(BANK.papers||[]).length}</p>
+  <p>Papers in bank: ${(BANK.papers||[]).length} (Grade 7, O-Level, A-Level)</p>
   <p>WhatsApp mode: <b>${whatsappMode()}</b></p>
+  <p>Supabase DB: <b>${getSupabaseStatus().connected ? 'Connected' : 'Syncing'}</b></p>
   <p>Link the phone (no Facebook): <a href="/link">/link</a></p>
   <p>Use <a href="/admin">/admin</a> with password</p>
 `));
@@ -244,7 +282,7 @@ app.get('/webhook', (req,res)=>{
 async function dispatchReplies(defaultTo, replies){
   for (const r of replies || []) {
     const to = r.to || defaultTo;
-    if (r.type === 'document') await sendDocument(to, r.url, r.filename, r.caption || '');
+    if (r.type === 'document') await sendDocument(to, r.url, r.filename, r.caption || '', r.filePath);
     else if (r.type === 'image') {
       if (r.filePath && isLinked() && fs.existsSync(r.filePath)) {
         await phoneLink.sendPhoneImage(to, r.filePath, r.caption || '');
@@ -257,7 +295,7 @@ async function dispatchReplies(defaultTo, replies){
         else console.warn('audio skipped, no file', r.filePath || r.url);
       } catch (e) {
         console.error('audio send', e.message);
-        await sendText(to, 'Audio failed to send. Say VOICE again.');
+        await sendText(to, 'Audio synthesis failed. Say VOICE again.');
       }
     } else await sendText(to, r.text);
   }
@@ -299,146 +337,32 @@ app.post('/webhook', async (req,res)=>{
       return res.sendStatus(200);
     }
     await dispatchReplies(from, result.replies);
+    return res.sendStatus(200);
   }catch(e){
-    console.error('webhook err', e.message);
+    console.error('Webhook error:', e.message);
+    return res.sendStatus(500);
   }
-  res.sendStatus(200);
 });
 
-app.post('/bot/simulate', async (req,res)=>{
-  if (WHATSAPP_TOKEN) return res.status(403).json({ error: 'simulate off when Cloud API is live — use real WhatsApp' });
-  const from = String(req.body?.from || ADMIN_PHONE || '263716987183').replace(/\D/g,'');
-  const text = String(req.body?.text || '');
-  const result = await runTurn(from, text);
-  res.json({ from, text, ignored: !!result.ignored, replies: result.replies || [] });
-});
-
-app.post('/ussd', (req,res)=>{
-  const { phoneNumber, text } = req.body;
-  const parts = (text||'').split('*');
-  const phone = (phoneNumber||'').replace(/\D/g,'');
-  let response='';
-  if(text===''){
-    response=`CON Acadex - Pasina Data 🇿🇼\n1. Gadzirisa Mubvunzo\n2. Past Papers\n3. Mock Exam\n4. Chinja Mutauro\n5. Akaundi Yangu`;
-  } else if(parts[0]==='1' && parts.length===1){
-    response=`CON Nyora mubvunzo:\nMuenzaniso: 2x+3=11`;
-  } else if(parts[0]==='1' && parts.length===2){
-    const q=parts[1];
-    const can = canUse(phone);
-    if(!can.allowed){
-      response=`END Wapfuura 10 FREE. Bhadhara $0.75.`;
-    } else {
-      incrementUse(phone);
-      const u=getUser(phone);
-      const solved = solveLinear(q);
-      if(solved){
-        response=`CON x=${solved.answer}\n${solved.steps.map(s=>s.t+': '+s.d).join('\n')}\nZasara ${FREE_LIMIT-u.free_used} FREE`;
-      } else {
-        response=`CON Handina kuzvinzwisisa. Nyora se 2x+3=11\nZasara ${FREE_LIMIT-u.free_used} FREE`;
-      }
-    }
-  } else if(parts[0]==='2'){
-    response=`END Maths 4004/1:\n/pdfs/2024_November_4004_Paper1.pdf\nScience 5006/1:\n/pdfs/2024_November_5006_Paper1.pdf\nEnglish 1122/1:\n/pdfs/2024_November_1122_Paper1.pdf`;
-  } else if(parts[0]==='3'){
-    response=`END Mock: open the website Mock Exam tab.`;
-  } else if(parts[0]==='4'){
-    response=`CON Sarudza: 1.Shona 2.Ndebele 3.English`;
-  } else if(parts[0]==='5'){
-    const u=getUser(phone);
-    const paid=isPaid(phone)?`PAID kusvika ${new Date(u.expiry_date).toLocaleDateString()}`:`FREE ${u.free_used||0}/10`;
-    response=`CON Akaundi: ${phone}\n${paid}`;
-  } else {
-    response=`END Ndatenda - Acadex.`;
-  }
-  res.set('Content-Type','text/plain');
-  res.send(response);
-});
-app.get('/ussd/test', (req,res)=>res.send(`<form method="POST" action="/ussd"><input name="phoneNumber" value="263716987183"><input name="text" value=""><button>Send USSD</button></form>`));
-
-app.get('/admin', (req,res)=>{
+// Admin routes
+app.get('/admin', adminAuth, (req,res)=>{
+  const users = listUsers();
+  const phones = sessionPhones();
   res.send(`
-<!DOCTYPE html>
-<html><head><meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-body{font-family:system-ui;padding:20px;max-width:800px;margin:auto}
-input,button{padding:10px;margin:4px;border-radius:8px;border:1px solid #ccc}
-button{background:#0a7a3c;color:white;font-weight:800;cursor:pointer}
-.card{border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin:10px 0}
-.badge{padding:3px 8px;border-radius:999px;font-size:11px;font-weight:800}
-</style>
-</head><body>
-<h2>🔒 ACADEX Admin — ONLY YOU</h2>
-<p>WhatsApp bot number: <b>+${ADMIN_PHONE}</b></p>
-<input id="pwd" type="password" placeholder="Admin password">
-<button onclick="load()">Unlock</button>
-<div id="out"></div>
-<script>
-async function load(){
-  const pwd=document.getElementById('pwd').value;
-  const r=await fetch('/admin/api/users',{ headers:{ 'x-admin-password': pwd }});
-  if(r.status===401){ alert('Wrong password - blocked'); return; }
-  const j=await r.json();
-  let h='';
-  j.users.forEach(u=>{
-    const paid = u.expiry_date && new Date(u.expiry_date) > new Date();
-    h+=\`<div class="card">
-      <b>\${u.phone}</b> <span class="badge" style="background:\${paid?'#0a7a3c':'#ef4444'};color:white">\${paid?'PAID until '+new Date(u.expiry_date).toLocaleDateString():'EXPIRED/FREE '+ (u.free_used||0)+'/10'}</span>
-      <div style="margin-top:8px">
-        <button onclick="activate('\${u.phone}',7)">+7 days $0.75</button>
-        <button onclick="activate('\${u.phone}',30)">+30 days $3</button>
-        <button onclick="resetFree('\${u.phone}')" style="background:#f59e0b">Reset Free</button>
-      </div>
-    </div>\`;
-  });
-  document.getElementById('out').innerHTML = h || '<p>No users yet - send "mhoro acadex" from WhatsApp.</p>';
-}
-async function activate(phone,days){
-  const pwd=document.getElementById('pwd').value;
-  const r=await fetch('/admin/api/activate',{method:'POST',headers:{'Content-Type':'application/json','x-admin-password':pwd},body:JSON.stringify({phone,days})});
-  alert(await r.text()); load();
-}
-async function resetFree(phone){
-  const pwd=document.getElementById('pwd').value;
-  await fetch('/admin/api/reset',{method:'POST',headers:{'Content-Type':'application/json','x-admin-password':pwd},body:JSON.stringify({phone})});
-  load();
-}
-</script>
-<p style="font-size:11px;color:#64748b">Admin WhatsApp: admin activate 263... 7</p>
-</body></html>
+    <h2>ACADEX Admin Panel</h2>
+    <p>Connected sessions: ${phones.length}</p>
+    <p>Total users: ${users.length}</p>
+    <p>Papers in bank: ${(BANK.papers||[]).length}</p>
+    <p>Supabase Status: ${getSupabaseStatus().connected ? 'Connected' : 'Offline'}</p>
+    <pre>${JSON.stringify(users, null, 2)}</pre>
   `);
 });
 
-app.get('/admin/api/users', adminAuth, (req,res)=>{
-  res.json({ users: listUsers(), sessions: sessionPhones() });
-});
-app.post('/admin/api/activate', adminAuth, async (req,res)=>{
-  const { phone, days } = req.body;
-  const target = (phone||'').replace(/\D/g,'');
-  if(!target) return res.status(400).send('phone required');
-  const exp = activateUser(target, parseInt(days)||7);
-  await sendText(target, `✅ Acadex yatambirwa! Wava ne ${days} mazuva unlimited. Tumira mubvunzo.`);
-  res.send(`Activated ${target} for ${days} days until ${exp.toDateString()}`);
-});
-app.post('/admin/api/reset', adminAuth, (req,res)=>{
-  const { phone } = req.body;
-  const target = (phone||'').replace(/\D/g,'');
-  resetFree(target);
-  res.send('Reset free count');
-});
-
-const PORT=process.env.PORT||3000;
-app.listen(PORT, '0.0.0.0', ()=>{
-  console.log(`ACADEX Secure Bot live :${PORT} | always-on | WA +${ADMIN_PHONE}`);
-  if (skipPhoneLink()) {
-    console.log(WHATSAPP_TOKEN ? 'Cloud API tokens set — phone-link off' : 'PHONE_LINK=0');
-    return;
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, async () => {
+  console.log(`ACADEX Master Live on :${PORT}`);
+  if (!skipPhoneLink()) {
+    try { await ensurePhoneLink(); } catch (e) { console.error('auto phone link', e.message); }
   }
-  setTimeout(() => ensurePhoneLink(), 2000);
-  const base = (PUBLIC_URL || 'https://acadex-r6z0.onrender.com').replace(/\/$/, '');
-  startKeepAlive([
-    base + '/awake',
-    base + '/ping',
-    'https://acadex-r6z0.onrender.com/awake',
-  ], 4 * 60 * 1000);
-  setInterval(() => schedulePersist(path.join(__dirname, 'session'), learnersFile), 2 * 60 * 1000);
+  startKeepAlive(PUBLIC_URL);
 });
