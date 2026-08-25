@@ -772,4 +772,4 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   return { replies };
 }
 
-export { FREE_LIMIT, users, sessions, closer };
+export { FREE_LIMIT, users, sessions, closer, solveLinearEq as solveLinear };

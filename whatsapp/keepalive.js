@@ -16,7 +16,8 @@ export function keepaliveState() {
 }
 
 export function startKeepAlive(urls, everyMs = 4 * 60 * 1000) {
-  const list = [...new Set((urls || []).map((u) => String(u || '').replace(/\/$/, '')).filter((u) => /^https?:\/\//i.test(u)))];
+  const arr = Array.isArray(urls) ? urls : (typeof urls === 'string' ? [urls] : []);
+  const list = [...new Set(arr.map((u) => String(u || '').replace(/\/$/, '')).filter((u) => /^https?:\/\//i.test(u)))];
   state.everyMs = everyMs;
   if (!list.length) return state;
 

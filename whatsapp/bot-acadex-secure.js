@@ -7,7 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import {
-  loadBank, handleTurn, solveLinear, incrementUse,
+  loadBank, handleTurn, incrementUse,
   getUser, isPaid, canUse, listUsers, sessionPhones,
   activateUser, resetFree, FREE_LIMIT,
 } from './tutor.js';
