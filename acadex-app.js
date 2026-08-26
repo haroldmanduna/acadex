@@ -83,6 +83,7 @@ function getProfile() {
     school: "Zimbabwe High School",
     subjects: ["Mathematics (4004)", "Combined Science (5006)", "English Language (1122)"],
     lang: "en",
+    termsAgreed: false,
     streak: 1,
     practiceCount: 0,
     created: new Date().toISOString()
@@ -93,7 +94,14 @@ function saveProfile() {
   const nameInput = document.getElementById("pName");
   const gradeInput = document.getElementById("pGrade");
   const schoolInput = document.getElementById("pSchool");
+  const termsCheck = document.getElementById("termsAgreeCheck");
   
+  if (termsCheck && !termsCheck.checked) {
+    alert("Please check and agree to the ACADEX Terms of Use and Privacy Policy to proceed.");
+    termsCheck.focus();
+    return;
+  }
+
   const name = nameInput ? nameInput.value.trim() : "";
   const grade = gradeInput ? gradeInput.value : "Form 4 (O-Level)";
   const school = schoolInput ? schoolInput.value.trim() || "Zimbabwe High School" : "Zimbabwe High School";
@@ -109,6 +117,7 @@ function saveProfile() {
     school: school,
     subjects: selectedSubs.length ? selectedSubs : ["Mathematics (4004)", "Combined Science (5006)", "English Language (1122)"],
     lang: activeLang || "en",
+    termsAgreed: true,
     lastActive: new Date().toISOString()
   };
 
@@ -128,10 +137,12 @@ function openProfile() {
   const nameInput = document.getElementById("pName");
   const gradeInput = document.getElementById("pGrade");
   const schoolInput = document.getElementById("pSchool");
+  const termsCheck = document.getElementById("termsAgreeCheck");
 
   if (nameInput) nameInput.value = (acadexProfile.name && acadexProfile.name !== "Student") ? acadexProfile.name : "";
   if (gradeInput) gradeInput.value = acadexProfile.grade || "Form 4 (O-Level)";
   if (schoolInput) schoolInput.value = (acadexProfile.school && acadexProfile.school !== "Zimbabwe High School") ? acadexProfile.school : "";
+  if (termsCheck) termsCheck.checked = !!acadexProfile.termsAgreed;
 
   renderProfileSubjects();
 }
@@ -139,6 +150,67 @@ function openProfile() {
 function closeProfile() {
   const m = document.getElementById("profileModal");
   if (m) m.style.display = "none";
+}
+
+/* ----- Legalities & Customer Support Hub ----- */
+function openLegalModal(tabKey) {
+  const m = document.getElementById("legalModal");
+  if (!m) return;
+  m.style.display = "flex";
+  switchLegalTab(tabKey || 'terms');
+}
+
+function closeLegalModal() {
+  const m = document.getElementById("legalModal");
+  if (m) m.style.display = "none";
+}
+
+function switchLegalTab(tabKey) {
+  const tabs = ['terms', 'privacy', 'disclaimer', 'safety', 'support'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`ltab-${t}`);
+    const sec = document.getElementById(`lsec-${t}`);
+    if (btn) btn.classList.toggle('active', t === tabKey);
+    if (sec) sec.style.display = (t === tabKey) ? 'block' : 'none';
+  });
+}
+
+function submitSupportFeedback() {
+  const nameEl = document.getElementById("supName");
+  const msgEl = document.getElementById("supMsg");
+  const statusEl = document.getElementById("supStatus");
+  const name = nameEl ? nameEl.value.trim() : "";
+  const msg = msgEl ? msgEl.value.trim() : "";
+
+  if (!msg) {
+    alert("Please enter your message or question.");
+    return;
+  }
+
+  const ticket = {
+    name: name || acadexProfile?.name || "Student",
+    message: msg,
+    timestamp: new Date().toISOString(),
+    profile: acadexProfile?.grade || "O-Level"
+  };
+
+  try {
+    const raw = localStorage.getItem("acadex_support_tickets") || "[]";
+    const arr = JSON.parse(raw);
+    arr.push(ticket);
+    localStorage.setItem("acadex_support_tickets", JSON.stringify(arr));
+  } catch (e) { /* ignore */ }
+
+  if (statusEl) {
+    statusEl.textContent = "✓ Message saved! Connecting to WhatsApp support...";
+  }
+
+  setTimeout(() => {
+    if (msgEl) msgEl.value = "";
+    if (statusEl) statusEl.textContent = "✓ Ticket logged successfully!";
+    const encoded = encodeURIComponent(`Hello ACADEX Support, my name is ${name || 'a student'}. ${msg}`);
+    window.open(`https://wa.me/263716987183?text=${encoded}`, '_blank');
+  }, 900);
 }
 
 function renderProfileSubjects() {
