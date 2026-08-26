@@ -1,8 +1,9 @@
 {
-  "name": "ACADEX - ZIMSEC Maths",
+  "name": "ACADEX - ZIMSEC Master Tutor",
   "short_name": "ACADEX",
-  "description": "ZIMSEC-style Maths papers and worked solutions in 16 languages. Works offline after install.",
-  "start_url": "/zimsec-super-tutor.html",
+  "description": "ZIMSEC practice papers, worked solutions, and offline tutor across Primary, O-Level & A-Level.",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0a7a3c",
   "theme_color": "#0a7a3c",

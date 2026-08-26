@@ -233,13 +233,13 @@ I am *ACADEX* — your 24/7 ZIMSEC Tutor & Senior Examiner across *Primary (Grad
 
 📚 *How to study with me:*
 • *Ask any question:* Send text or snap a photo of your working for step-by-step marking.
-• *Download Past Papers:* Type *Past Papers* or e.g. *Send 2024 Maths P1*.
+• *Download Past Papers (118+ PDFs):* Type *Past Papers* or e.g. *Send 2024 Biology P2*.
 • *Live Timed Mocks:* Type *Start Mock Maths* or *Mock Science* or *Mock Grade 7*.
 
 📲 *Chat with me 100% OFFLINE (0% Mobile Data):*
-You can install ACADEX directly on your phone storage and chat offline anytime:
-👉 *https://haroldmanduna.github.io/acadex/*
-_(Open in Chrome/Safari → tap "Add to Home screen" → turn off data and practice offline!)_
+You can install ACADEX directly to your phone storage and chat offline anytime with zero data:
+👉 *https://acadex-r6z0.onrender.com/* (or https://haroldmanduna.github.io/acadex/)
+_(Open in Chrome/Safari → tap "Add to Home screen" → turn off mobile data and practice offline!)_
 
 What would you like to start with today?`;
 }
@@ -314,19 +314,19 @@ Type or snap a photo of your Maths, Science, English, Grade 7, or A-Level questi
 }
 
 function offlineInstructions() {
-  return `📲 *ACADEX OFFLINE TUTOR & 88 QUESTION PAPERS*
+  return `📲 *ACADEX OFFLINE TUTOR & 118+ QUESTION PAPERS*
 ━━━━━━━━━━━━━━━━━━━━
 You can study and practice with ACADEX completely *offline with 0% mobile data*:
 
 👉 *Step 1: Open the link in your browser:*
-https://haroldmanduna.github.io/acadex/
+https://acadex-r6z0.onrender.com/ (or https://haroldmanduna.github.io/acadex/)
 
-👉 *Step 2: Install to your phone:*
+👉 *Step 2: Install to your phone screen:*
 • On Android (Chrome): Tap the *3 dots (⋮)* at the top right → tap *“Add to Home screen”* or *“Install App”*.
 • On iPhone (Safari): Tap the *Share icon* at the bottom → tap *“Add to Home Screen”*.
 
-👉 *Step 3: All 88 Papers & Solver Download Automatically:*
-The app stores all 88 ZIMSEC papers, worked answers, and the offline marking engine directly into your phone memory.
+👉 *Step 3: All 118 Papers & Solver Download Automatically:*
+The app stores all 118 ZIMSEC papers, worked answers, and the offline marking engine directly into your phone memory.
 
 ✨ *After installing:*
 • You can switch off mobile data or turn on Airplane Mode.
