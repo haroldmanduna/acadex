@@ -225,15 +225,23 @@ function greetingFallback(phone) {
   const L = getLearner(phone);
   const first = !L.heardPrizes;
   if (first) touchLearner(phone, { heardPrizes: true });
-  const prizes = first ? '\n\n' + prizeHow() : '';
-  const streakBit = L.streak ? ` Day ${L.streak}.` : '';
-  if (L.name && L.lastTopic) {
-    return `${L.name}.${streakBit} Last time we drilled ${L.lastTopic}. I'm here — tell me how school is going, or send your next question.` + prizes;
-  }
-  if (L.name) {
-    return `${L.name}.${streakBit} Good to have you. What would you like to drill today? (Maths, Science, English, Grade 7, A-Level, or type "Past Papers")` + prizes;
-  }
-  return `Hello. I'm ACADEX — your ZIMSEC tutor across Primary, O-Level & A-Level.\nSend any question, or type *Past Papers* to download exams, or *Start Mock* to practice!` + prizes;
+  const streakBit = L.streak ? ` · Day ${L.streak} Streak 🔥` : '';
+  const nameBit = L.name ? ` ${L.name}` : '';
+
+  return `👋 *Mhoro / Hello${nameBit}!*${streakBit}
+I am *ACADEX* — your 24/7 ZIMSEC Tutor & Senior Examiner across *Primary (Grade 7), O-Level & A-Level*.
+
+📚 *How to study with me:*
+• *Ask any question:* Send text or snap a photo of your working for step-by-step marking.
+• *Download Past Papers:* Type *Past Papers* or e.g. *Send 2024 Maths P1*.
+• *Live Timed Mocks:* Type *Start Mock Maths* or *Mock Science* or *Mock Grade 7*.
+
+📲 *Chat with me 100% OFFLINE (0% Mobile Data):*
+You can install ACADEX directly on your phone storage and chat offline anytime:
+👉 *https://haroldmanduna.github.io/acadex/*
+_(Open in Chrome/Safari → tap "Add to Home screen" → turn off data and practice offline!)_
+
+What would you like to start with today?`;
 }
 
 async function teach(digits, text, bank, say, replies) {
