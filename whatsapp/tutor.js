@@ -697,7 +697,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     return { replies };
   }
 
-  if (/^(offline|study offline|download offline|no data|offline app|offline tutor|offline mode|how to (use|study) offline)$/i.test(tl) || /\b(study offline|offline mode|offline tutor|offline app)\b/i.test(tl)) {
+  if (/^(offline|study offline|download offline|no data|offline app|offline tutor|offline mode|how to (use|study|chat) offline|how do i (use|study|chat) offline)$/i.test(tl) || /\b(study offline|offline mode|offline tutor|offline app|chat offline|use offline|works? offline)\b/i.test(tl)) {
     say(offlineInstructions());
     return { replies };
   }
