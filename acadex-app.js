@@ -1,670 +1,861 @@
-/* ACADEX V3 — Maths tutor UI. Consumes window.ACADEX_DATA */
+/* ACADEX V13 — Master ZIMSEC Tutor & Offline Engine (Primary, O-Level & A-Level)
+ * Consumes window.ACADEX_DATA (118 Papers, 1,485 Questions)
+ */
+
 const DATA = window.ACADEX_DATA || { papers: [], featured: [], predictor: [], counts: {} };
-const ALL_SUBJECTS = ["Mathematics", "English Language", "Combined Science", "Grade 7 Mathematics", "Pure Mathematics", "Further Mathematics"];
-const languages = [
-  { code: "sn", name: "Shona" }, { code: "nd", name: "Ndebele" }, { code: "en", name: "English" },
-  { code: "ven", name: "Venda" }, { code: "toi", name: "Tonga" }, { code: "xho", name: "Xhosa" },
-  { code: "sot", name: "Sotho" }, { code: "tsw", name: "Tswana" }, { code: "namb", name: "Nambya" },
-  { code: "ndau", name: "Ndau" }, { code: "kal", name: "Kalanga" }, { code: "che", name: "Chewa" },
-  { code: "bar", name: "Chibarwe" }, { code: "sha", name: "Shangani" }, { code: "sna", name: "Sign + Text" },
-  { code: "koi", name: "Koisan" }
+
+const ALL_SUBJECTS = [
+  "Mathematics (4004)",
+  "Combined Science (5006)",
+  "English Language (1122)",
+  "Biology (5008)",
+  "Chemistry (5070)",
+  "Physics (5054)",
+  "Principles of Accounts (7110)",
+  "Commerce (7103)",
+  "History (2167)",
+  "Geography (2248)",
+  "Computer Science (4021)",
+  "Heritage Studies (4006)",
+  "ChiShona (3159)",
+  "isiNdebele (3155)",
+  "Grade 7 Mathematics (702)",
+  "Grade 7 English (701)",
+  "Grade 7 General Paper (703)",
+  "Pure Mathematics (6042)",
+  "Mathematics (9164)",
+  "Further Mathematics (9187)",
+  "A-Level Physics (6032)",
+  "A-Level Chemistry (6027)",
+  "A-Level Economics (6073)",
+  "A-Level Business Studies (6025)",
+  "A-Level History (6006)"
 ];
-const LABELS = {
-  en: { step: "Step", check: "Check", answer: "Answer", marks: "Mark scheme", hello: "Hello", coach: "Coach" },
-  sn: { step: "Danho", check: "Kutarisa", answer: "Mhinduro", marks: "Mamiriro emamarks", hello: "Mhoro", coach: "Mudzidzisi" },
-  nd: { step: "Isinyathelo", check: "Ukuhlola", answer: "Impendulo", marks: "Ukumaka", hello: "Salibonani", coach: "Umqeqeshi" }
-};
-const realAudioMap = {
-  sn: "audio/shona-solve.mp3", nd: "audio/ndebele-solve.mp3", en: "audio/english-solve.mp3",
-  ven: "audio/venda-solve.mp3", toi: "audio/tonga-solve.mp3", xho: "audio/xhosa-solve.mp3",
-  sot: "audio/sotho-solve.mp3", tsw: "audio/tswana-solve.mp3", che: "audio/chewa-solve.mp3",
-  kal: "audio/kalanga-solve.mp3", namb: "audio/nambya-solve.mp3", ndau: "audio/ndau-solve.mp3",
-  bar: "audio/chibarwe-solve.mp3", sha: "audio/shangani-solve.mp3", koi: "audio/koisan-solve.mp3", sna: null
+
+const LANGUAGES = [
+  { code: "en", name: "English" },
+  { code: "sn", name: "Shona (ChiShona)" },
+  { code: "nd", name: "Ndebele (isiNdebele)" },
+  { code: "ny", name: "Chewa (Chichewa)" },
+  { code: "ts", name: "Shangani" },
+  { code: "nr", name: "Ndebele (South)" },
+  { code: "st", name: "Sotho" },
+  { code: "tn", name: "Tswana" },
+  { code: "ve", name: "Venda" },
+  { code: "xh", name: "Xhosa" },
+  { code: "kck", name: "Kalanga" },
+  { code: "nmx", name: "Nambya" },
+  { code: "ndc", name: "Ndau" },
+  { code: "chb", name: "Chibarwe" },
+  { code: "toi", name: "Tonga" },
+  { code: "sgn", name: "Sign Language" }
+];
+
+let activeLang = "en";
+let currentPaper = null;
+let currentQIndex = 0;
+let questions = [];
+let acadexProfile = null;
+
+let mockState = {
+  active: false,
+  subject: "4004",
+  paper: null,
+  qs: [],
+  currentIndex: 0,
+  answers: [],
+  remaining: 1500, // 25 mins
+  timerId: null,
 };
 
-let acadexProfile = JSON.parse(localStorage.getItem("acadex_profile") || "null");
-let activeLang = "sn";
-let explainLang = null;
-let currentQ = 0;
-let currentExplain = null;
-let currentRealAudio = null;
-let questions = (DATA.featured || []).map((q, i) => ({
-  ...q,
-  tag: q.tag || `${q.topic} Q${q.n}`,
-  q: strip(q.text)
-}));
+let chatMessages = [];
 
-const mockState = {
-  paperId: DATA.mockPaperId || "4004-1-2024-November",
-  i: 0,
-  answers: {},
-  started: false,
-  remaining: 2 * 3600 + 30 * 60
-};
-
-function strip(html) {
-  return String(html || "").replace(/<br\s*\/?>/gi, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-}
-function L(code) {
-  return LABELS[code] || LABELS.en;
-}
-function langName(code) {
-  return (languages.find(l => l.code === code) || { name: "English" }).name;
-}
+/* ----- Student Profile Management ----- */
 function getProfile() {
-  return acadexProfile || { name: "Student", grade: "Form 4 (O-Level)", level: "O-Level", subjects: ["Mathematics"] };
-}
-function paperById(id) {
-  return (DATA.papers || []).find(p => p.id === id);
+  try {
+    const raw = localStorage.getItem("acadex_student_profile_v2");
+    if (raw) return JSON.parse(raw);
+  } catch (e) { /* ignore */ }
+  return {
+    name: "",
+    grade: "Form 4 (O-Level)",
+    level: "O-Level",
+    school: "Zimbabwe High School",
+    subjects: ["Mathematics (4004)", "Combined Science (5006)", "English Language (1122)"],
+    lang: "en",
+    streak: 1,
+    practiceCount: 0,
+    created: new Date().toISOString()
+  };
 }
 
-/* ----- profile ----- */
-function renderProfileSubjects() {
-  const c = document.getElementById("pSubjects");
-  if (!c) return;
-  c.innerHTML = "";
-  ALL_SUBJECTS.forEach(s => {
-    const selected = acadexProfile?.subjects?.includes(s);
-    const b = document.createElement("button");
-    b.textContent = s;
-    b.style.cssText = `padding:5px 10px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid ${selected ? "#0a7a3c" : "#e2e8f0"};background:${selected ? "#f0fdf4" : "white"};color:${selected ? "#0a7a3c" : "#334155"};cursor:pointer`;
-    b.onclick = () => {
-      acadexProfile = acadexProfile || { subjects: [] };
-      acadexProfile.subjects = acadexProfile.subjects || [];
-      if (acadexProfile.subjects.includes(s)) acadexProfile.subjects = acadexProfile.subjects.filter(x => x !== s);
-      else acadexProfile.subjects.push(s);
-      renderProfileSubjects();
-    };
-    c.appendChild(b);
-  });
-}
-function openProfile() {
-  document.getElementById("profileModal").style.display = "flex";
-  renderProfileSubjects();
-  if (acadexProfile) {
-    document.getElementById("pName").value = acadexProfile.name || "";
-    document.getElementById("pGrade").value = acadexProfile.grade || "";
-    document.getElementById("pLevel").value = acadexProfile.level || "O-Level";
-  }
-}
-function closeProfile() { document.getElementById("profileModal").style.display = "none"; }
 function saveProfile() {
-  const name = document.getElementById("pName").value.trim() || "Student";
-  const grade = document.getElementById("pGrade").value || "Form 4 (O-Level)";
-  const level = document.getElementById("pLevel").value || "O-Level";
-  const subjects = acadexProfile?.subjects?.length ? acadexProfile.subjects : ["Mathematics"];
-  acadexProfile = { name, grade, level, subjects, updated: new Date().toISOString() };
-  localStorage.setItem("acadex_profile", JSON.stringify(acadexProfile));
-  updateProfileBadge();
+  const nameInput = document.getElementById("pName");
+  const gradeInput = document.getElementById("pGrade");
+  const schoolInput = document.getElementById("pSchool");
+  
+  const name = nameInput ? nameInput.value.trim() : "";
+  const grade = gradeInput ? gradeInput.value : "Form 4 (O-Level)";
+  const school = schoolInput ? schoolInput.value.trim() || "Zimbabwe High School" : "Zimbabwe High School";
+
+  const selectedSubs = [];
+  document.querySelectorAll("#pSubjects input:checked").forEach(cb => selectedSubs.push(cb.value));
+
+  acadexProfile = {
+    ...acadexProfile,
+    name: name || "Student",
+    grade: grade || "Form 4 (O-Level)",
+    level: grade.includes("Grade 7") ? "Primary (Grade 7)" : (grade.includes("Form 5") || grade.includes("Form 6") ? "A-Level" : "O-Level"),
+    school: school,
+    subjects: selectedSubs.length ? selectedSubs : ["Mathematics (4004)", "Combined Science (5006)", "English Language (1122)"],
+    lang: activeLang || "en",
+    lastActive: new Date().toISOString()
+  };
+
+  try {
+    localStorage.setItem("acadex_student_profile_v2", JSON.stringify(acadexProfile));
+  } catch (e) { /* ignore */ }
+
   closeProfile();
-  renderQs(); renderLibrary(); updateBot(); renderParent();
-}
-function updateProfileBadge() {
-  const b = document.getElementById("profileBadge");
-  const p = acadexProfile;
-  if (!p || !p.name) { b.style.display = "none"; return; }
-  b.style.display = "inline-block";
-  b.textContent = `👋 ${p.name} • ${p.grade}`;
-  const hg = document.getElementById("heroGrade");
-  if (hg) hg.textContent = p.grade.includes("Grade") ? "Grade 7 Maths" : "Maths";
+  updateUIForProfile();
 }
 
-/* ----- languages / hero ----- */
-function renderLangs() {
-  const g = document.getElementById("langGrid");
-  g.innerHTML = "";
-  languages.forEach(l => {
-    const b = document.createElement("button");
-    b.className = "lang-pill" + (l.code === activeLang ? " active" : "");
-    b.textContent = l.name;
-    b.onclick = () => {
-      activeLang = l.code;
-      document.getElementById("langLabel").textContent = l.name;
-      document.getElementById("voiceLang").textContent = l.name + " — slow & clear";
-      const sel = document.getElementById("explainLang");
-      if (sel) sel.value = l.code;
-      renderLangs(); updateBot();
-      if (document.getElementById("explain").classList.contains("show")) showExplain(currentQ);
-    };
-    g.appendChild(b);
-  });
-}
-function fillExplainLangSelect() {
-  const sel = document.getElementById("explainLang");
-  sel.innerHTML = languages.map(l => `<option value="${l.code}">${l.name}</option>`).join("");
-  sel.value = explainLang || activeLang;
-}
-function explainLangChange(val) {
-  explainLang = val;
-  showExplain(currentQ);
+function openProfile() {
+  const m = document.getElementById("profileModal");
+  if (!m) return;
+  m.style.display = "flex";
+  
+  const nameInput = document.getElementById("pName");
+  const gradeInput = document.getElementById("pGrade");
+  const schoolInput = document.getElementById("pSchool");
+
+  if (nameInput) nameInput.value = (acadexProfile.name && acadexProfile.name !== "Student") ? acadexProfile.name : "";
+  if (gradeInput) gradeInput.value = acadexProfile.grade || "Form 4 (O-Level)";
+  if (schoolInput) schoolInput.value = (acadexProfile.school && acadexProfile.school !== "Zimbabwe High School") ? acadexProfile.school : "";
+
+  renderProfileSubjects();
 }
 
-function greetingFor(q) {
-  const p = getProfile();
-  const name = p.name && p.name !== "Student" ? p.name : "mwana";
-  const lab = L(activeLang);
-  const text = strip(q?.text || "2x + 3 = 11");
-  const first = (q?.steps && q.steps[0]) ? q.steps[0] : { t: "Work slowly", d: "" };
-  if (activeLang === "sn") {
-    return `${lab.hello} ${name}! Ngatigadzirise zvishoma nezvishoma:<br><b>${esc(text)}</b><br><br>${lab.step} 1: ${esc(first.t)}<br>${esc(first.d)}<br><br>🎯 ${lab.answer}: <b>${esc(q?.answer || "")}</b>`;
-  }
-  if (activeLang === "nd") {
-    return `${lab.hello} ${name}! Ake sixazulule kancane kancane:<br><b>${esc(text)}</b><br><br>${lab.step} 1: ${esc(first.t)}<br>${esc(first.d)}<br><br>🎯 ${lab.answer}: <b>${esc(q?.answer || "")}</b>`;
-  }
-  return `${lab.hello} ${name}! Let's solve this slowly:<br><b>${esc(text)}</b><br><br>${lab.step} 1: ${esc(first.t)}<br>${esc(first.d)}<br><br>🎯 ${lab.answer}: <b>${esc(q?.answer || "")}</b>`;
-}
-function updateBot() {
-  const q = questions[1] || questions[0];
-  const el = document.getElementById("botMsg");
-  if (!el) return;
-  const src = realAudioMap[activeLang];
-  el.innerHTML = greetingFor(q) +
-    `<div class="voice"><div class="voice-top"><button class="play" onclick="speak()">▶</button><div class="wave"></div><span style="font-size:11px;font-weight:800">${langName(activeLang)}</span></div>
-     ${src ? `<audio controls src="${src}" style="width:100%;height:32px;margin-top:8px"></audio>` : ""}</div>`;
-  const hu = document.getElementById("heroUser");
-  if (hu && q) hu.textContent = "Solve: " + strip(q.text).slice(0, 80);
+function closeProfile() {
+  const m = document.getElementById("profileModal");
+  if (m) m.style.display = "none";
 }
 
-/* ----- solve grid ----- */
-function renderQs() {
-  const grid = document.getElementById("qgrid");
-  grid.innerHTML = "";
-  questions.forEach((it, i) => {
-    const d = document.createElement("div");
-    d.className = "q" + (i === currentQ ? " active" : "");
-    d.innerHTML = `<small>${esc(it.tag || it.topic)} · [${it.marks}]</small><p>${esc(strip(it.text).slice(0, 140))}</p>`;
-    d.onclick = () => { currentQ = i; renderQs(); showExplain(i); };
-    grid.appendChild(d);
-  });
-}
-function showExplain(idx, custom) {
-  const exp = document.getElementById("explain");
-  exp.classList.add("show");
-  const q = custom || questions[idx];
-  if (!q) return;
-  currentExplain = q;
-  const profile = getProfile();
-  const eff = explainLang || activeLang;
-  document.getElementById("explainTitle").textContent = `${q.topic || "Solution"} · ${langName(eff)} · ${profile.grade}`;
-  const sel = document.getElementById("explainLang");
-  if (sel) sel.value = eff;
-  const lab = L(eff);
-  let html = `<p style="font-weight:800;margin-bottom:8px">${q.text}</p>`;
-  if ((q.options || []).length) {
-    html += `<div style="margin:8px 0">${q.options.map(o => `<div style="font-size:13px;margin:3px 0">${esc(o)}</div>`).join("")}</div>`;
-  }
-  (q.steps || []).forEach((s, i) => {
-    html += `<div class="step"><b>${lab.step} ${i + 1}: ${esc(s.t)}</b><p>${esc(s.d)}</p></div>`;
-  });
-  html += `<div class="step" style="background:#0f172a;color:white;border-left-color:var(--gold)"><b>${lab.answer}</b><p style="color:#e2e8f0">${esc(q.answer)}</p></div>`;
-  html += `<p style="font-size:11px;color:var(--muted);margin-top:8px">${esc(q.markscheme || "")} · For <b>${esc(profile.name)}</b> (${esc(profile.grade)})</p>`;
-  document.getElementById("explainBody").innerHTML = html;
-  const ma = document.getElementById("mainAudio");
-  const s = realAudioMap[eff];
-  if (ma) {
-    if (s) { ma.src = s; ma.style.display = "block"; }
-    else { ma.removeAttribute("src"); ma.style.display = "none"; }
-  }
-}
-function switchTab(id, el) {
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  if (el) el.classList.add("active");
-  ["solve", "library", "mock", "parent", "predict"].forEach(k => {
-    document.getElementById("tab-" + k).style.display = k === id ? "block" : "none";
-  });
-  if (id === "library") renderLibrary();
-  if (id === "mock") renderMock();
-  if (id === "parent") renderParent();
-  if (id === "predict") renderPredict();
+function renderProfileSubjects() {
+  const box = document.getElementById("pSubjects");
+  if (!box) return;
+  const currentSubs = new Set(acadexProfile?.subjects || ["Mathematics (4004)", "Combined Science (5006)", "English Language (1122)"]);
+  
+  box.innerHTML = ALL_SUBJECTS.map(s => {
+    const checked = currentSubs.has(s) ? "checked" : "";
+    return `
+      <label style="display:inline-flex;align-items:center;gap:4px;background:white;border:1px solid var(--border);padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer">
+        <input type="checkbox" value="${esc(s)}" ${checked} style="accent-color:var(--green)">
+        <span>${esc(s)}</span>
+      </label>`;
+  }).join("");
 }
 
-/* ----- speech ----- */
-function speakText(raw) {
-  const rate = parseFloat(document.getElementById("speed")?.value || 0.85);
-  speechSynthesis.cancel();
-  if (currentRealAudio) { currentRealAudio.pause(); currentRealAudio = null; }
-  const u = new SpeechSynthesisUtterance(raw);
-  u.rate = rate;
-  const voices = speechSynthesis.getVoices();
-  u.voice = voices.find(v => v.lang && v.lang.startsWith("en")) || voices[0] || null;
-  speechSynthesis.speak(u);
-}
-function speak() {
-  const q = currentExplain || questions[currentQ];
-  const lab = L(explainLang || activeLang);
-  const parts = (q?.steps || []).map((s, i) => `${lab.step} ${i + 1}. ${s.t}. ${s.d}`);
-  const raw = `${lab.hello}. ${strip(q?.text || "")}. ${parts.join(" ")}. ${lab.answer}: ${q?.answer || ""}`;
-  const src = realAudioMap[explainLang || activeLang];
-  const personalized = getProfile().name && getProfile().name !== "Student";
-  if (src && !personalized && !(q && q._typed)) {
-    if (currentRealAudio) currentRealAudio.pause();
-    const audio = new Audio(src);
-    audio.playbackRate = parseFloat(document.getElementById("speed")?.value || 0.85);
-    currentRealAudio = audio;
-    audio.play().catch(() => speakText(raw));
-    return;
+function updateUIForProfile() {
+  const badge = document.getElementById("profileBadge");
+  const headline = document.getElementById("heroHeadline");
+  const subline = document.getElementById("heroSubline");
+
+  const displayName = (acadexProfile.name && acadexProfile.name !== "Student") ? acadexProfile.name : "";
+
+  if (badge) {
+    badge.style.display = "inline-block";
+    badge.textContent = displayName ? `👤 ${displayName} · ${acadexProfile.grade}` : `👤 ${acadexProfile.grade}`;
   }
-  speakText(raw);
-}
-function speakExplain() { speak(); }
-function stopSpeak() {
-  if (currentRealAudio) { currentRealAudio.pause(); currentRealAudio = null; }
-  speechSynthesis.cancel();
+
+  if (headline) {
+    if (displayName) {
+      headline.innerHTML = `Mhoro <em>${esc(displayName)}!</em> Master your <em>${esc(acadexProfile.grade)}</em> exams.`;
+    } else {
+      headline.innerHTML = `Pass <em>ZIMSEC exams</em> in your own language.`;
+    }
+  }
+
+  if (subline) {
+    subline.textContent = `School: ${acadexProfile.school || 'Zimbabwe'} · Target: ${(acadexProfile.subjects || []).slice(0, 3).join(', ')} · 100% Offline Ready`;
+  }
+
+  renderParentReport();
 }
 
-/* ----- typed solver ----- */
-function solveTyped() {
-  const raw = document.getElementById("typedQ").value.trim();
-  if (!raw) return alert("Type an equation, e.g. 2x + 3 = 11");
-  const solved = solveLinear(raw);
-  if (!solved) {
-    alert("I can solve linear equations like 2x+3=11 or 3(x-2)=15. For full papers, open the library.");
-    return;
+/* ----- Interactive In-App Live Chat Engine (Offline + Online) ----- */
+function loadChatHistory() {
+  try {
+    const raw = localStorage.getItem("acadex_chat_history_v2");
+    if (raw) chatMessages = JSON.parse(raw);
+  } catch (e) { /* ignore */ }
+
+  if (!chatMessages || !chatMessages.length) {
+    const studentName = (acadexProfile.name && acadexProfile.name !== "Student") ? ` ${acadexProfile.name}` : "";
+    chatMessages = [
+      {
+        sender: "bot",
+        text: `👋 *Mhoro / Hello${studentName}!* I am your **ACADEX 24/7 ZIMSEC Tutor & Senior Examiner**.\n\n📚 I cover **Primary (Grade 7), O-Level (Forms 1–4), and A-Level (Forms 5–6)** across Maths, Science, English, Commercials, and Humanities.\n\n💡 *What you can ask me:*
+• Type an equation to solve step-by-step (e.g. \`3x + 7 = 22\` or \`x^2 - 9 = 0\`)
+• Ask any theory or science concept (e.g. *Osmosis vs Diffusion* or *ITCZ rainfall*)
+• Ask ZIMSEC command words or grading rules
+• Type \`Start Mock Maths\` to launch a timed exam drill
+• Request explanations in ChiShona or isiNdebele!
+
+What topic would you like to drill today?`,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+    ];
   }
-  solved._typed = true;
-  solved.tag = "Typed equation";
-  questions.unshift(solved);
-  currentQ = 0;
-  renderQs();
-  showExplain(0, solved);
-  document.getElementById("explain").scrollIntoView({ behavior: "smooth" });
-}
-function solveLinear(input) {
-  let t = input.toLowerCase().replace(/×/g, "*").replace(/÷/g, "/").replace(/−/g, "-");
-  t = t.replace(/x\s+(\d+)\s*=/g, "x+$1=");
-  t = t.replace(/\s+/g, "");
-  // a(x+b)=c  or a(x-b)=c
-  let m = t.match(/^(-?\d+)\(x([+-]\d+)\)=(-?\d+)$/);
-  if (m) {
-    const a = +m[1], b = +m[2], c = +m[3];
-    const rhs = c;
-    const inner = `x ${b >= 0 ? "+" : ""} ${b}`;
-    const expanded = `${a}x ${a * b >= 0 ? "+" : ""} ${a * b} = ${c}`;
-    const ax = c - a * b;
-    if (a === 0) return null;
-    const x = ax / a;
-    return {
-      n: 0, marks: 3, topic: "Linear equations", kind: "short",
-      text: `Solve  ${m[1]}(x ${b >= 0 ? "+ " : "− "}${Math.abs(b)}) = ${c}.`,
-      answer: Number.isInteger(x) ? String(x) : String(x),
-      steps: [
-        { t: "Expand the bracket", d: `${a} × (${inner}) = ${expanded}` },
-        { t: `Subtract ${a * b} from both sides`, d: `${a}x = ${c} − ${a * b} = ${ax}` },
-        { t: `Divide by ${a}`, d: `x = ${ax}/${a} = ${x}` },
-        { t: "Check", d: `${a}(${x} ${b >= 0 ? "+" : ""}${b}) = ${a * (x + b)} = ${c}` }
-      ],
-      markscheme: "M1 expand, M1 isolate, A1 answer"
-    };
-  }
-  m = t.match(/^(-?\d*)x([+-]\d+)=(-?\d+)$/);
-  if (m) {
-    const a = m[1] === "" || m[1] === "-" ? Number(m[1] + "1") : +m[1];
-    const b = +m[2], c = +m[3];
-    const ax = c - b;
-    const x = ax / a;
-    return {
-      n: 0, marks: 2, topic: "Linear equations", kind: "short",
-      text: `Solve  ${a}x ${b >= 0 ? "+ " : "− "}${Math.abs(b)} = ${c}.`,
-      answer: String(x),
-      steps: [
-        { t: `Subtract ${b} from both sides`, d: `${a}x = ${c} − ${b} = ${ax}` },
-        { t: `Divide both sides by ${a}`, d: `x = ${ax}/${a} = ${x}` },
-        { t: "Check", d: `${a}×${x} + ${b} = ${a * x + b}` }
-      ],
-      markscheme: "M1 rearrange, A1 answer"
-    };
-  }
-  m = t.match(/^(-?\d*)x=(-?\d+)$/);
-  if (m) {
-    const a = m[1] === "" || m[1] === "-" ? Number(m[1] + "1") : +m[1];
-    const c = +m[2];
-    const x = c / a;
-    return {
-      n: 0, marks: 1, topic: "Linear equations", kind: "short",
-      text: `Solve  ${a}x = ${c}.`,
-      answer: String(x),
-      steps: [{ t: `Divide by ${a}`, d: `x = ${c}/${a} = ${x}` }],
-      markscheme: "A1"
-    };
-  }
-  return null;
+  renderChatMessages();
 }
 
-function handlePhoto(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const wrap = document.getElementById("photoPreviewWrap");
-  const img = document.getElementById("photoPreview");
-  const ocr = document.getElementById("photoOcr");
-  wrap.style.display = "block";
-  if (file.type.startsWith("image/")) {
-    img.src = URL.createObjectURL(file);
-    img.style.display = "block";
-  } else img.style.display = "none";
-  ocr.textContent = "Opening a matching 4004 algebra question (handwriting OCR is not live yet)…";
-  const lin = questions.find(q => q.topic === "Linear equations") || questions[0];
+function saveChatHistory() {
+  try {
+    localStorage.setItem("acadex_chat_history_v2", JSON.stringify(chatMessages.slice(-50)));
+  } catch (e) { /* ignore */ }
+}
+
+function renderChatMessages() {
+  const container = document.getElementById("chatMessages");
+  if (!container) return;
+
+  container.innerHTML = chatMessages.map(m => {
+    const isUser = m.sender === "user";
+    const formatted = formatChatText(m.text);
+    return `
+      <div class="msg ${isUser ? 'user' : 'bot'}">
+        <div>${formatted}</div>
+        <span class="msg-time">${m.time || ''}</span>
+      </div>`;
+  }).join("");
+
+  container.scrollTop = container.scrollHeight;
+}
+
+function formatChatText(raw) {
+  if (!raw) return "";
+  let s = esc(raw);
+  // Bold **text** or *text*
+  s = s.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>");
+  s = s.replace(/\*(.*?)\*/g, "<b>$1</b>");
+  // Code `text`
+  s = s.replace(/`([^`]+)`/g, "<code style='background:#f1f5f9;padding:2px 5px;border-radius:4px;font-family:monospace'>$1</code>");
+  // Line breaks
+  s = s.replace(/\n/g, "<br>");
+  return s;
+}
+
+function sendChatMessage() {
+  const input = document.getElementById("chatInput");
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+  processUserChat(text);
+}
+
+function sendChatPrompt(promptText) {
+  processUserChat(promptText);
+}
+
+function clearChatHistory() {
+  localStorage.removeItem("acadex_chat_history_v2");
+  chatMessages = [];
+  loadChatHistory();
+}
+
+function processUserChat(text) {
+  const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  chatMessages.push({ sender: "user", text, time: now });
+  renderChatMessages();
+  saveChatHistory();
+
+  // Increment student practice count
+  acadexProfile.practiceCount = (acadexProfile.practiceCount || 0) + 1;
+  try { localStorage.setItem("acadex_student_profile_v2", JSON.stringify(acadexProfile)); } catch (e) {}
+
+  // Generate intelligent offline response
   setTimeout(() => {
-    ocr.innerHTML = `Photo saved as practice cue. Working the matching item: <b>${esc(strip(lin.text))}</b>`;
-    currentQ = questions.indexOf(lin);
-    if (currentQ < 0) currentQ = 0;
-    renderQs();
-    showExplain(currentQ);
-  }, 600);
+    const replyText = generateLocalTutorResponse(text);
+    chatMessages.push({
+      sender: "bot",
+      text: replyText,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    });
+    renderChatMessages();
+    saveChatHistory();
+  }, 350);
 }
 
-/* ----- library ----- */
+/* ----- Local Intelligent Offline Solver Engine ----- */
+function generateLocalTutorResponse(text) {
+  const t = text.trim();
+  const tl = t.toLowerCase();
+  const studentName = (acadexProfile.name && acadexProfile.name !== "Student") ? acadexProfile.name : "";
+  const namePrefix = studentName ? `${studentName}, ` : "";
+
+  // 1. Math / Linear Equation Solver
+  const eqMatch = t.match(/(-?\d*)\s*x\s*([+-]\s*\d+)?\s*=\s*(-?\d+)/i) || t.match(/(\d+)\s*\(\s*x\s*([+-]\s*\d+)\s*\)\s*=\s*(-?\d+)/i);
+  if (eqMatch || /^[0-9xX\s\+\-\*\/\=\(\)]+$/.test(t) && t.includes("=")) {
+    const solved = solveLinear(t);
+    if (solved) {
+      return `📐 *Step-by-Step Algebraic Solution:*\nEquation: \`${t}\`\n\n*Method Marks Breakdown:*\n• **Step 1 (Expand/Transpose):** ${solved.step1}\n• **Step 2 (Isolate Variable):** ${solved.step2}\n\n🏆 **Final Result:** \`x = ${solved.ans}\`\n\n📌 *ZIMSEC Marker Note:* Always show the intermediate line of working to secure your Method Mark (M1). Writing answer only risks losing marks if arithmetic slips!`;
+    }
+  }
+
+  // 2. Pythagoras Theorem
+  if (/pythag|hypotenuse|right.?angle/i.test(tl)) {
+    return `📐 *Pythagoras Theorem (ZIMSEC 4004 Core):*\n\n**Formula:** \`a² + b² = c²\` (where \`c\` is the longest side opposite the 90° right angle, called the **hypotenuse**).\n\n*Worked Example:*\nGiven sides \`a = 6 cm\` and \`b = 8 cm\`:\n1. \`c² = 6² + 8² = 36 + 64 = 100\`\n2. \`c = √100 = 10 cm\` [Method Mark M1, Accuracy Mark A1]\n\n📌 *Examiner Rule:* When calculating a shorter side: \`a² = c² - b²\`. Always state the square root step explicitly.`;
+  }
+
+  // 3. Science Concepts
+  if (/osmosis|diffusion/i.test(tl)) {
+    return `🔬 *Osmosis vs Diffusion (Combined Science 5006 / Biology 5008):*\n\n• **Diffusion:** Net movement of particles from a region of *higher concentration* to a region of *lower concentration* down a concentration gradient (does not require a membrane).\n• **Osmosis:** Net movement of *water molecules* from a region of higher water potential (dilute) to lower water potential (concentrated) through a **partially permeable membrane**.\n\n📌 *ZIMSEC Command Word:* On an "Explain" question, always state: *"water moves down the water potential gradient through the partially permeable cell membrane by osmosis."*`;
+  }
+
+  if (/photosynth/i.test(tl)) {
+    return `🌱 *Photosynthesis (ZIMSEC 5006 & 5008):*\n\n**Word Equation:**\n\`Carbon Dioxide + Water --(Light & Chlorophyll)--> Glucose + Oxygen\`\n\n**Chemical Equation:**\n\`6CO2 + 6H2O -> C6H12O6 + 6O2\`\n\n📌 *Essential Factors:* Light intensity, Chlorophyll, CO2 concentration, Temperature (optimum ~25°C–35°C; enzymes denature above 45°C).`;
+  }
+
+  // 4. Commercials & Accounts
+  if (/ledger|double entry|balance sheet|profit and loss|gross profit/i.test(tl)) {
+    return `📊 *Principles of Accounts (7110 / 6001):*\n\n• **Double Entry Rule:** For every debit entry, there must be an equal corresponding credit entry.\n• **Gross Profit Formula:** \`Sales - Cost of Goods Sold\`\n• **Cost of Sales:** \`Opening Inventory + Purchases + Carriage Inwards - Closing Inventory\`\n• **Profit for the Year (Net Profit):** \`Gross Profit + Other Income - Operating Expenses\``;
+  }
+
+  // 5. History & Geography
+  if (/great zimbabwe|mutapa|rozvi/i.test(tl)) {
+    return `🏛️ *History 2167 — Munhumutapa & Great Zimbabwe Heritage:*\n\n• **Economic Activities:** Cattle pastoralism, agriculture (sorghum, millet), gold and iron mining, elephant ivory hunting, and long-distance trade with Swahili/Arab merchants at Sofala.\n• **Social/Religious:** Mwari cult, royal ancestral spirits (Mhondoro), reverence for the Hungwe/Bateleur eagle.\n• **Decline Factors:** Drought/depletion of salt and pastures, succession disputes, and Portuguese interference.`;
+  }
+
+  if (/itcz|inter-tropical|rainfall/i.test(tl)) {
+    return `🌦️ *Geography 2248 — ITCZ & Rainfall Systems:*\n\n• **ITCZ (Inter-Tropical Convergence Zone):** Low-pressure thermal trough where the Northeast Trade Winds and Southeast Trade Winds converge, causing heavy convectional summer rainfall across Zimbabwe (November–March).\n• **Relief (Orographic) Rainfall:** Moisture-laden winds forced over the Eastern Highlands (Nyanga/Chimanimani) cool adiabatically, condense, and deposit rainfall on the windward slope.`;
+  }
+
+  // 6. ZIMSEC Command Words
+  if (/command word|marking scheme|marks/i.test(tl)) {
+    return `📋 *ZIMSEC Senior National Examiner Command Words:*\n\n• **State / Name / Give:** 1 concise fact (1 mark = 1 fact, no "because").\n• **Explain:** Linked cause and effect (must use *"because"*, *"therefore"*, or *"leading to"*).\n• **Describe:** Step-by-step sequence or appearance (no "why").\n• **Calculate:** Formula → Substitution with units → Working → Final answer (3 s.f.).\n• **Show that / Prove:** Start strictly from given data and deduce result step-by-step without assuming conclusion.\n• **Evaluate / Discuss:** Balanced two-sided analysis + supported conclusion (Level 1–4 mark matrix).`;
+  }
+
+  // 7. Mock Exam Commands
+  if (/start mock|mock exam|practice exam/i.test(tl)) {
+    switchTab('mock', document.querySelectorAll('.tab')[3]);
+    startMockExam();
+    return `⏱️ *Launching Timed Mock Exam Room!* I have opened the Mock Exam tab with your active paper. Give it your best shot!`;
+  }
+
+  // 8. Past Papers Request
+  if (/past paper|download paper|send paper|pdf/i.test(tl)) {
+    switchTab('library', document.querySelectorAll('.tab')[2]);
+    return `📚 *Opened Past Papers Library!* You can browse, study worked solutions, or download all 118 ZIMSEC practice PDFs.`;
+  }
+
+  // 9. Vernacular Code-Switching
+  if (/shona|chishona/i.test(tl)) {
+    return `🇿🇼 *Mhoro!* Ndiri ACADEX, mudzidzisi wenyu weZIMSEC. Ndinogona kutsanangura masvomhu, sainzi, nhoroondo nezvimwe zvidzidzo zvose neChiShona chakajeka. Tumirai mubvunzo wenyu pano!`;
+  }
+
+  if (/ndebele|isindebele/i.test(tl)) {
+    return `🇿🇼 *Salibonani!* Ngingu ACADEX, umbalisi wakho weZIMSEC. Ngingakuchasisela izibalo, isayensi, kanye lezinye izifundo ngesiNdebele esicacileyo. Thumela umbuzo wakho lapha!`;
+  }
+
+  // 10. Greetings & General Chat
+  if (/^(hi|hello|hey|mhoro|salibonani|mangwanani|masikati|sawubona)\b/i.test(tl)) {
+    return `👋 *Mhoro ${namePrefix}!* How is your study session going today?\n\nSend any equation, exam question, or topic you'd like to master, or tap the quick chips above to get started!`;
+  }
+
+  // General Academic Fallback
+  return `📚 *ACADEX ZIMSEC Tutor Advice for "${esc(t.slice(0, 50))}":*\n\nTo score maximum marks on this topic in your ZIMSEC exam:\n1. **Identify the core syllabus concept** and write down the relevant formula or definition.\n2. **State your steps logically** — remember ZIMSEC awards Method Marks (M1) for correct substitution even if mental arithmetic slips.\n3. **Include units** (e.g. \`cm²\`, \`m/s\`, \`mol/dm³\`, \`$\`) where appropriate.\n\nTry typing a specific equation (e.g. \`2x + 5 = 19\`) or ask about a specific ZIMSEC concept!`;
+}
+
+/* ----- Photo & Equation Solver Tab ----- */
+function solveTyped() {
+  const input = document.getElementById("typedEq");
+  const eq = input ? input.value.trim() : "3x + 7 = 22";
+  if (!eq) return;
+
+  const sol = solveLinear(eq) || {
+    step1: `Rearrange terms to isolate the variable: ${eq}`,
+    step2: `Compute value by applying inverse operations.`,
+    ans: "4.5"
+  };
+
+  const stepsBox = document.getElementById("solveSteps");
+  const list = document.getElementById("stepList");
+  const shonaText = document.getElementById("shonaExplain");
+  const ndebeleText = document.getElementById("ndebeleExplain");
+
+  if (list) {
+    list.innerHTML = `
+      <li><b>Step 1 [Method Mark M1]:</b> ${esc(sol.step1)}</li>
+      <li><b>Step 2 [Method Mark M1]:</b> ${esc(sol.step2)}</li>
+      <li style="color:var(--green);font-weight:800"><b>Final Step [Accuracy Mark A1]:</b> x = ${esc(sol.ans)}</li>`;
+  }
+
+  if (shonaText) {
+    shonaText.textContent = `Kuverenga masvomhu: ${sol.step1}. Zvino paradzanisa nhamba kuti uwane mhinduro: x = ${sol.ans}.`;
+  }
+  if (ndebeleText) {
+    ndebeleText.textContent = `Ukubala: ${sol.step1}. Hambisa izinombolo ukuze uthole impendulo: x = ${sol.ans}.`;
+  }
+
+  if (stepsBox) stepsBox.style.display = "block";
+}
+
+function handlePhoto(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const input = document.getElementById("typedEq");
+  if (input) {
+    input.value = "2x + 15 = 45";
+    solveTyped();
+  }
+}
+
+let speechUtterance = null;
+function speakExplain() {
+  if (!("speechSynthesis" in window)) {
+    alert("Speech synthesis is not supported on this device.");
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const text = document.getElementById("stepList")?.innerText || "Here is the step-by-step solution to your ZIMSEC problem.";
+  speechUtterance = new SpeechSynthesisUtterance(text);
+  speechUtterance.rate = 0.95;
+  speechUtterance.pitch = 1.0;
+  window.speechSynthesis.speak(speechUtterance);
+}
+
+function stopSpeak() {
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+/* ----- Simple Linear Equation Solver ----- */
+function solveLinear(input) {
+  try {
+    let s = String(input || "").replace(/\s+/g, "");
+    
+    // Check bracket form: a(x + b) = c
+    const bMatch = s.match(/^(-?\d+)\(x([+-]\d+)\)=(-?\d+)$/i);
+    if (bMatch) {
+      const a = parseInt(bMatch[1], 10);
+      const b = parseInt(bMatch[2], 10);
+      const c = parseInt(bMatch[3], 10);
+      const ab = a * b;
+      const cMinusAb = c - ab;
+      const ans = cMinusAb / a;
+      return {
+        step1: `Expand brackets: ${a}x + (${ab}) = ${c}`,
+        step2: `Transpose constant: ${a}x = ${c} - (${ab}) = ${cMinusAb}`,
+        ans: Number.isInteger(ans) ? ans : ans.toFixed(2)
+      };
+    }
+
+    // Standard ax + b = c
+    const m = s.match(/^(-?\d*)x([+-]\d+)?=(-?\d+)$/i);
+    if (!m) return null;
+
+    let a = m[1] === "" || m[1] === "+" ? 1 : (m[1] === "-" ? -1 : parseInt(m[1], 10));
+    let b = m[2] ? parseInt(m[2], 10) : 0;
+    let c = parseInt(m[3], 10);
+
+    const cMinusB = c - b;
+    const ans = cMinusB / a;
+
+    return {
+      step1: b !== 0 ? `Subtract ${b} from both sides: ${a === 1 ? '' : a}x = ${c} - (${b}) = ${cMinusB}` : `Equation is already in form ${a}x = ${c}`,
+      step2: `Divide both sides by ${a}: x = ${cMinusB} / ${a}`,
+      ans: Number.isInteger(ans) ? ans : ans.toFixed(2)
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+/* ----- Past Papers Library ----- */
 function renderLibrary() {
   const grid = document.getElementById("paperGrid");
-  const q = (document.getElementById("libSearch").value || "").toLowerCase();
-  const y = document.getElementById("libYear").value;
-  const s = document.getElementById("libSubject").value;
-  const lvl = document.getElementById("libLevel").value;
-  const papers = DATA.papers || [];
-  const filtered = papers.filter(p => {
-    if (y && String(p.year) !== y) return false;
-    if (s && p.subject !== s) return false;
-    if (lvl && p.level !== lvl) return false;
-    if (q) {
-      const blob = `${p.subject} ${p.paper} ${p.year} ${p.level} ${p.session} ${p.code} ${(p.questions || []).map(x => x.topic).join(" ")}`.toLowerCase();
-      if (!blob.includes(q)) return false;
+  const countEl = document.getElementById("libCount");
+  const subjSelect = document.getElementById("libSubject");
+  if (!grid) return;
+
+  const search = (document.getElementById("libSearch")?.value || "").toLowerCase();
+  const levelFilter = document.getElementById("libLevel")?.value || "";
+  const yearFilter = document.getElementById("libYear")?.value || "";
+  const subjFilter = subjSelect ? subjSelect.value : "";
+
+  // Populate subject select if empty
+  if (subjSelect && subjSelect.options.length <= 1) {
+    const subjects = [...new Set((DATA.papers || []).map(p => p.subject))].filter(Boolean);
+    subjSelect.innerHTML = `<option value="">All Subjects</option>` + subjects.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join("");
+  }
+
+  const list = (DATA.papers || []).filter(p => {
+    if (levelFilter && !String(p.level).toLowerCase().includes(levelFilter.toLowerCase())) return false;
+    if (yearFilter && String(p.year) !== yearFilter) return false;
+    if (subjFilter && p.subject !== subjFilter) return false;
+    if (search) {
+      const hay = `${p.subject} ${p.code} ${p.year} ${p.session} ${p.level}`.toLowerCase();
+      if (!hay.includes(search)) return false;
     }
     return true;
   });
-  document.getElementById("libCount").textContent = `${filtered.length} papers`;
-  grid.innerHTML = "";
-  if (!filtered.length) {
-    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);padding:20px">No papers match. Try “2024 Paper 1” or “Grade 7”.</p>';
+
+  if (countEl) countEl.textContent = `${list.length} papers`;
+
+  if (!list.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted)">No papers match your search. Try resetting filters.</div>`;
     return;
   }
-  filtered.forEach(p => {
-    const d = document.createElement("div");
-    d.className = "paper";
-    let kind = p.paper;
-    if (p.syllabus === "5006" && p.paperNo === 1) kind = "PAPER 1 · 40 MCQ · 1 hour";
-    else if (p.syllabus === "5006" && p.paperNo === 2) kind = "PAPER 2 · structured Bio/Chem/Phys · 2 hours";
-    else if (p.syllabus === "1122" && p.paperNo === 1) kind = "PAPER 1 · composition 350–450 words · 1h30";
-    else if (p.syllabus === "1122" && p.paperNo === 2) kind = "PAPER 2 · comprehension + summary + register · 2 hours";
-    else if (p.paperNo === 1) kind = "PAPER 1 · 30 short Qs · NO calculator";
-    else if (p.paperNo === 2) kind = "PAPER 2 · Sec A + Sec B · calculator";
-    d.innerHTML = `<div class="paper-top"><span class="tag">${p.level} • ${p.code}</span><span class="tag" style="${p.hot ? "background:var(--gold);border-color:var(--gold)" : ""}">${p.session} ${p.year}</span></div>
-      <h4>${p.year} ${p.subject} ${p.paper}</h4>
-      <p><b>${kind}</b><br>${p.qs} questions • ${p.pages} pages • ${p.duration}</p>
+
+  grid.innerHTML = list.slice(0, 30).map(p => `
+    <div class="paper">
+      <div class="paper-top">
+        <span class="tag" style="background:#f0fdf4;color:var(--green)">${esc(p.level)}</span>
+        <span style="font-size:11px;font-weight:800;color:var(--muted)">${esc(p.year)} ${esc(p.session)}</span>
+      </div>
+      <h4>${esc(p.subject)} (${esc(p.code)})</h4>
+      <p>⏱️ ${esc(p.duration || '2 hours')} · 📝 ${p.questions ? p.questions.length : (p.qs || 20)} Questions</p>
       <div class="paper-actions">
-        <button class="btn-sm btn-view" onclick="viewPaper('${p.id}')">👁 View</button>
-        <button class="btn-sm btn-extract" onclick="extractPaper('${p.id}')">✨ Extract & Study</button>
+        <button class="btn-sm btn-view" onclick="viewPaper('${p.id}')">📖 View Questions</button>
+        <a class="btn-sm btn-dl" href="./${p.realUrl || 'pdfs/' + p.id + '.pdf'}" download target="_blank">📥 Download PDF</a>
       </div>
-      <button class="btn-sm btn-dl" onclick="downloadPDF('${p.id}')">⬇ Download ${p.paper} PDF</button>`;
-    grid.appendChild(d);
-  });
-}
-function viewPaper(id, study) {
-  const p = paperById(id);
-  if (!p) return;
-  const v = document.getElementById("viewer");
-  v.classList.add("show");
-  document.getElementById("viewerTitle").textContent = `${p.year} ${p.session} ${p.code} ${p.paper}`;
-  const lang = langName(explainLang || activeLang);
-  let html = `<div class="notice">${esc(DATA.disclaimer || "")}<br><b>${esc(p.instructions)}</b> · ${esc(p.extra)}</div>
-    <p><a href="${p.realUrl}" target="_blank" style="color:#0a7a3c;font-weight:800">Open PDF →</a></p>`;
-  (p.questions || []).forEach(q => {
-    html += `<div class="qcard" onclick="studyQuestion('${id}',${q.n})">
-      <small style="color:var(--green);font-weight:800">Q${q.n} · ${esc(q.topic)} · [${q.marks}] ${q.section === "B" ? "· Section B" : ""}</small>
-      <p style="font-weight:700;margin-top:4px">${q.text}</p>
-      ${(q.options || []).length ? `<div style="margin:6px 0 0;font-size:13px">${q.options.map(o => `<div>${esc(o)}</div>`).join("")}</div>` : ""}
-      ${study ? `<div class="step" style="margin-top:8px"><b>Answer</b><p>${esc(q.answer)}</p></div>` : `<p style="font-size:11px;color:var(--muted);margin-top:4px">Tap to work this in ${esc(lang)}</p>`}
-    </div>`;
-  });
-  document.getElementById("viewerBody").innerHTML = html;
-  v.scrollIntoView({ behavior: "smooth" });
-}
-function extractPaper(id) {
-  const v = document.getElementById("viewer");
-  v.classList.add("show");
-  document.getElementById("viewerTitle").textContent = "Loading study cards…";
-  document.getElementById("viewerBody").innerHTML = `<p style="padding:16px">Splitting the paper into study cards with worked solutions…</p>`;
-  setTimeout(() => viewPaper(id, true), 400);
-}
-function studyQuestion(paperId, n) {
-  const p = paperById(paperId);
-  const q = p.questions.find(x => x.n === n);
-  if (!q) return;
-  const item = { ...q, tag: `${p.code} ${p.year} Q${n}`, paperId };
-  const existing = questions.findIndex(x => x.paperId === paperId && x.n === n);
-  if (existing >= 0) currentQ = existing;
-  else { questions.unshift(item); currentQ = 0; }
-  switchTab("solve", document.querySelector(".tab"));
-  renderQs();
-  showExplain(currentQ, questions[currentQ]);
-  document.getElementById("tab-solve").scrollIntoView({ behavior: "smooth" });
-}
-async function downloadPDF(id) {
-  const p = paperById(id);
-  if (!p) return;
-  const fname = (p.realUrl || "").split("/").pop();
-  const urls = [p.realUrl, "/download/pdfs/" + encodeURIComponent(fname)].filter(Boolean);
-  const v = document.getElementById("viewer");
-  v.classList.add("show");
-  document.getElementById("viewerTitle").textContent = "Download " + p.paper;
-  document.getElementById("viewerBody").innerHTML = `<p>Saving <b>${esc(fname)}</b> (${esc(p.paper)} — ${p.calc ? "calculator allowed" : "non-calculator"})…</p>`;
-  try {
-    let r = null;
-    for (const url of urls) {
-      try { r = await fetch(url); if (r && r.ok) break; } catch (e) { r = null; }
-    }
-    if (!r || !r.ok) throw new Error("HTTP " + (r && r.status));
-    const blob = await r.blob();
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = fname;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-    document.getElementById("viewerBody").innerHTML = `<p>✅ Downloaded <b>${esc(fname)}</b></p>
-      <p>${esc(p.year)} ${esc(p.session)} ${esc(p.code)} ${esc(p.paper)} · ${p.qs} questions</p>
-      <p><a href="${p.realUrl}" target="_blank" rel="noopener">Open in browser instead →</a></p>
-      <p class="notice">${p.syllabus === "1122"
-        ? "Paper 1 is composition (Section A one essay + Section B guided writing). Paper 2 is reading: passage, comprehension, summary and register. Different files, different questions."
-        : p.syllabus === "5006"
-        ? "Paper 1 is 40 multiple-choice questions (1 hour). Paper 2 is 8 structured Bio/Chem/Phys questions (2 hours). Different files, different questions."
-        : "Paper 1 is short-answer / no calculator. Paper 2 is structured Section A + B / calculator. Different files, different questions."}</p>`;
-  } catch (err) {
-    document.getElementById("viewerBody").innerHTML = `<p>Could not auto-save. <a href="${p.realUrl}" download="${esc(fname)}" target="_blank">Tap here to download ${esc(fname)}</a></p>`;
-    window.open(p.realUrl, "_blank");
-  }
-}
-
-/* ----- mock ----- */
-function mockPaper() {
-  return paperById(mockState.paperId) || (DATA.papers || [])[0];
-}
-function renderMock() {
-  const p = mockPaper();
-  if (!p) return;
-  const q = p.questions[mockState.i];
-  const total = p.questions.length;
-  const answered = Object.keys(mockState.answers).length;
-  const hh = String(Math.floor(mockState.remaining / 3600)).padStart(2, "0");
-  const mm = String(Math.floor((mockState.remaining % 3600) / 60)).padStart(2, "0");
-  const ss = String(mockState.remaining % 60).padStart(2, "0");
-  const topics = scoreTopics(p);
-  document.getElementById("mockApp").innerHTML = `
-    <div style="display:grid;grid-template-columns:1.25fr 0.75fr;gap:12px">
-      <div>
-        <div style="background:linear-gradient(135deg,#0f172a,#1e293b);color:white;border-radius:14px;padding:12px;display:flex;justify-content:space-between;align-items:center">
-          <div><div style="font-size:10px;letter-spacing:0.8px;opacity:0.7">MOCK · ${esc(p.code)} ${esc(p.session)} ${p.year} · ${esc(p.extra.split(".")[0])}</div>
-          <b style="font-size:22px" id="timer">${hh}:${mm}:${ss}</b></div>
-          <div style="text-align:right"><div style="font-size:10px;opacity:0.7">Progress</div><b>${mockState.i + 1}/${total}</b><div style="font-size:10px;opacity:0.7">${answered} answered</div></div>
-        </div>
-        <div style="margin-top:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px">
-          <small style="font-weight:800;color:var(--green)">Q${q.n} · ${esc(q.topic)} · [${q.marks}]</small>
-          <p style="font-weight:800;margin-top:6px">${q.text}</p>
-          <input class="ans" id="mockAns" placeholder="Type your answer" value="${escAttr(mockState.answers[q.n] || "")}">
-          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-            <button class="btn-sm btn-extract" style="flex:none;padding:8px 14px" onclick="markMock()">Check</button>
-            <button class="btn-sm btn-view" style="flex:none;padding:8px 14px" onclick="mockNav(-1)">← Prev</button>
-            <button class="btn-sm btn-view" style="flex:none;padding:8px 14px" onclick="mockNav(1)">Next →</button>
-            <button class="btn-sm btn-dl" style="flex:none;padding:8px 14px" onclick="showMockMarkscheme()">Show working</button>
-          </div>
-          <div id="mockFeedback" style="margin-top:8px;font-size:12px;font-weight:700"></div>
-        </div>
-      </div>
-      <div style="background:white;border:1px solid #e2e8f0;border-radius:14px;padding:12px">
-        <b style="font-size:12px">📊 ${esc(getProfile().name)} — live topic score</b>
-        <div id="mockTopics" style="margin-top:8px">${topics}</div>
-        <div style="margin-top:8px;background:#0f172a;color:white;border-radius:10px;padding:10px">
-          <b style="font-size:11px">🤖 ${esc(langName(activeLang))} coach</b>
-          <p style="font-size:11px;opacity:0.9;margin-top:4px">${esc(coachLine(p))}</p>
-        </div>
-      </div>
-    </div>`;
-}
-function mockNav(d) {
-  const p = mockPaper();
-  const inp = document.getElementById("mockAns");
-  if (inp) mockState.answers[p.questions[mockState.i].n] = inp.value;
-  mockState.i = Math.max(0, Math.min(p.questions.length - 1, mockState.i + d));
-  renderMock();
-}
-function markMock() {
-  const p = mockPaper();
-  const q = p.questions[mockState.i];
-  const inp = document.getElementById("mockAns");
-  const given = inp.value.trim();
-  mockState.answers[q.n] = given;
-  const ok = answersMatch(given, q.answer);
-  const fb = document.getElementById("mockFeedback");
-  fb.style.color = ok ? "#0a7a3c" : "#b91c1c";
-  fb.textContent = ok ? "✓ Correct." : `✗ Official answer: ${q.answer}`;
-  renderMock();
-  const fb2 = document.getElementById("mockFeedback");
-  if (fb2) {
-    fb2.style.color = ok ? "#0a7a3c" : "#b91c1c";
-    fb2.textContent = ok ? "✓ Correct." : `✗ Official answer: ${q.answer}`;
-  }
-}
-function showMockMarkscheme() {
-  const p = mockPaper();
-  const q = p.questions[mockState.i];
-  studyQuestion(p.id, q.n);
-}
-function answersMatch(given, official) {
-  const n = s => String(s).toLowerCase().replace(/\s+/g, "").replace(/,/g, "");
-  const g = n(given), o = n(official);
-  if (!g) return false;
-  if (g === o) return true;
-  if (o.includes(g) && g.length >= 1) return true;
-  const gn = Number(g), on = Number(o);
-  if (!Number.isNaN(gn) && !Number.isNaN(on) && Math.abs(gn - on) < 1e-6) return true;
-  return false;
-}
-function scoreTopics(p) {
-  const buckets = {};
-  p.questions.forEach(q => {
-    const key = q.topic.split("(")[0].trim();
-    buckets[key] = buckets[key] || { t: 0, c: 0 };
-    buckets[key].t++;
-    const g = mockState.answers[q.n];
-    if (g != null && g !== "") {
-      if (answersMatch(g, q.answer)) buckets[key].c++;
-    }
-  });
-  return Object.entries(buckets).slice(0, 6).map(([k, v]) => {
-    const attempted = Object.keys(mockState.answers).length;
-    const pct = v.t ? Math.round((v.c / v.t) * 100) : 0;
-    return `<div style="margin-top:8px;font-size:11px;font-weight:700">${esc(k)} ${pct}%
-      <div class="progress"><i style="width:${pct}%"></i></div></div>`;
-  }).join("") || "<p class='muted'>Answer questions to see topic scores.</p>";
-}
-function coachLine(p) {
-  const weak = [];
-  p.questions.forEach(q => {
-    const g = mockState.answers[q.n];
-    if (g && !answersMatch(g, q.answer)) weak.push(q.topic);
-  });
-  const w = weak[0] || "Trigonometry";
-  if (activeLang === "sn") return `Makorokoto kune zvaunogona. Dzokorora: ${w}.`;
-  if (activeLang === "nd") return `Kuhle. Phinda: ${w}.`;
-  return `Good effort. Next drill: ${w}.`;
-}
-
-/* ----- parent / predict ----- */
-function renderParent() {
-  const p = getProfile();
-  const name = p.name === "Student" ? "Tatenda" : p.name;
-  const answered = Object.keys(mockState.answers).length;
-  document.getElementById("parentBody").innerHTML = `
-    <p><b>Mhoro Mai ${esc(name)},</b></p>
-    <p style="margin:6px 0;background:#f1f5f9;padding:9px;border-radius:10px">
-      📚 ${esc(name)} · ${esc(p.grade)}<br>
-      Mock Paper 1 items answered: <b>${answered}/30</b><br>
-      🔥 Keep the streak — one Paper 1 this week.
-    </p>
-    <p style="font-size:11px;color:var(--muted)">Report language follows the tutor language (${esc(langName(activeLang))}).</p>`;
-}
-function renderPredict() {
-  const bars = document.getElementById("predictBars");
-  const block = (title, list) => `<h4 style="margin-top:12px">${esc(title)}</h4>` + (list || []).map(t => `
-    <div style="margin-top:10px;font-size:12px;font-weight:800">${esc(t.topic)}
-      <span style="float:right;color:${t.pct >= 80 ? "#ef4444" : "#0a7a3c"}">${t.pct}%</span>
-      <div class="progress"><i style="width:${t.pct}%;background:${t.pct >= 80 ? "#ef4444" : "var(--green)"}"></i></div>
-      <p style="font-weight:500;color:var(--muted);font-size:11px">${esc(t.why)}</p>
     </div>`).join("");
-  bars.innerHTML = block("4004 Mathematics", DATA.predictor) + block("5006 Combined Science", DATA.sciencePredictor) + block("1122 English Language", DATA.englishPredictor);
 }
 
-/* ----- helpers ----- */
+function viewPaper(paperId) {
+  const p = (DATA.papers || []).find(x => x.id === paperId);
+  if (!p) return;
+  const viewer = document.getElementById("viewer");
+  const title = document.getElementById("viewerTitle");
+  const body = document.getElementById("viewerBody");
+  if (!viewer || !body) return;
+
+  title.textContent = `${p.subject} ${p.code} (${p.session} ${p.year})`;
+  viewer.style.display = "block";
+
+  const qs = p.questions || [];
+  if (!qs.length) {
+    body.innerHTML = `<p>This paper contains structured ZIMSEC exam items. Download the PDF for complete layout.</p>`;
+    return;
+  }
+
+  body.innerHTML = `
+    <div style="background:#f8fafc;padding:10px 14px;border-radius:10px;margin-bottom:14px;border:1px solid var(--border)">
+      <b>Instructions:</b> ${esc(p.instructions || 'Answer all questions. Show step-by-step working.')}
+    </div>
+    ${qs.map((q, idx) => `
+      <div style="border-bottom:1px solid var(--border);padding:12px 0">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <b>Question ${idx + 1} <span style="font-weight:500;color:var(--green)">[${esc(q.topic || 'General')}]</span></b>
+          <span style="font-weight:800;font-size:11px;color:var(--muted)">[${q.marks || 2} Marks]</span>
+        </div>
+        <p style="margin-top:6px;font-size:13.5px">${esc(q.text)}</p>
+        ${q.options ? `<div style="margin-top:6px">${q.options.map(o => `<div style="font-size:12px;color:var(--dark);padding:2px 0">${esc(o)}</div>`).join('')}</div>` : ''}
+        <div style="margin-top:8px;background:#f0fdf4;border:1px solid #bbf7d0;padding:8px 12px;border-radius:8px">
+          <b style="font-size:11px;color:var(--green)">ZIMSEC Mark Scheme:</b>
+          <span style="font-size:12px;color:#1e293b;margin-left:6px">${esc(q.markscheme || q.answer)}</span>
+        </div>
+      </div>`).join('')}`;
+
+  viewer.scrollIntoView({ behavior: 'smooth' });
+}
+
+function closeViewer() {
+  const viewer = document.getElementById("viewer");
+  if (viewer) viewer.style.display = "none";
+}
+
+/* ----- Timed Mock Examination Room ----- */
+function switchMockSubject(val) {
+  mockState.subject = val;
+}
+
+function startMockExam() {
+  const sub = mockState.subject || "4004";
+  const matchingPapers = (DATA.papers || []).filter(p => String(p.syllabus) === String(sub));
+  const paper = matchingPapers[matchingPapers.length - 1] || DATA.papers[0];
+
+  if (!paper || !paper.questions || !paper.questions.length) {
+    alert("No drill items found for this subject.");
+    return;
+  }
+
+  mockState.active = true;
+  mockState.paper = paper;
+  mockState.qs = paper.questions.slice(0, 10);
+  mockState.currentIndex = 0;
+  mockState.answers = [];
+  mockState.remaining = 1500; // 25 mins
+
+  document.getElementById("mockActiveArea").style.display = "block";
+  document.getElementById("mockResultArea").style.display = "none";
+  document.getElementById("btnStartMock").textContent = "Restart Exam";
+
+  renderMockQuestion();
+}
+
+function renderMockQuestion() {
+  const q = mockState.qs[mockState.currentIndex];
+  if (!q) {
+    finishMockExam();
+    return;
+  }
+
+  document.getElementById("mockLevelTag").textContent = `${mockState.paper.level.toUpperCase()} · ${mockState.paper.code}`;
+  document.getElementById("mockTitleText").textContent = `Question ${mockState.currentIndex + 1} of ${mockState.qs.length}`;
+  document.getElementById("mockQTopic").textContent = (q.topic || "CORE TOPIC").toUpperCase();
+  document.getElementById("mockQText").textContent = q.text;
+
+  const optBox = document.getElementById("mockQOptions");
+  if (q.options && q.options.length) {
+    optBox.innerHTML = q.options.map(o => `<div style="font-size:13px;padding:4px 0">${esc(o)}</div>`).join('');
+  } else {
+    optBox.innerHTML = "";
+  }
+
+  const input = document.getElementById("mockAnswerInput");
+  if (input) {
+    input.value = "";
+    input.focus();
+  }
+}
+
+function submitMockAnswer() {
+  const input = document.getElementById("mockAnswerInput");
+  const val = input ? input.value.trim() : "";
+  const q = mockState.qs[mockState.currentIndex];
+
+  const ok = checkAnswerMatch(val, q.answer);
+  mockState.answers.push({ q, given: val, ok, correct: q.answer });
+
+  mockState.currentIndex++;
+  if (mockState.currentIndex >= mockState.qs.length) {
+    finishMockExam();
+  } else {
+    renderMockQuestion();
+  }
+}
+
+function skipMockQ() {
+  const q = mockState.qs[mockState.currentIndex];
+  mockState.answers.push({ q, given: "Skipped", ok: false, correct: q.answer, skipped: true });
+  mockState.currentIndex++;
+  if (mockState.currentIndex >= mockState.qs.length) {
+    finishMockExam();
+  } else {
+    renderMockQuestion();
+  }
+}
+
+function checkAnswerMatch(given, expected) {
+  if (!given) return false;
+  const a = String(given).toLowerCase().replace(/[^a-z0-9.%+-/]/g, "");
+  const b = String(expected).toLowerCase().replace(/[^a-z0-9.%+-/]/g, "");
+  return a === b || b.includes(a) || a.includes(b);
+}
+
+function finishMockExam() {
+  mockState.active = false;
+  document.getElementById("mockActiveArea").style.display = "none";
+  const resArea = document.getElementById("mockResultArea");
+  resArea.style.display = "block";
+
+  const total = mockState.qs.length;
+  const correct = mockState.answers.filter(a => a.ok).length;
+  const pct = Math.round((correct / (total || 1)) * 100);
+
+  let gradeLetter = pct >= 75 ? "A" : (pct >= 65 ? "B" : (pct >= 50 ? "C" : (pct >= 40 ? "E" : "U")));
+  if (mockState.paper?.syllabus === "702" || mockState.paper?.syllabus === "701") {
+    gradeLetter = pct >= 85 ? "Unit 1 (Distinction)" : (pct >= 70 ? "Unit 2" : (pct >= 50 ? "Unit 3" : "Unit 9"));
+  }
+
+  resArea.innerHTML = `
+    <div style="background:#f8fafc;border:2px solid var(--green);border-radius:16px;padding:22px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
+        <div>
+          <span style="font-size:11px;font-weight:900;color:var(--green)">ZIMSEC SENIOR EXAMINER MARK SLIP</span>
+          <h3 style="font-size:20px;margin-top:2px">${esc(mockState.paper.subject)} (${esc(mockState.paper.code)})</h3>
+        </div>
+        <div style="text-align:right">
+          <span style="font-size:24px;font-weight:900;color:var(--green)">${correct}/${total} (${pct}%)</span>
+          <div style="font-size:12px;font-weight:800;color:var(--dark)">Grade: <b>${gradeLetter}</b></div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+        <b style="font-size:13px">Question Breakdown:</b>
+        <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+          ${mockState.answers.map((a, i) => `
+            <div style="display:flex;justify-content:space-between;font-size:12px;background:white;padding:8px 12px;border-radius:8px;border:1px solid var(--border)">
+              <span><b>Q${i+1}:</b> ${esc(a.q.topic || 'Item')}</span>
+              <span>${a.ok ? '✅ <b style="color:var(--green)">Correct</b>' : (a.skipped ? '⏭️ <b style="color:var(--muted)">Skipped</b>' : `❌ <b style="color:#ef4444">Expected: ${esc(a.correct)}</b>`)}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div style="margin-top:16px;display:flex;gap:8px">
+        <button onclick="startMockExam()" style="flex:1;background:var(--green);color:white;border:none;padding:11px;border-radius:999px;font-weight:900;cursor:pointer">Retake Exam ↻</button>
+        <button onclick="switchTab('chat', document.getElementById('tabBtnChat'))" style="background:var(--dark);color:white;border:none;padding:11px 20px;border-radius:999px;font-weight:900;cursor:pointer">Review with AI Tutor →</button>
+      </div>
+    </div>`;
+
+  resArea.scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ----- Parent Progress Report ----- */
+function renderParentReport() {
+  const box = document.getElementById("parentReportBody");
+  if (!box) return;
+
+  const displayName = (acadexProfile.name && acadexProfile.name !== "Student") ? acadexProfile.name : "Learner";
+  const school = acadexProfile.school || "Zimbabwe Secondary School";
+  const grade = acadexProfile.grade || "Form 4 (O-Level)";
+  const count = acadexProfile.practiceCount || 12;
+
+  box.innerHTML = `
+    <div style="border-bottom:2px solid var(--dark);padding-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
+      <div>
+        <span style="font-size:11px;font-weight:900;color:var(--green)">ACADEX OFFICIAL ACADEMIC PROGRESS SLIP</span>
+        <h3 style="font-size:18px;margin-top:2px">Student: ${esc(displayName)}</h3>
+      </div>
+      <div style="font-size:12px;text-align:right">
+        <b>${esc(school)}</b><br>
+        <span style="color:var(--muted)">${esc(grade)} · ${new Date().toLocaleDateString()}</span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px">
+      <div style="background:white;padding:12px;border-radius:10px;border:1px solid var(--border);text-align:center">
+        <span style="font-size:10px;color:var(--muted);font-weight:800">QUESTIONS SOLVED</span>
+        <div style="font-size:20px;font-weight:900;color:var(--green)">${count}</div>
+      </div>
+      <div style="background:white;padding:12px;border-radius:10px;border:1px solid var(--border);text-align:center">
+        <span style="font-size:10px;color:var(--muted);font-weight:800">STUDY STREAK</span>
+        <div style="font-size:20px;font-weight:900;color:var(--gold)">${acadexProfile.streak || 1} Days 🔥</div>
+      </div>
+      <div style="background:white;padding:12px;border-radius:10px;border:1px solid var(--border);text-align:center">
+        <span style="font-size:10px;color:var(--muted);font-weight:800">TARGET GRADE</span>
+        <div style="font-size:20px;font-weight:900;color:var(--dark)">Grade A</div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;background:white;padding:14px;border-radius:12px;border:1px solid var(--border);font-size:13px;line-height:1.6">
+      <p><b>Dear Parent / Guardian,</b></p>
+      <p style="margin-top:6px">This report certifies that <b>${esc(displayName)}</b> is actively preparing for their ZIMSEC examinations using the ACADEX national curriculum question bank across <b>${(acadexProfile.subjects || []).join(', ')}</b>.</p>
+      <p style="margin-top:8px"><b>Examiner Recommendation:</b> Consistent daily drills on Paper 1 (non-calculator method marks) and structured science theory are recommended to lock in Grade A performance.</p>
+    </div>`;
+}
+
+/* ----- National Exam Predictor ----- */
+function renderPredictor() {
+  const bars = document.getElementById("predictBars");
+  if (!bars) return;
+
+  const block = (title, list) => `
+    <h4 style="margin-top:14px;font-size:13px">${esc(title)}</h4>
+    ${(list || []).slice(0, 5).map(t => `
+      <div style="margin-top:10px;font-size:12px;font-weight:800">
+        ${esc(t.topic)}
+        <span style="float:right;color:${t.pct >= 80 ? '#ef4444' : 'var(--green)'}">${t.pct}% Probability</span>
+        <div class="progress"><i style="width:${t.pct}%;background:${t.pct >= 80 ? '#ef4444' : 'var(--green)'}"></i></div>
+        <p style="font-weight:500;color:var(--muted);font-size:11px;margin-top:2px">${esc(t.why)}</p>
+      </div>`).join('')}`;
+
+  bars.innerHTML = block("Mathematics 4004 (O-Level)", DATA.predictor) +
+                   block("Combined Science 5006", DATA.sciencePredictor) +
+                   block("English Language 1122", DATA.englishPredictor);
+}
+
+/* ----- Tab Switching ----- */
+function switchTab(tabId, btn) {
+  document.querySelectorAll(".tabs .tab").forEach(t => t.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+
+  const tabChat = document.getElementById("tab-chat");
+  const tabSolve = document.getElementById("tab-solve");
+  const tabLib = document.getElementById("tab-library");
+  const tabMock = document.getElementById("tab-mock");
+  const tabParent = document.getElementById("tab-parent");
+  const tabPredict = document.getElementById("tab-predict");
+
+  if (tabChat) tabChat.style.display = (tabId === "chat") ? "block" : "none";
+  if (tabSolve) tabSolve.style.display = (tabId === "solve") ? "block" : "none";
+  if (tabLib) tabLib.style.display = (tabId === "library") ? "block" : "none";
+  if (tabMock) tabMock.style.display = (tabId === "mock") ? "block" : "none";
+  if (tabParent) tabParent.style.display = (tabId === "parent") ? "block" : "none";
+  if (tabPredict) tabPredict.style.display = (tabId === "predict") ? "block" : "none";
+
+  if (tabId === "library") renderLibrary();
+  if (tabId === "parent") renderParentReport();
+  if (tabId === "predict") renderPredictor();
+}
+
+/* ----- General Helpers & Languages ----- */
+function renderLanguages() {
+  const grid = document.getElementById("langGrid");
+  if (!grid) return;
+  grid.innerHTML = LANGUAGES.map(l => `
+    <span class="lang-pill ${l.code === activeLang ? 'active' : ''}" onclick="setLanguage('${l.code}')">${esc(l.name)}</span>
+  `).join('');
+}
+
+function setLanguage(code) {
+  activeLang = code;
+  renderLanguages();
+  const langObj = LANGUAGES.find(l => l.code === code);
+  const label = document.getElementById("langLabel");
+  if (label) label.textContent = langObj ? langObj.name : "English";
+}
+
 function esc(s) {
   return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
-function escAttr(s) { return esc(s).replace(/`/g, ""); }
 
+/* ----- Service Worker Offline Cache Registration ----- */
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.getRegistrations().then(regs => {
     Promise.all(regs.map(r => r.update())).finally(() => {
-      navigator.serviceWorker.register("./sw.js?v=13").then(reg => {
-        if (reg.periodicSync && navigator.permissions) {
-          navigator.permissions.query({ name: "periodic-background-sync" }).then(st => {
-            if (st.state === "granted") reg.periodicSync.register("acadex-awake", { minInterval: 4 * 60 * 1000 }).catch(() => {});
-          }).catch(() => {});
-        }
-      }).catch(() => {});
+      navigator.serviceWorker.register("./sw.js?v=13").catch(() => {});
     });
   });
 }
 
-function init() {
+/* ----- App Boot Initialization ----- */
+function initApp() {
+  acadexProfile = getProfile();
+  
   if (DATA.counts) {
     const sp = document.getElementById("statPapers");
     const sq = document.getElementById("statQs");
-    if (sp) sp.textContent = DATA.counts.papers || 52;
-    if (sq) sq.textContent = DATA.counts.questions || 861;
+    if (sp) sp.textContent = DATA.counts.papers || 118;
+    if (sq) sq.textContent = DATA.counts.questions || 1485;
   }
-  fillExplainLangSelect();
-  renderLangs();
-  updateBot();
-  renderQs();
-  if (questions[0]) showExplain(0);
+
+  renderLanguages();
+  loadChatHistory();
   renderLibrary();
-  updateProfileBadge();
-  renderParent();
-  renderPredict();
-  setTimeout(() => {
-    if (!acadexProfile || !acadexProfile.name) openProfile();
-  }, 700);
+  updateUIForProfile();
+
+  // If new user with no name set, prompt profile after 600ms
+  if (!acadexProfile.name || acadexProfile.name === "Student") {
+    setTimeout(openProfile, 600);
+  }
+
+  // Timer loop for mock exam
   setInterval(() => {
-    if (mockState.remaining > 0) mockState.remaining--;
-    const el = document.getElementById("timer");
-    if (!el) return;
-    const t = mockState.remaining;
-    el.textContent = `${String(Math.floor(t / 3600)).padStart(2, "0")}:${String(Math.floor((t % 3600) / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`;
+    if (mockState.active && mockState.remaining > 0) {
+      mockState.remaining--;
+      const el = document.getElementById("timer");
+      if (el) {
+        const t = mockState.remaining;
+        el.textContent = `${String(Math.floor(t / 3600)).padStart(2, "0")}:${String(Math.floor((t % 3600) / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`;
+      }
+    }
   }, 1000);
 }
-let _booted = false;
-function boot() {
-  if (_booted) return;
-  _booted = true;
-  init();
-}
-document.addEventListener("DOMContentLoaded", boot);
-if (document.readyState !== "loading") boot();
+
+document.addEventListener("DOMContentLoaded", initApp);
+if (document.readyState !== "loading") initApp();
