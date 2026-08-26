@@ -7,47 +7,85 @@ export const SYLLABUS_TREE = {
   primary: {
     title: 'Primary School (Grades 1–7)',
     subjects: {
-      '702': { name: 'Mathematics', papers: ['Paper 1 (MCQ & Short)', 'Paper 2 (Problem Solving & Units)'], units: 'Units 1–9 (Unit 1 = Distinction)' },
-      '701': { name: 'English Language', papers: ['Paper 1 (Comprehension & Language)', 'Paper 2 (Composition & Guided Writing)'] },
-      '703': { name: 'General Paper', papers: ['Paper 1 (Science, Tech & Agriculture)', 'Paper 2 (Social Sciences & Heritage)'] },
-      '704': { name: 'Indigenous Languages', papers: ['Shona (ChiShona)', 'Ndebele (isiNdebele)'] },
+      '702': { 
+        name: 'Mathematics', 
+        papers: ['Paper 1 (MCQ & Short, 50m, 2h)', 'Paper 2 (Problem Solving & Units, 50m, 2h)'], 
+        units: 'Units 1–9 (Unit 1 = Distinction, 9 = Ungraded). Best Aggregate = 4 or 5 Units.' 
+      },
+      '701': { 
+        name: 'English Language', 
+        papers: ['Paper 1 (Comprehension & Language, 50m, 1h30)', 'Paper 2 (Composition & Guided Writing, 50m, 1h30)'] 
+      },
+      '703': { 
+        name: 'General Paper', 
+        papers: ['Paper 1 (Science, Tech & Agriculture, 50m, 1h45)', 'Paper 2 (Social Sciences & Heritage, 50m, 1h45)'] 
+      },
+      '704': { 
+        name: 'Indigenous Languages', 
+        papers: ['Shona (ChiShona: Rondedzero, Nzwisiso, Tsumo, Madimikira)', 'Ndebele (isiNdebele: Indatshana, Ukuzwisisa, Izaga, Izitsho)'] 
+      },
     },
     grading: 'Grade 7 uses Units 1 to 9 per subject. Best aggregate is 4 (or 5), with Unit 1 being the highest distinction and Unit 9 ungraded.',
   },
   olevel: {
     title: 'O-Level (Forms 1–4)',
     subjects: {
-      '4004': { name: 'Mathematics', papers: ['Paper 1 (100m, 2h30, NO Calculator)', 'Paper 2 (100m, 2h30, Calculator Allowed, Sec A 52 compulsory + Sec B choose 4 of 7)'] },
-      '5006': { name: 'Combined Science', papers: ['Paper 1 (40 MCQ, 1h)', 'Paper 2 (80m, 2h, 8 structured Bio/Chem/Phys questions, all compulsory)'] },
-      '1122': { name: 'English Language', papers: ['Paper 1 (50m, 1h30, 1 Composition 350–450w + Guided Writing)', 'Paper 2 (50m, 2h, Comprehension 20m + Summary 20m + Register 10m)'] },
+      '4004': { 
+        name: 'Mathematics', 
+        papers: [
+          'Paper 1 (100m, 2h30, STRICTLY NO CALCULATOR, 30 compulsory questions)', 
+          'Paper 2 (100m, 2h30, Calculator Allowed, Sec A 52 compulsory + Sec B choose 4 of 7 @ 12m each)'
+        ] 
+      },
+      '5006': { 
+        name: 'Combined Science', 
+        papers: [
+          'Paper 1 (40 MCQs, 1h, 40m, Biology/Chemistry/Physics)', 
+          'Paper 2 (80m, 2h, 8 structured Bio/Chem/Phys questions, ALL compulsory)'
+        ] 
+      },
+      '1122': { 
+        name: 'English Language', 
+        papers: [
+          'Paper 1 (50m, 1h30: Sec A Composition 350–450w @ 30m + Sec B Guided Writing @ 20m)', 
+          'Paper 2 (50m, 2h: Comprehension @ 20m + Summary in own words @ 20m + Register @ 10m)'
+        ] 
+      },
       '5008': { name: 'Biology', papers: ['Paper 1 (MCQ)', 'Paper 2 (Theory)', 'Paper 3 (Practical/Alternative)'] },
       '5070': { name: 'Chemistry', papers: ['Paper 1 (MCQ)', 'Paper 2 (Theory)', 'Paper 3 (Practical/Alternative)'] },
       '5054': { name: 'Physics', papers: ['Paper 1 (MCQ)', 'Paper 2 (Theory)', 'Paper 3 (Practical/Alternative)'] },
-      '4021': { name: 'Computer Science', papers: ['Paper 1 (Theory)', 'Paper 2 (Programming & Algorithms)'] },
-      '4033': { name: 'Additional Mathematics', papers: ['Paper 1 (Pure Core)', 'Paper 2 (Calculus & Mechanics)'] },
-      '7110': { name: 'Principles of Accounts', papers: ['Paper 1 (MCQ)', 'Paper 2 (Ledgers, Journals, Balance Sheets)'] },
-      '7103': { name: 'Commerce', papers: ['Paper 1 (MCQ)', 'Paper 2 (Structured Trade, Banking, Insurance, Transport)'] },
-      '2167': { name: 'History', papers: ['Paper 1 (Zimbabwean & Regional Heritage)', 'Paper 2 (World Affairs)'] },
-      '2248': { name: 'Geography', papers: ['Paper 1 (Mapwork & Physical)', 'Paper 2 (Human & Economic)'] },
-      '3159': { name: 'Shona', papers: ['Paper 1 (Rondedzero & Nzwisiso)', 'Paper 2 (Mhenenguro & Tsika)'] },
-      '3155': { name: 'Ndebele', papers: ['Paper 1 (Indatshana & Ukuzwisisa)', 'Paper 2 (Uhlahlelo & Isiko)'] },
+      '4021': { name: 'Computer Science', papers: ['Paper 1 (Theory & Systems)', 'Paper 2 (Programming & Algorithms)'] },
+      '4033': { name: 'Additional Mathematics', papers: ['Paper 1 (Pure Core)', 'Paper 2 (Calculus, Coordinate Geometry & Mechanics)'] },
+      '7110': { name: 'Principles of Accounts', papers: ['Paper 1 (MCQ)', 'Paper 2 (Ledgers, Cash Books, Final Accounts, Suspense, Depreciation)'] },
+      '7103': { name: 'Commerce', papers: ['Paper 1 (MCQ)', 'Paper 2 (Trade, Banking, Insurance, Transport, Communication, Warehousing)'] },
+      '2167': { name: 'History', papers: ['Paper 1 (Zimbabwean & Regional Heritage: Great Zimbabwe, Mutapa, Rozvi, Ndebele, Colonisation, Liberation)', 'Paper 2 (World Affairs: WWI, WWII, League of Nations, UN, Cold War)'] },
+      '2248': { name: 'Geography', papers: ['Paper 1 (Mapwork, Physical, Climatology, Weather, ITCZ)', 'Paper 2 (Human, Agriculture Regions I-V, Mining, Industry, Energy)'] },
+      '4006': { name: 'Heritage Studies', papers: ['Paper 1 (National Heritage & Symbols, Unhu/Ubuntu)', 'Paper 2 (Constitution, Culture & Development)'] },
+      '3159': { name: 'Shona (ChiShona)', papers: ['Paper 1 (Rondedzero & Nzwisiso)', 'Paper 2 (Mhenenguro, Tsika, Madimikira & Tsumo)'] },
+      '3155': { name: 'Ndebele (isiNdebele)', papers: ['Paper 1 (Indatshana & Ukuzwisisa)', 'Paper 2 (Uhlahlelo, Isiko, Izitsho & Izaga)'] },
     },
-    grading: 'O-Level grades are strictly A, B, C, D, E, U (Ungraded). No Distinction, no A*. Five subjects at Grade C or better (including English and Maths) is standard requirement for A-Level and tertiary entry.',
+    grading: 'O-Level grades are strictly A, B, C, D, E, U (Ungraded). No Distinction, no A*. Five subjects at Grade C or better (including English and Maths) is the standard requirement for A-Level and tertiary entry.',
   },
   alevel: {
     title: 'A-Level (Forms 5–6)',
     subjects: {
-      '6042': { name: 'Pure Mathematics', papers: ['Paper 1 (Algebra, Coord Geometry, Trig, Differentiation, Integration)', 'Paper 2 (Vectors, Complex Numbers, Differential Equations, Numerical Methods)'] },
+      '6042': { 
+        name: 'Pure Mathematics', 
+        papers: [
+          'Paper 1 (3h, 100m: Algebra, Coordinate Geometry, Trig, Sequences, Calculus)', 
+          'Paper 2 (3h, 100m: Vectors, Complex Numbers, Differential Equations, Numerical Methods, Mechanics & Probability)'
+        ] 
+      },
       '9164': { name: 'Mathematics', papers: ['Paper 1 (Pure Mathematics Core)', 'Paper 2 (Applied Statistics & Mechanics)'] },
       '9187': { name: 'Further Mathematics', papers: ['Paper 1 (Advanced Pure & Matrices)', 'Paper 2 (Advanced Applied & Probability)'] },
       '6032': { name: 'Physics', papers: ['Paper 1 (Multiple Choice)', 'Paper 2 (Structured Theory)', 'Paper 3 (Advanced Practical)'] },
       '6027': { name: 'Chemistry', papers: ['Paper 1 (Multiple Choice)', 'Paper 2 (Structured Theory)', 'Paper 3 (Advanced Practical)'] },
       '6030': { name: 'Biology', papers: ['Paper 1 (Multiple Choice)', 'Paper 2 (Structured Theory)', 'Paper 3 (Advanced Practical)'] },
-      '6021': { name: 'Computer Science', papers: ['Paper 1 (Theory & Architectures)', 'Paper 2 (Data Structures & OOP)'] },
-      '6001': { name: 'Accounting', papers: ['Paper 1 (Financial Accounting)', 'Paper 2 (Cost & Management Accounting)'] },
-      '6073': { name: 'Economics', papers: ['Paper 1 (Microeconomics)', 'Paper 2 (Macroeconomics & International Trade)'] },
-      '6025': { name: 'Business Studies', papers: ['Paper 1 (Short Answer & Data Response)', 'Paper 2 (Case Study & Essays)'] },
-      '6002': { name: 'Geography', papers: ['Paper 1 (Physical Geography)', 'Paper 2 (Human Geography)'] },
+      '6021': { name: 'Computer Science', papers: ['Paper 1 (Theory & Systems Architecture)', 'Paper 2 (Data Structures, OOP & Algorithms)'] },
+      '6001': { name: 'Accounting', papers: ['Paper 1 (Financial Accounting & Company Accounts)', 'Paper 2 (Cost & Management Accounting)'] },
+      '6073': { name: 'Economics', papers: ['Paper 1 (Microeconomics: Elasticity, Market Structures, Market Failure)', 'Paper 2 (Macroeconomics: Circular Flow, Fiscal/Monetary Policy, Trade)'] },
+      '6025': { name: 'Business Studies', papers: ['Paper 1 (Short Answer & Data Response)', 'Paper 2 (Case Studies, Investment Appraisal, Strategy)'] },
+      '6002': { name: 'Geography', papers: ['Paper 1 (Physical Geography: Geomorphology, Hydrology, Atmosphere)', 'Paper 2 (Human Geography: Settlement, Population, Economic)'] },
       '6006': { name: 'History', papers: ['Paper 1 (African & Zimbabwean History)', 'Paper 2 (European & World History)'] },
       '6039': { name: 'Literature in English', papers: ['Paper 1 (Drama & Shakespeare)', 'Paper 2 (Prose & Poetry)'] },
       '6019': { name: 'Family & Religious Studies', papers: ['Paper 1 (Indigenous Religion & Heritage)', 'Paper 2 (Christianity, Islam & Contemporary Issues)'] },
@@ -98,7 +136,7 @@ export const MASTER_PAPER_RULES = `
 1. GRADING STANDARDS:
 - Grade 7 (Primary): Units 1 to 9 (Unit 1 = Distinction, 2 = High Credit, 3-5 = Credit, 6 = Pass, 7-9 = Ungraded). Aggregate 4–36.
 - O-Level (Forms 1–4): Grades A, B, C, D, E, U (Ungraded). NO Distinction, NO A*. Grade C is standard credit/pass for A-Level entry. Thresholds adjust per session.
-- A-Level (Forms 5–6): Grades A, B, C, D, E, O (Subsidiary), U. Points: A=5, B=4, C=3, D=2, E=1, O=0, U=0 (15 points max).
+- A-Level (Forms 5–6): Grades A, B, C, D, E, O (Subsidiary), U. Points: A=5, B=4, C=3, D=2, E=1, O=0, U=0 (15 points max across 3 subjects).
 
 2. KEY SYLLABUS SPECIFICATIONS:
 - Maths 4004/1: 30 short questions, 100 marks, 2h30, STRICTLY NO CALCULATOR. Method marks (M) + Accuracy marks (A).
@@ -108,6 +146,9 @@ export const MASTER_PAPER_RULES = `
 - English 1122/1: 1h30, 50 marks. Sec A: 1 composition 350–450 words (30m). Sec B: Guided writing (20m, hit every bullet point).
 - English 1122/2: 2 hours, 50 marks. Comprehension (20m) + Summary (20m, strict word count in own words) + Register (10m).
 - Pure Maths 6042: 3 hours, 100 marks each. Rigorous proofs, calculus, coordinate geometry, vectors, differential equations.
+- Principles of Accounts 7110: Double entry debit/credit rules, Prime entry books, Final accounts, Balance sheet, Suspense account, Depreciation.
+- History 2167: Great Zimbabwe, Munhumutapa, Rozvi, Ndebele, Rudd Concession 1888, First Chimurenga 1896-97, Liberation War, Independence 1980.
+- Geography 2248: Weather & ITCZ, Natural Regions I-V, Agriculture, Mining, Kariba/Hwange energy.
 
 3. EXAMINER COMMAND WORD ENFORCEMENT:
 - "Show that": Must start from given and deduce required result. Do NOT assume the answer.
@@ -130,13 +171,13 @@ export function zimsecExplain(text) {
     return {
       title: 'ZIMSEC Grade 7 Grading System',
       answer: `Grade 7 examination results are reported in Units 1 to 9 per subject:
-• Unit 1: Distinction (Highest possible mark)
-• Unit 2: High Credit
-• Unit 3–5: Credit Pass
-• Unit 6: Pass
+• Unit 1: Distinction (Highest possible mark, ~85%+)
+• Unit 2: High Credit (~70–84%)
+• Unit 3–5: Credit Pass (~50–69%)
+• Unit 6: Pass (~40–49%)
 • Unit 7–9: Ungraded / Unsatisfactory
 
-The overall result is the Aggregate of the 4 or 5 subjects. A best aggregate score is 4 Units (four Unit 1s).`,
+The overall result is the Aggregate of the 4 or 5 subjects. A best aggregate score is 4 Units (four Unit 1s) or 5 Units.`,
     };
   }
 
@@ -152,7 +193,7 @@ The overall result is the Aggregate of the 4 or 5 subjects. A best aggregate sco
 • Grade O = Subsidiary Pass (0 Points)
 • Grade U = Ungraded (0 Points)
 
-Maximum total for 3 principal subjects is 15 Points (3 As). Medicine, Law, Actuarial Science, and Engineering programs at UZ, NUST, and MSU typically demand 14–15 points.`,
+Maximum total for 3 principal subjects is 15 Points (3 As). Competitive programs (Medicine, Law, Actuarial Science, and Engineering) at UZ, NUST, and MSU typically demand 14–15 points.`,
     };
   }
 
@@ -166,31 +207,31 @@ Maximum total for 3 principal subjects is 15 Points (3 As). Medicine, Law, Actua
 • Grade D & E: Below credit
 • Grade U: Ungraded
 
-📌 Note: There is NO "A*" and NO "Distinction" symbol on the official ZIMSEC O-Level certificate. Five subjects with Grade C or better (including English Language) constitutes a full O-Level certificate.`,
+📌 Note: There is NO "A*" and NO "Distinction" symbol on the official ZIMSEC O-Level certificate. Five subjects with Grade C or better (including English Language and Mathematics) constitutes a full O-Level certificate.`,
     };
   }
 
   if (/4004|math/.test(t) && /paper|calculator|how long|structure|marks/.test(t)) {
     return {
       title: 'ZIMSEC Maths 4004 Paper Structure',
-      answer: `• Paper 1: 30 short questions, 100 marks, 2 hours 30 minutes, STRICTLY NO CALCULATOR. Working on the page is compulsory (answer only scores 0 on method questions).
-• Paper 2: 2 hours 30 minutes, calculator allowed. Section A (52 marks) all compulsory. Section B (48 marks) choose 4 of 7 questions (12 marks each).`,
+      answer: `• Paper 1 (2h 30m, 100 marks): 30 short questions, STRICTLY NO CALCULATOR. Working on the page is compulsory (answer only scores 0 on method questions).
+• Paper 2 (2h 30m, 100 marks): Calculator allowed. Section A (52 marks) all compulsory. Section B (48 marks) choose 4 of 7 questions (12 marks each).`,
     };
   }
 
   if (/5006|combined science|science paper/.test(t)) {
     return {
       title: 'ZIMSEC Combined Science 5006 Paper Structure',
-      answer: `• Paper 1: 40 multiple-choice questions, 1 hour, 40 marks. Focus on scientific units, powers of 10, and eliminate 2 options first.
-• Paper 2: 8 structured questions across Biology, Chemistry, and Physics, 80 marks, 2 hours, ALL compulsory. Emphasizes word equations, experimental tests (pop, relight, limewater, iodine), and labelled biological/apparatus diagrams.`,
+      answer: `• Paper 1 (1 hour, 40 marks): 40 multiple-choice questions across Biology, Chemistry, and Physics.
+• Paper 2 (2 hours, 80 marks): 8 structured questions across Biology, Chemistry, and Physics, ALL compulsory. Emphasizes word & chemical equations, gas tests (pop, relight, limewater, iodine), and labelled biological apparatus diagrams.`,
     };
   }
 
   if (/1122|english/.test(t) && /paper|compos|summar|register|how long|structure|marks/.test(t)) {
     return {
       title: 'ZIMSEC English Language 1122 Paper Structure',
-      answer: `• Paper 1 (1h 30m, 50 marks): Section A: ONE Composition (350–450 words, 30 marks). Section B: Guided Writing (20 marks, must address every bullet point with appropriate tone).
-• Paper 2 (2 hours, 50 marks): Comprehension (20 marks) + Summary (20 marks in own words under strict word limit) + Register (10 marks, 5 situational tone conversions).`,
+      answer: `• Paper 1 (1h 30m, 50 marks): Section A: ONE Composition (350–450 words, 30 marks). Section B: Guided Writing (20 marks, must address every bullet point with appropriate formal/informal tone).
+• Paper 2 (2 hours, 50 marks): Comprehension (20 marks) + Summary (20 marks in own words under strict word limit in continuous prose) + Register (10 marks, 5 situational tone conversions).`,
     };
   }
 

@@ -1,4 +1,6 @@
-/** Dynamic ACADEX tutor brain — solve the actual question, do not dump the same menu. */
+/** Dynamic ACADEX Master Tutor Brain — Deep Multi-Subject ZIMSEC Solver & Examiner
+ *  Primary (Grade 7), O-Level (Forms 1–4) & A-Level (Forms 5–6)
+ */
 
 const STOP = new Set('help please what whats what\'s the a an of to is are was were be been being and or for from with without about into onto over under how why when where who whom which that this those these your my our their it its you we they them i me us can could would should will just also any some more most many much very really kind type send tell give show explain describe state define calculate solve find work out evaluate compute ndapota mhinduro impendulo question mubvunzo'.split(' '));
 
@@ -31,9 +33,6 @@ function evalArithmetic(expr) {
   s = s.replace(/(\d)\(/g, '$1*(').replace(/\)(\d)/g, ')*$1');
   if (!s || s.length > 80) return null;
   if (!/^[0-9+\-*/().^%]+$/.test(s)) return null;
-  if (/[+\-*/.^%]{2,}/.test(s.replace(/\*\*/g, '*'))) {
-    /* allow ** via ^ only */
-  }
   const js = s.replace(/\^/g, '**');
   try {
     const fn = new Function(`"use strict"; return (${js});`);
@@ -59,41 +58,40 @@ export function solveMath(raw) {
   }
   const low = t.toLowerCase();
 
-  // 15% of 80
+  // 1. Percentages
   let m = low.match(/(-?\d+(?:\.\d+)?)\s*%\s*(?:of|×|\*)\s*(-?\d+(?:\.\d+)?)/);
   if (m) {
     const p = +m[1], n = +m[2], a = p / 100 * n;
     return { kind: 'percent', answer: niceNum(a), steps: [
-      { t: 'Percent means /100', d: `${p}% = ${p}/100` },
-      { t: 'Multiply', d: `${p}/100 × ${n} = ${niceNum(a)}` },
+      { t: 'Percent means /100 [Method M1]', d: `${p}% = ${p}/100` },
+      { t: 'Multiply [Accuracy A1]', d: `${p}/100 × ${n} = ${niceNum(a)}` },
     ] };
   }
-  // express 30 as a percentage of 60
   m = low.match(/(?:express\s+)?(-?\d+(?:\.\d+)?)\s+(?:as\s+a\s+percentage\s+of|out\s+of|\/)\s*(-?\d+(?:\.\d+)?)/);
   if (m && /percent/.test(low)) {
     const a = +m[1], b = +m[2], p = (a / b) * 100;
     return { kind: 'percent', answer: niceNum(p) + '%', steps: [
-      { t: '(part/whole)×100%', d: `${a}/${b} × 100% = ${niceNum(p)}%` },
+      { t: '(part/whole) × 100% [Method M1]', d: `${a}/${b} × 100% = ${niceNum(p)}%` },
     ] };
   }
   m = low.match(/increase\s+(-?\d+(?:\.\d+)?)\s+by\s+(-?\d+(?:\.\d+)?)\s*%/);
   if (m) {
     const n = +m[1], p = +m[2], a = n * (1 + p / 100);
     return { kind: 'percent', answer: niceNum(a), steps: [
-      { t: 'Multiplier', d: `1 + ${p}/100 = ${niceNum(1 + p / 100)}` },
-      { t: 'New value', d: `${n} × ${niceNum(1 + p / 100)} = ${niceNum(a)}` },
+      { t: 'Multiplier [M1]', d: `1 + ${p}/100 = ${niceNum(1 + p / 100)}` },
+      { t: 'New value [A1]', d: `${n} × ${niceNum(1 + p / 100)} = ${niceNum(a)}` },
     ] };
   }
   m = low.match(/decrease\s+(-?\d+(?:\.\d+)?)\s+by\s+(-?\d+(?:\.\d+)?)\s*%/);
   if (m) {
     const n = +m[1], p = +m[2], a = n * (1 - p / 100);
     return { kind: 'percent', answer: niceNum(a), steps: [
-      { t: 'Multiplier', d: `1 − ${p}/100 = ${niceNum(1 - p / 100)}` },
-      { t: 'New value', d: `${n} × ${niceNum(1 - p / 100)} = ${niceNum(a)}` },
+      { t: 'Multiplier [M1]', d: `1 − ${p}/100 = ${niceNum(1 - p / 100)}` },
+      { t: 'New value [A1]', d: `${n} × ${niceNum(1 - p / 100)} = ${niceNum(a)}` },
     ] };
   }
 
-  // fractions a/b ± c/d
+  // 2. Fractions a/b ± c/d
   m = t.replace(/\s/g, '').match(/^(-?\d+)\/(-?\d+)\s*([+\-])\s*(-?\d+)\/(-?\d+)$/);
   if (m) {
     const a = +m[1], b = +m[2], op = m[3], c = +m[4], d = +m[5];
@@ -103,20 +101,36 @@ export function solveMath(raw) {
     const n2 = num / g, d2 = den / g;
     const ans = d2 === 1 ? String(n2) : `${n2}/${d2}`;
     return { kind: 'fraction', answer: ans, steps: [
-      { t: 'Common denominator', d: `${b}×${d} = ${den}` },
-      { t: 'Numerators', d: op === '+' ? `${a}×${d} + ${c}×${b} = ${num}` : `${a}×${d} − ${c}×${b} = ${num}` },
-      { t: 'Simplify', d: ans },
+      { t: 'Find common denominator [M1]', d: `${b} × ${d} = ${den}` },
+      { t: 'Express equivalent numerators [M1]', d: op === '+' ? `${a}×${d} + ${c}×${b} = ${num}` : `${a}×${d} − ${c}×${b} = ${num}` },
+      { t: 'Simplify to lowest terms [A1]', d: ans },
     ] };
   }
   m = low.match(/(-?\d+)\s*\/\s*(-?\d+)\s+of\s+(-?\d+(?:\.\d+)?)/);
   if (m) {
     const a = +m[1], b = +m[2], n = +m[3], v = a / b * n;
     return { kind: 'fraction', answer: niceNum(v), steps: [
-      { t: 'Of means multiply', d: `${a}/${b} × ${n} = ${niceNum(v)}` },
+      { t: 'Of means multiply [M1]', d: `${a}/${b} × ${n} = ${niceNum(v)}` },
     ] };
   }
 
-  // mean
+  // 3. Circle Theorems & Geometry Rules
+  if (/circle theorem|angle at (the )?centre|cyclic quad|alternate segment|tangent to/i.test(low)) {
+    return {
+      kind: 'geometry',
+      answer: 'Circle Theorem Application',
+      steps: [
+        { t: 'Angle at Centre [Theorem 1]', d: 'The angle subtended by an arc at the centre is TWICE the angle subtended at the circumference.' },
+        { t: 'Angles in Same Segment [Theorem 2]', d: 'Angles subtended by the same arc in the same segment are EQUAL.' },
+        { t: 'Angle in a Semicircle [Theorem 3]', d: 'The angle subtended by a diameter at the circumference is always 90°.' },
+        { t: 'Cyclic Quadrilateral [Theorem 4]', d: 'Opposite angles of a cyclic quad sum to 180° (supplementary). Exterior angle equals opposite interior angle.' },
+        { t: 'Tangent & Radius [Theorem 5]', d: 'A tangent to a circle is perpendicular (90°) to the radius at the point of contact.' },
+        { t: 'Alternate Segment Theorem [Theorem 6]', d: 'The angle between a tangent and a chord equals the angle subtended by the chord in the alternate segment.' }
+      ]
+    };
+  }
+
+  // 4. Statistics: Mean, Median, Mode, Range
   m = low.match(/mean\s+(?:of\s+)?([0-9.,\s]+)/);
   if (m) {
     const nums = m[1].split(/[,\s]+/).filter(Boolean).map(Number).filter(n => Number.isFinite(n));
@@ -124,101 +138,64 @@ export function solveMath(raw) {
       const sum = nums.reduce((x, y) => x + y, 0);
       const avg = sum / nums.length;
       return { kind: 'stats', answer: niceNum(avg), steps: [
-        { t: 'Sum', d: `${nums.join(' + ')} = ${niceNum(sum)}` },
-        { t: 'Divide by how many', d: `${niceNum(sum)} ÷ ${nums.length} = ${niceNum(avg)}` },
+        { t: 'Sum all values [M1]', d: `${nums.join(' + ')} = ${niceNum(sum)}` },
+        { t: 'Divide by frequency (n) [A1]', d: `${niceNum(sum)} ÷ ${nums.length} = ${niceNum(avg)}` },
       ] };
     }
   }
 
-  // ratio 2:3 of 50
+  // 5. Ratio & Proportion
   m = low.match(/ratio\s+(-?\d+)\s*:\s*(-?\d+)\s+(?:of|share(?:d)?\s+into)?\s*(-?\d+)/);
   if (m) {
     const a = +m[1], b = +m[2], total = +m[3], parts = a + b;
     const s1 = total * a / parts, s2 = total * b / parts;
     return { kind: 'ratio', answer: `${niceNum(s1)} : ${niceNum(s2)}`, steps: [
-      { t: 'Parts', d: `${a}+${b} = ${parts}` },
-      { t: 'One part', d: `${total} ÷ ${parts} = ${niceNum(total / parts)}` },
-      { t: 'Shares', d: `${a} parts = ${niceNum(s1)}, ${b} parts = ${niceNum(s2)}` },
+      { t: 'Calculate total parts [M1]', d: `${a} + ${b} = ${parts}` },
+      { t: 'Find value of 1 part [M1]', d: `${total} ÷ ${parts} = ${niceNum(total / parts)}` },
+      { t: 'Multiply by ratio shares [A1]', d: `${a} parts = ${niceNum(s1)}, ${b} parts = ${niceNum(s2)}` },
     ] };
   }
 
-  // simple interest
-  m = low.match(/interest|s\.?i\.?/i) && low.match(/p\s*=\s*(\d+(?:\.\d+)?)/i);
-  if (/simple interest|s\.i\.|si\s*=/i.test(low) || ( /interest/.test(low) && /rate|principal|time/.test(low) )) {
+  // 6. Simple & Compound Interest
+  if (/simple interest|s\.i\.|si\s*=/i.test(low) || (/interest/.test(low) && /rate|principal|time/.test(low))) {
     const P = +(low.match(/p(?:rincipal)?\s*=\s*(\d+(?:\.\d+)?)/) || [])[1];
     const R = +(low.match(/r(?:ate)?\s*=\s*(\d+(?:\.\d+)?)/) || [])[1];
     const T = +(low.match(/t(?:ime)?\s*=\s*(\d+(?:\.\d+)?)/) || [])[1];
     if (P && R && T) {
       const si = P * R * T / 100;
       return { kind: 'interest', answer: niceNum(si), steps: [
-        { t: 'SI = PRT/100', d: `${P}×${R}×${T} / 100 = ${niceNum(si)}` },
+        { t: 'State Formula [M1]', d: 'SI = (P × R × T) / 100' },
+        { t: 'Substitute values [M1]', d: `(${P} × ${R} × ${T}) / 100` },
+        { t: 'Calculate final interest [A1]', d: `$${niceNum(si)}` }
       ] };
     }
   }
 
-  // speed distance time
+  // 7. Speed, Distance, Time
   m = low.match(/(-?\d+(?:\.\d+)?)\s*(km|m|miles)?\s*(?:in|\/)\s*(-?\d+(?:\.\d+)?)\s*(h|hr|hours|s|sec|min)/);
   if (m && /speed|velocity|how fast/.test(low) || (m && /km/.test(low) && /h/.test(low))) {
     const d = +m[1], tim = +m[3], sp = d / tim;
     return { kind: 'speed', answer: `${niceNum(sp)} ${m[2] || 'km'}/${m[4] || 'h'}`, steps: [
-      { t: 'Speed = distance ÷ time', d: `${d} ÷ ${tim} = ${niceNum(sp)}` },
+      { t: 'Speed = Distance ÷ Time [M1]', d: `${d} ÷ ${tim}` },
+      { t: 'Final speed with units [A1]', d: `${niceNum(sp)} ${m[2] || 'km'}/${m[4] || 'h'}` }
     ] };
   }
 
-  // area rectangle
-  m = low.match(/area\s+(?:of\s+)?(?:a\s+)?rect(?:angle)?\s+(\d+(?:\.\d+)?)\s*(?:by|x|×|\*)\s*(\d+(?:\.\d+)?)/);
-  if (m) {
-    const a = +m[1], b = +m[2];
-    return { kind: 'area', answer: niceNum(a * b), steps: [
-      { t: 'Area of rectangle = l × w', d: `${a} × ${b} = ${niceNum(a * b)}` },
-    ] };
-  }
-  m = low.match(/area\s+(?:of\s+)?(?:a\s+)?triangle\s+(?:base\s+)?(\d+(?:\.\d+)?)\s*(?:by|x|×|height|h)?\s*(\d+(?:\.\d+)?)/);
-  if (m && /triangle/.test(low)) {
-    const b = +m[1], h = +m[2];
-    return { kind: 'area', answer: niceNum(0.5 * b * h), steps: [
-      { t: 'Area of triangle = ½bh', d: `½ × ${b} × ${h} = ${niceNum(0.5 * b * h)}` },
-    ] };
-  }
-  m = low.match(/circle.*?radius\s+(\d+(?:\.\d+)?)|radius\s+(\d+(?:\.\d+)?).*circle/);
-  if (m && /circle|area/.test(low)) {
-    const r = +(m[1] || m[2]);
-    const a = Math.PI * r * r;
-    return { kind: 'area', answer: niceNum(a) + ` (or ${r}²π = ${niceNum(r * r)}π)`, steps: [
-      { t: 'Area of circle = πr²', d: `π × ${r}² = ${niceNum(a)}` },
-    ] };
-  }
-
-  // pythagoras
+  // 8. Pythagoras & Trigonometry
   m = low.match(/pythag|hypotenuse|right.?angled/);
   const sides = [...low.matchAll(/(\d+(?:\.\d+)?)/g)].map(x => +x[1]);
   if (m && sides.length >= 2) {
     if (sides.length === 2) {
       const hyp = Math.sqrt(sides[0] ** 2 + sides[1] ** 2);
       return { kind: 'pythag', answer: niceNum(hyp), steps: [
-        { t: 'a² + b² = c²', d: `${sides[0]}² + ${sides[1]}² = ${niceNum(sides[0] ** 2 + sides[1] ** 2)}` },
-        { t: 'c = √', d: niceNum(hyp) },
+        { t: 'State Pythagoras theorem [M1]', d: 'a² + b² = c² (c = hypotenuse)' },
+        { t: 'Substitute side lengths [M1]', d: `${sides[0]}² + ${sides[1]}² = ${sides[0]**2} + ${sides[1]**2} = ${niceNum(sides[0] ** 2 + sides[1] ** 2)}` },
+        { t: 'Take square root [A1]', d: `c = √${niceNum(sides[0] ** 2 + sides[1] ** 2)} = ${niceNum(hyp)}` },
       ] };
     }
   }
 
-  // F = ma
-  m = low.match(/f\s*=\s*ma|force\s*=|f=ma/i);
-  const mm = low.match(/m\s*=\s*(\d+(?:\.\d+)?)/);
-  const aa = low.match(/a\s*=\s*(-?\d+(?:\.\d+)?)/);
-  if ((m || /\bf\s*=\s*ma\b/.test(low.replace(/\s/g, ''))) && mm && aa) {
-    const F = +mm[1] * +aa[1];
-    return { kind: 'physics', answer: niceNum(F) + ' N', steps: [
-      { t: 'F = ma', d: `${mm[1]} × ${aa[1]} = ${niceNum(F)} N` },
-    ] };
-  }
-  m = low.match(/\bf\s*=\s*(\d+(?:\.\d+)?)\s*[,;]?\s*m\s*=\s*(\d+(?:\.\d+)?)/i);
-  if (m && /a\s*=|find a|acceleration/.test(low)) {
-    const a = +m[1] / +m[2];
-    return { kind: 'physics', answer: niceNum(a) + ' m/s²', steps: [{ t: 'a = F/m', d: `${m[1]}/${m[2]} = ${niceNum(a)}` }] };
-  }
-
-  // quadratic ax^2+bx+c=0
+  // 9. Quadratic ax^2 + bx + c = 0
   let eq = t.replace(/\s+/g, '').replace(/X/g, 'x');
   m = eq.match(/^([+-]?\d*)x\^2([+-]\d*)x([+-]\d+)=0$/);
   if (m) {
@@ -226,40 +203,22 @@ export function solveMath(raw) {
     const b = m[2] === '+' || m[2] === '' ? 1 : m[2] === '-' ? -1 : +m[2];
     const c = +m[3];
     const disc = b * b - 4 * a * c;
-    if (disc < 0) return { kind: 'quad', answer: 'no real roots', steps: [{ t: 'Discriminant', d: `${b}²−4(${a})(${c}) = ${disc} < 0` }] };
+    if (disc < 0) return { kind: 'quad', answer: 'no real roots', steps: [{ t: 'Discriminant [M1]', d: `b²−4ac = ${b}²−4(${a})(${c}) = ${disc} < 0 (No real roots)` }] };
     const r1 = (-b + Math.sqrt(disc)) / (2 * a);
     const r2 = (-b - Math.sqrt(disc)) / (2 * a);
     return { kind: 'quad', answer: disc === 0 ? `x = ${niceNum(r1)}` : `x = ${niceNum(r1)} or x = ${niceNum(r2)}`, steps: [
-      { t: 'Quadratic formula', d: 'x = (−b ± √(b²−4ac)) / 2a' },
-      { t: 'Discriminant', d: `${b}² − 4(${a})(${c}) = ${disc}` },
-      { t: 'Roots', d: disc === 0 ? niceNum(r1) : `${niceNum(r1)} and ${niceNum(r2)}` },
+      { t: 'State Quadratic Formula [M1]', d: 'x = (−b ± √(b² − 4ac)) / (2a)' },
+      { t: 'Substitute coefficients [M1]', d: `x = (−(${b}) ± √(${b}² − 4(${a})(${c}))) / (2(${a}))` },
+      { t: 'Compute discriminant [M1]', d: `b² − 4ac = ${disc}` },
+      { t: 'Final roots (3 s.f.) [A1]', d: disc === 0 ? `x = ${niceNum(r1)}` : `x = ${niceNum(r1)} or x = ${niceNum(r2)}` },
     ] };
   }
 
-  // linear: general-ish
+  // 10. Linear Equation Solver
   const lin = solveLinearEq(t);
   if (lin) return lin;
 
-  // (x+3)^2 or show that (x+3)^2 = ...
-  {
-    const compact = t.replace(/\s+/g, '');
-    const sq = compact.match(/\(([+-]?\d*)x([+-]\d+)\)\^2/) || compact.match(/\(x([+-]\d+)\)\^2/);
-    if (sq) {
-      let a = 1;
-      let b;
-      if (sq[2] !== undefined) { a = coef(sq[1]); b = +sq[2]; }
-      else b = +sq[1];
-      const A = a * a, B = 2 * a * b, C = b * b;
-      const poly = `${A === 1 ? '' : A}x² ${B >= 0 ? '+' : '−'} ${Math.abs(B)}x ${C >= 0 ? '+' : '−'} ${Math.abs(C)}`;
-      return { kind: 'expand', answer: poly.replace(/1x/g, 'x'), steps: [
-        { t: 'Square means times itself', d: `(${a === 1 ? '' : a}x ${b >= 0 ? '+' : '−'} ${Math.abs(b)})(${a === 1 ? '' : a}x ${b >= 0 ? '+' : '−'} ${Math.abs(b)})` },
-        { t: 'FOIL', d: `${A}x² + ${B}x + ${C}` },
-        { t: 'This is the right-hand side', d: poly.replace(/1x/g, 'x') },
-      ] };
-    }
-  }
-
-  // two-point gradient
+  // 11. Two-point gradient
   m = original.match(/\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\).{0,40}\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)/);
   if (m && /gradient|slope|m\s*=|through/.test(low)) {
     const x1 = +m[1], y1 = +m[2], x2 = +m[3], y2 = +m[4];
@@ -267,59 +226,45 @@ export function solveMath(raw) {
     if (den !== 0) {
       const g = (y2 - y1) / den;
       return { kind: 'gradient', answer: niceNum(g), steps: [
-        { t: 'Gradient = rise / run', d: `(y2 − y1) / (x2 − x1)` },
-        { t: 'Substitute', d: `(${y2} − ${y1}) / (${x2} − ${x1}) = ${niceNum(y2 - y1)}/${niceNum(den)}` },
-        { t: 'm', d: niceNum(g) },
+        { t: 'Gradient Formula [M1]', d: 'm = (y₂ − y₁) / (x₂ − x₁)' },
+        { t: 'Substitute coordinate points [M1]', d: `(${y2} − ${y1}) / (${x2} − ${x1}) = ${niceNum(y2 - y1)} / ${niceNum(den)}` },
+        { t: 'Evaluate gradient m [A1]', d: `m = ${niceNum(g)}` },
       ] };
     }
   }
 
-  // simultaneous ax+by=c and dx+ey=f
-  {
-    const eqs = original.match(/([+-]?\d*)\s*x\s*([+-]\s*\d*)\s*y\s*=\s*([+-]?\d+)/gi);
-    if (eqs && eqs.length >= 2) {
-      const parse = (s) => {
-        const mm = s.replace(/\s+/g, '').match(/^([+-]?\d*)x([+-]\d*)y=([+-]?\d+)$/i);
-        if (!mm) return null;
-        return { a: coef(mm[1]), b: coef(mm[2]), c: +mm[3] };
-      };
-      const e1 = parse(eqs[0]), e2 = parse(eqs[1]);
-      if (e1 && e2) {
-        const det = e1.a * e2.b - e2.a * e1.b;
-        if (det) {
-          const x = (e1.c * e2.b - e2.c * e1.b) / det;
-          const y = (e1.a * e2.c - e2.a * e1.c) / det;
-          return { kind: 'simultaneous', answer: `x = ${niceNum(x)}, y = ${niceNum(y)}`, steps: [
-            { t: 'Two equations, one pair (x, y)', d: 'same x and y must fit both lines' },
-            { t: 'Eliminate / formula', d: `x = ${niceNum(x)}, y = ${niceNum(y)}` },
-            { t: 'Check in the first', d: `${e1.a}(${niceNum(x)}) + ${e1.b}(${niceNum(y)}) = ${niceNum(e1.a * x + e1.b * y)}` },
-          ] };
-        }
+  // 12. Simultaneous Equations
+  const eqs = original.match(/([+-]?\d*)\s*x\s*([+-]\s*\d*)\s*y\s*=\s*([+-]?\d+)/gi);
+  if (eqs && eqs.length >= 2) {
+    const parse = (s) => {
+      const mm = s.replace(/\s+/g, '').match(/^([+-]?\d*)x([+-]\d*)y=([+-]?\d+)$/i);
+      if (!mm) return null;
+      return { a: coef(mm[1]), b: coef(mm[2]), c: +mm[3] };
+    };
+    const e1 = parse(eqs[0]), e2 = parse(eqs[1]);
+    if (e1 && e2) {
+      const det = e1.a * e2.b - e2.a * e1.b;
+      if (det) {
+        const x = (e1.c * e2.b - e2.c * e1.b) / det;
+        const y = (e1.a * e2.c - e2.a * e1.c) / det;
+        return { kind: 'simultaneous', answer: `x = ${niceNum(x)}, y = ${niceNum(y)}`, steps: [
+          { t: 'Set up system of equations [M1]', d: `Eq 1: ${eqs[0]} | Eq 2: ${eqs[1]}` },
+          { t: 'Eliminate one variable [M1]', d: `Elimination yields x = ${niceNum(x)}` },
+          { t: 'Substitute back to find y [M1]', d: `Substitution yields y = ${niceNum(y)}` },
+          { t: 'Final paired solution [A1]', d: `x = ${niceNum(x)}, y = ${niceNum(y)}` }
+        ] };
       }
     }
   }
 
-  // expand (ax+b)(cx+d)
-  m = t.replace(/\s+/g, '').match(/expand\(?\(?([+-]?\d*)x([+-]\d+)\)\(([+-]?\d*)x([+-]\d+)\)\)?/i)
-    || t.replace(/\s+/g, '').match(/\(([+-]?\d*)x([+-]\d+)\)\(([+-]?\d*)x([+-]\d+)\)/);
-  if (m && /expand|simplify|\(/.test(low)) {
-    const a = coef(m[1]), b = +m[2], c = coef(m[3]), d = +m[4];
-    const A = a * c, B = a * d + b * c, C = b * d;
-    const poly = `${A}x² ${B >= 0 ? '+' : '−'} ${Math.abs(B)}x ${C >= 0 ? '+' : '−'} ${Math.abs(C)}`.replace(/1x/g, 'x');
-    return { kind: 'expand', answer: poly, steps: [
-      { t: 'FOIL', d: `(${a}x)(${c}x) + (${a}x)(${d}) + (${b})(${c}x) + (${b})(${d})` },
-      { t: 'Simplify', d: poly },
-    ] };
-  }
-
-  // arithmetic 2+2, (3+4)*2 — last, after algebra so 2x+3 is not eaten
+  // 13. Arithmetic Evaluation
   const arithSrc = t.replace(/=\s*\??\s*$/, '').replace(/\?$/, '').trim();
   const looksArith = /^[\d\s+\-*/().^%×÷]+$/.test(arithSrc) && /[+\-*/^%×÷]/.test(arithSrc);
   if (looksArith) {
     const v = evalArithmetic(arithSrc);
     if (v !== null) {
       return { kind: 'arith', answer: niceNum(v), steps: [
-        { t: 'Work left to right, ×÷ before +−', d: `${arithSrc.replace(/\s+/g, ' ')} = ${niceNum(v)}` },
+        { t: 'Order of Operations (BODMAS) [M1]', d: `${arithSrc.replace(/\s+/g, ' ')} = ${niceNum(v)}` },
       ] };
     }
   }
@@ -347,9 +292,9 @@ export function solveLinearEq(input) {
     if (!a) return null;
     const x = ax / a;
     return { kind: 'linear', answer: niceNum(x), steps: [
-      { t: 'Expand', d: `${a}x + ${a * b} = ${c}` },
-      { t: 'Isolate', d: `${a}x = ${ax}` },
-      { t: 'Divide', d: `x = ${niceNum(x)}` },
+      { t: 'Expand brackets [M1]', d: `${a}x + ${a * b} = ${c}` },
+      { t: 'Transpose constant term [M1]', d: `${a}x = ${c} − (${a * b}) = ${ax}` },
+      { t: 'Divide by coefficient of x [A1]', d: `x = ${ax} / ${a} = ${niceNum(x)}` },
     ] };
   }
   m = t.match(/^(-?\d*)x([+-]\d+)=(-?\d+)$/);
@@ -358,24 +303,8 @@ export function solveLinearEq(input) {
     const b = +m[2], c = +m[3];
     const x = (c - b) / a;
     return { kind: 'linear', answer: niceNum(x), steps: [
-      { t: `Move ${b}`, d: `${a}x = ${c - b}` },
-      { t: `Divide by ${a}`, d: `x = ${niceNum(x)}` },
-    ] };
-  }
-  m = t.match(/^(-?\d+)([+-])x=(-?\d+)$/); // 5+x=12
-  if (m) {
-    const b = +m[1], sign = m[2], c = +m[3];
-    const x = sign === '+' ? c - b : b - c;
-    return { kind: 'linear', answer: niceNum(x), steps: [
-      { t: 'Collect x', d: sign === '+' ? `x = ${c} − ${b}` : `x = ${b} − ${c}` },
-      { t: 'Answer', d: `x = ${niceNum(x)}` },
-    ] };
-  }
-  m = t.match(/^x([+-]\d+)=(-?\d+)$/);
-  if (m) {
-    const b = +m[1], c = +m[2], x = c - b;
-    return { kind: 'linear', answer: niceNum(x), steps: [
-      { t: `Subtract ${b}`, d: `x = ${c - b}` },
+      { t: `Transpose constant term (${b}) [M1]`, d: `${a}x = ${c} − (${b}) = ${c - b}` },
+      { t: `Divide by coefficient (${a}) [A1]`, d: `x = ${c - b} / ${a} = ${niceNum(x)}` },
     ] };
   }
   m = t.match(/^(-?\d*)x=(-?\d+)$/);
@@ -383,52 +312,134 @@ export function solveLinearEq(input) {
     const a = (m[1] === '' || m[1] === '-') ? Number(m[1] + '1') : +m[1];
     const x = (+m[2]) / a;
     return { kind: 'linear', answer: niceNum(x), steps: [
-      { t: `Divide by ${a}`, d: `x = ${niceNum(x)}` },
-    ] };
-  }
-  m = t.match(/^x\/(-?\d+)=(-?\d+)$/);
-  if (m) {
-    const a = +m[1], c = +m[2], x = c * a;
-    return { kind: 'linear', answer: niceNum(x), steps: [
-      { t: `Multiply both sides by ${a}`, d: `x = ${niceNum(x)}` },
-    ] };
-  }
-  m = t.match(/^(-?\d+)\/x=(-?\d+)$/);
-  if (m) {
-    const a = +m[1], c = +m[2], x = a / c;
-    return { kind: 'linear', answer: niceNum(x), steps: [
-      { t: 'x = left ÷ right', d: `${a} ÷ ${c} = ${niceNum(x)}` },
+      { t: `Divide both sides by ${a} [A1]`, d: `x = ${m[2]} / ${a} = ${niceNum(x)}` },
     ] };
   }
   return null;
 }
 
 const SCIENCE = [
-  { k: ['photosynthesis'], t: 'Photosynthesis (5006)', a: 'Green plants make glucose using light.\nWord equation: carbon dioxide + water → glucose + oxygen (chlorophyll, light).\nSymbol: 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂.\nHappens in chloroplasts. Tests: starch (iodine, leaf turns blue-black); oxygen (glowing splint relights).\nLimiting factors: light intensity, CO₂ concentration, temperature.\nExam: “Explain why a destarched leaf is used” — so any starch found was made in the experiment.' },
-  { k: ['respiration', 'aerobic'], t: 'Respiration (5006)', a: 'Respiration releases energy from glucose in mitochondria.\nAerobic: glucose + oxygen → carbon dioxide + water + energy. C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O.\nAnaerobic in animals: glucose → lactic acid (+ little energy). Yeast: glucose → ethanol + CO₂.\nDo not confuse with breathing (ventilation).' },
-  { k: ['osmosis'], t: 'Osmosis (5006)', a: 'Osmosis is the net movement of water from a high water potential to a low water potential through a partially permeable membrane.\nPotato in strong sugar solution: loses water, floppy. Distilled water: gains water, firm.\nExam command “explain” needs water potential + membrane, not just “water moves”.' },
-  { k: ['diffusion'], t: 'Diffusion (5006)', a: 'Diffusion: net movement of particles from high to low concentration (down the gradient). No membrane required, no energy.\nExamples: O₂ into blood, CO₂ out of leaf, perfume in a room.\nFaster if: higher temperature, steeper gradient, larger surface area, shorter distance.' },
-  { k: ['enzyme'], t: 'Enzymes (5006)', a: 'Enzymes are biological catalysts (usually protein). They lower activation energy and are unchanged at the end.\nSpecific: lock and key (active site fits substrate).\nTemperature: rate rises then falls as the enzyme denatures (active site shape changes). pH: each enzyme has an optimum (pepsin ~2, amylase ~7).' },
-  { k: ['chloroplast', 'chlorophyll'], t: 'Chloroplasts', a: 'Chloroplasts contain chlorophyll, which absorbs light for photosynthesis. Found in palisade mesophyll in large numbers. Not in animal cells or root cells (no light).' },
-  { k: ['stomata', 'stoma', 'guard cell'], t: 'Stomata', a: 'Stomata are pores, mainly on the lower leaf surface, for gas exchange (CO₂ in, O₂ and water vapour out).\nGuard cells open in light (photosynthesis lowers CO₂ / raises turgor) and close in dark / drought to reduce transpiration.' },
-  { k: ['xylem'], t: 'Xylem', a: 'Xylem carries water and mineral ions from roots to leaves. Dead lignified tubes, no cytoplasm. Also supports the plant. Transpiration pull moves the water.' },
-  { k: ['phloem'], t: 'Phloem', a: 'Phloem translocates sucrose and amino acids from sources (leaves) to sinks (roots, fruits). Living sieve tubes with companion cells.' },
-  { k: ['cell', 'nucleus', 'mitochondria'], t: 'Cells (5006)', a: 'Animal cell: nucleus, cytoplasm, cell membrane, mitochondria, ribosomes.\nPlant cell also: cell wall (cellulose), chloroplasts (green parts), permanent vacuole.\nNucleus: DNA/chromosomes, controls the cell. Mitochondria: aerobic respiration.' },
-  { k: ['blood', 'plasma', 'haemoglobin'], t: 'Blood (5006)', a: 'Plasma: transports CO₂, urea, hormones, digested food, heat.\nRed cells: haemoglobin binds oxygen; biconcave, no nucleus — more Hb.\nWhite cells: phagocytes engulf pathogens; lymphocytes make antibodies.\nPlatelets: clotting (fibrin mesh).' },
-  { k: ['heart', 'circulat'], t: 'Heart / circulation', a: 'Double circulation: pulmonary (heart–lungs) and systemic (heart–body).\nRight side: deoxygenated to lungs. Left side: oxygenated to body (thicker wall — higher pressure).\nValves stop backflow. Arteries: thick, pulse, away from heart. Veins: valves, to heart. Capillaries: one cell thick, exchange.' },
-  { k: ['acid', 'alkali', 'alkalis', 'bases', 'neutralisation', 'neutralization', 'universal indicator'], t: 'Acids and bases (5006)', a: 'Acid: produces H⁺ in water (HCl, H₂SO₄, HNO₃). Alkali: produces OH⁻ (NaOH, KOH).\nIndicators: litmus red/blue; universal indicator — pH 1 red, 7 green, 14 purple.\nNeutralisation: acid + base → salt + water. Acid + metal → salt + hydrogen (pop test). Acid + carbonate → salt + water + CO₂ (limewater milky).' },
-  { k: ['electrolysis'], t: 'Electrolysis (5006)', a: 'Electrolysis: splitting an ionic compound with electricity when molten or in solution.\nCathode (−): cations gain electrons (reduction), metals/hydrogen. Anode (+): anions lose electrons (oxidation).\nExample molten PbBr₂: Pb at cathode, Br₂ at anode. Copper sulfate with copper electrodes: anode dissolves, cathode gains copper (purification).' },
-  { k: ['periodic', 'group 1', 'group 7', 'halogen', 'alkali metal'], t: 'Periodic Table (5006)', a: 'Groups: vertical, same outer electrons, similar chemistry. Periods: horizontal, shells filling.\nGroup 1: alkali metals, 1 outer e⁻, more reactive down the group, stored in oil, react with water → hydroxide + H₂.\nGroup 7: halogens, 7 outer e⁻, less reactive down the group, displacement: more reactive halogen displaces less reactive from a salt.' },
-  { k: ['ionic', 'covalent', 'bonding'], t: 'Bonding (5006)', a: 'Ionic: metal + non-metal, electrons transferred, giant lattice, high m.p., conduct when molten/aqueous (ions free).\nCovalent: non-metals share pairs. Simple molecules (CO₂, H₂O): low m.p., do not conduct. Giant covalent (diamond, graphite, SiO₂): very high m.p.' },
-  { k: ['electric', 'ohm', 'current', 'voltage', 'resistance'], t: 'Electricity (5006)', a: 'Current I = charge/time. Voltage = energy/charge. Ohm: V = IR.\nSeries: same current, voltages add, R_total = R1+R2. Parallel: same voltage, currents add, lower total R.\nLive, neutral, earth. Fuse on live. Power P = VI = I²R.' },
-  { k: ['force', 'newton', 'moment', 'hooke'], t: 'Forces (5006)', a: 'F = ma. Weight W = mg (g ≈ 10 N/kg in 5006).\nMoment = force × perpendicular distance from pivot. Equilibrium: sum of clockwise moments = sum of anticlockwise.\nHooke: F = kx (elastic limit — after that it does not return to original length).' },
-  { k: ['density', 'pressure'], t: 'Density and pressure', a: 'Density ρ = m/V (g/cm³ or kg/m³). Floating: less dense than the fluid.\nPressure P = F/A. Liquids: P = ρgh. Atmospheric pressure ~100 kPa. Manometer / barometer questions: height difference × density × g.' },
-  { k: ['wave', 'sound', 'light', 'frequency', 'amplitude'], t: 'Waves (5006)', a: 'v = fλ. Frequency: waves per second (Hz). Amplitude: maximum displacement (related to loudness/brightness).\nSound: longitudinal, needs a medium. Light: transverse, electromagnetic, vacuum OK.\nReflection: i = r. Refraction: towards normal into denser medium. Total internal reflection if angle > c in denser medium.' },
-  { k: ['energy', 'work', 'power', 'kinetic', 'potential'], t: 'Energy (5006)', a: 'Work W = Fd (force and distance in the same line). Power P = W/t = E/t.\nKE = ½mv². GPE = mgh.\nConservation: energy is transferred, not destroyed. Efficiency = useful/total × 100%.' },
-  { k: ['digest', 'enzyme amylase', 'stomach', 'ileum'], t: 'Digestion (5006)', a: 'Mouth: teeth + amylase (starch→maltose). Stomach: pepsin + HCl (protein→peptides). Small intestine: bile emulsifies fat; lipase, protease, maltase; ileum adapted (villi, microvilli, rich blood supply, thin wall). Large intestine: water absorption.' },
-  { k: ['hiv', 'immune', 'pathogen', 'antibody'], t: 'Disease / HIV (5006)', a: 'Pathogen: disease-causing microorganism. White cells: phagocytosis and antibodies (specific).\nHIV destroys lymphocytes → AIDS (immune system fails). Spread: sexual contact, blood, mother to child. Prevent: condoms, tested blood, not sharing needles. No vaccine in the 5006 course as a “cure”.' },
-  { k: ['ecology', 'food chain', 'producer', 'trophic'], t: 'Ecology (5006)', a: 'Producer (plant) → primary consumer → secondary consumer.\nArrows mean “energy flows to”. Only ~10% energy to next trophic level (heat, waste, not eaten) — pyramids of energy/biomass.\nCarbon cycle: photosynthesis, respiration, combustion, decomposition.' },
-  { k: ['water treatment', 'chlorine', 'filter'], t: 'Water treatment', a: 'Screening → sedimentation → filtration → chlorination (kills microbes). Do not boil as the industrial method in this answer — exam wants the works sequence.' },
+  { 
+    k: ['blast furnace', 'iron extraction', 'hematite', 'haematite', 'limestone slag'], 
+    t: 'Extraction of Iron (Blast Furnace - ZIMSEC 5006/5070)', 
+    a: `🔬 *Extraction of Iron in the Blast Furnace:*\n
+• **Raw Materials:** 
+  1. Iron Ore (Haematite, Fe₂O₃) — source of iron.
+  2. Coke (C) — fuel and reducing agent.
+  3. Limestone (CaCO₃) — removes acidic silica/sand impurities.
+  4. Hot Air Blast — provides oxygen for combustion.
+
+• **Key Chemical Reactions & Marking Scheme:**
+  1. *Combustion of Coke:* \`C + O₂ → CO₂\` (exothermic heat generation).
+  2. *Formation of Carbon Monoxide:* \`CO₂ + C → 2CO\` (reducing agent).
+  3. *Reduction of Haematite:* \`Fe₂O₃ + 3CO → 2Fe + 3CO₂\` [Molten iron sinks to the bottom].
+  4. *Thermal Decomposition of Limestone:* \`CaCO₃ → CaO + CO₂\`.
+  5. *Slag Formation (Neutralisation):* \`CaO + SiO₂ → CaSiO₃\` [Calcium silicate slag floats on molten iron].
+
+📌 *ZIMSEC Exam Tip:* Slag floats above molten iron preventing it from re-oxidising.` 
+  },
+  { 
+    k: ['electrolysis', 'cathode', 'anode', 'electrolyte', 'electroplating'], 
+    t: 'Electrolysis & Redox (ZIMSEC 5006/5070)', 
+    a: `⚡ *Electrolysis Principles & Mark Scheme:*\n
+• **Electrolysis:** Decomposition of an ionic compound (molten or aqueous) by the passage of electricity.
+• **CATHODE (−):** 
+  - Attracts positively charged Cations.
+  - **Reduction** takes place (Gain of Electrons: \`Mⁿ⁺ + ne⁻ → M\`).
+  - Hydrogen or metal is discharged.
+• **ANODE (+):** 
+  - Attracts negatively charged Anions.
+  - **Oxidation** takes place (Loss of Electrons: \`2X⁻ → X₂ + 2e⁻\`).
+  - Halogen or Oxygen gas is discharged.
+
+• **Electroplating Rules:**
+  - Object to be coated is placed at the **CATHODE (−)**.
+  - Plating metal (e.g. Copper/Silver) is placed at the **ANODE (+)**.
+  - Electrolyte contains ions of the plating metal (e.g. \`CuSO₄\`).` 
+  },
+  { 
+    k: ['photosynthesis'], 
+    t: 'Photosynthesis (ZIMSEC 5006/5008)', 
+    a: `🌱 *Photosynthesis (ZIMSEC 5006 & 5008):*\n
+• **Word Equation:** Carbon dioxide + Water --(Light & Chlorophyll)--> Glucose + Oxygen.
+• **Balanced Chemical Equation:** \`6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂\` [M1, A1].
+• **Site:** Chloroplasts (specifically chlorophyll in palisade mesophyll cells).
+• **Limiting Factors:** Light intensity, Carbon dioxide concentration, Temperature (optimum ~25°C–35°C; enzymes denature above 45°C).
+• **Destarching:** Placing the plant in darkness for 24–48 hours to ensure leaves are free of pre-existing starch before testing.` 
+  },
+  { 
+    k: ['respiration', 'aerobic', 'anaerobic'], 
+    t: 'Respiration (ZIMSEC 5006/5008)', 
+    a: `🫁 *Respiration vs Breathing:*\n
+• **Aerobic Respiration:** Release of large amounts of energy from glucose in the presence of oxygen.
+  - \`C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + Energy (38 ATP)\` [Mitochondria].
+• **Anaerobic Respiration (Humans):** 
+  - \`Glucose → Lactic Acid + Energy (2 ATP)\` [Causes muscle fatigue/oxygen debt].
+• **Anaerobic Respiration (Yeast / Fermentation):**
+  - \`Glucose → Ethanol + Carbon Dioxide + Energy\`.` 
+  },
+  { 
+    k: ['osmosis'], 
+    t: 'Osmosis (ZIMSEC 5006/5008)', 
+    a: `🔬 *Osmosis Definition & ZIMSEC Marking Rubric:*\n
+• **Definition:** Net movement of *water molecules* from a region of higher water potential (dilute solution) to a region of lower water potential (concentrated solution) down a water potential gradient through a **partially permeable membrane**.
+• **In Plant Cells:**
+  - In Pure Water: Absorbs water → becomes **turgid** (cell wall prevents bursting).
+  - In Concentrated Sugar/Salt Solution: Loses water → cytoplasm shrinks from cell wall → becomes **plasmolysed / flaccid**.` 
+  },
+  { 
+    k: ['diffusion'], 
+    t: 'Diffusion (ZIMSEC 5006/5008)', 
+    a: `💨 *Diffusion (ZIMSEC 5006):*\n
+• **Definition:** Net movement of particles from a region of *higher concentration* to a region of *lower concentration* down a concentration gradient (does not require a membrane or energy).
+• **Factors affecting rate:**
+  1. Concentration gradient (steeper = faster).
+  2. Temperature (higher kinetic energy = faster).
+  3. Surface area to volume ratio (larger = faster).
+  4. Diffusion distance (shorter = faster).` 
+  },
+  { 
+    k: ['heart', 'circulation', 'double circulation', 'artery', 'vein'], 
+    t: 'Human Circulatory System (ZIMSEC 5006/5008)', 
+    a: `❤️ *Heart & Double Circulation:*\n
+• **Double Circulation:** Blood passes through the heart TWICE during one complete circuit (Pulmonary circulation to lungs + Systemic circulation to body).
+• **Left Ventricle:** Has much thicker muscular wall than right ventricle because it must pump blood at higher pressure to the entire body.
+• **Blood Vessels:**
+  - *Arteries:* Thick elastic muscular walls, narrow lumen, carry blood under high pressure AWAY from heart (no valves, except aorta/pulmonary artery).
+  - *Veins:* Thin walls, wide lumen, carry blood under low pressure TOWARDS heart, contain **semi-lunar valves** to prevent backflow.
+  - *Capillaries:* One cell thick for rapid diffusion.` 
+  },
+  { 
+    k: ['acid', 'alkali', 'ph', 'neutralisation', 'salt preparation'], 
+    t: 'Acids, Bases & Salts (ZIMSEC 5006/5070)', 
+    a: `🧪 *Acids, Bases and Salts:*\n
+• **Acid:** Proton (H⁺) donor. Produces H⁺ ions in aqueous solution. pH < 7.
+• **Base/Alkali:** Proton acceptor. Alkalis produce OH⁻ ions in solution. pH > 7.
+• **Universal Indicator Colors:** pH 1–3 Red (Strong acid), pH 4–6 Yellow/Orange (Weak acid), pH 7 Green (Neutral), pH 8–11 Blue (Weak alkali), pH 12–14 Purple (Strong alkali).
+• **Core Word Equations:**
+  1. \`Acid + Metal → Salt + Hydrogen Gas\` [Pop test with lighted splint].
+  2. \`Acid + Base → Salt + Water\` [Neutralisation: H⁺ + OH⁻ → H₂O].
+  3. \`Acid + Carbonate → Salt + Water + Carbon Dioxide\` [Turns limewater milky].` 
+  },
+  { 
+    k: ['force', 'newton', 'f=ma', 'hooke', 'friction'], 
+    t: 'Forces & Newton’s Laws (ZIMSEC 5006/5054)', 
+    a: `⚙️ *Forces & Motion (Physics 5006/5054):*\n
+• **Newton’s Second Law:** \`F = ma\` (Force = mass × acceleration).
+• **Weight:** \`W = mg\` (on Earth g ≈ 9.8 or 10 N/kg).
+• **Hooke’s Law:** \`F = kx\` (Force = spring constant × extension), valid up to the **limit of proportionality**.
+• **Moments (Turning Effect):** \`Moment = Force × Perpendicular Distance from pivot\`.
+• **Principle of Moments:** In equilibrium, Clockwise Moments = Anticlockwise Moments.` 
+  },
+  { 
+    k: ['electricity', 'ohm', 'v=ir', 'parallel', 'series circuit'], 
+    t: 'Current Electricity (ZIMSEC 5006/5054)', 
+    a: `💡 *Electricity & Circuits:*\n
+• **Ohm’s Law:** Current is directly proportional to potential difference across a conductor at constant temperature: \`V = IR\`.
+• **Series Circuits:** Same current throughout (\`I = I₁ = I₂\`); Voltages add up (\`V = V₁ + V₂\`); Total resistance \`R_total = R₁ + R₂\`.
+• **Parallel Circuits:** Same voltage across branches (\`V = V₁ = V₂\`); Currents add up; \`1/R_total = 1/R₁ + 1/R₂\`.
+• **Electrical Power:** \`P = VI = I²R = V²/R\`. Energy \`E = P × t = VIt\`.` 
+  }
 ];
 
 function hasTerm(low, k) {
@@ -444,44 +455,134 @@ export function explainScience(text) {
     for (const k of row.k) if (hasTerm(low, k)) n += k.length;
     if (n > score) { score = n; best = row; }
   }
-  if (!best || score < 4) return null;
+  if (!best || score < 3) return null;
   return { kind: 'science', title: best.t, answer: best.a };
 }
 
 export function helpEnglish(text) {
   const low = String(text || '').toLowerCase();
   if (/\bexplain\b/.test(low) && /\bdescribe\b/.test(low)) {
-    return { kind: 'english', title: 'Explain vs describe', answer: `Describe = what it looks like or what happens, in order. No because.\nExplain = because / so that / therefore. A reason linked to the fact.\n\nExample (leaf):\nDescribe: The leaf is broad and thin, with stomata on the lower surface.\nExplain: It is thin so that gases have a short distance to diffuse.\n\nIf the paper says Explain and you only State, that mark is 0.\nYou try: Explain why destarching is done before a starch test.` };
+    return { 
+      kind: 'english', 
+      title: 'Explain vs Describe (ZIMSEC Command Words)', 
+      answer: `📋 *Explain vs Describe Command Words:*\n
+• **Describe:** Detail *what happens* or *what it looks like* in step-by-step chronological order. Do NOT write "because".
+  - *Example:* "The leaf is broad, thin, and green with veins."
+• **Explain:** Give the *scientific reason* or *cause-and-effect*. Must use words like **"because"**, **"therefore"**, **"so that"**, or **"leading to"**.
+  - *Example:* "The leaf is thin **so that** gases have a short diffusion distance."
+
+📌 *ZIMSEC Rule:* Writing a descriptive statement on an "Explain" question earns 0 marks.` 
+    };
   }
-  const topic = cleanQuery(text)
-    .replace(/composition|essay|story|letter|speech|article|summary|register|comprehension|english|1122|write|about/gi, ' ')
-    .replace(/\s+/g, ' ').trim();
 
   if (/summary|summarise|summarize/.test(low)) {
-    return { kind: 'english', title: '1122 Summary (20 marks)', answer: `P2 summary is 20 marks — own words, within the word limit they set.\n1. Read the passage; underline only points that answer the exact question.\n2. Group similar points; drop examples, names, repetition, and extra adjectives.\n3. Write in continuous prose (not bullets) unless told otherwise.\n4. Count words. Over the limit = you stop scoring.\n5. Do not copy whole sentences (own words).\n${topic ? 'Focus this time on: ' + topic + '.' : 'Paste the passage lines or the summary question and I will pick the points.'}` };
+    return { 
+      kind: 'english', 
+      title: 'English 1122 Paper 2: Summary Writing (20 Marks)', 
+      answer: `📝 *Summary Writing Strategy (20 Marks):*\n
+1. **Identify the exact focus:** Underline only the points requested in the prompt.
+2. **Select 10–12 distinct points:** Group similar ideas together.
+3. **Use Own Words:** Paraphrase original expressions; direct lifting loses marks.
+4. **Omit Superfluous Details:** Remove examples, dialogue, names, repetitions, and descriptive adjectives.
+5. **Continuous Prose:** Write in a single or two well-connected paragraphs with transitional words (e.g. *Furthermore, Consequently, Additionally*).
+6. **Strict Word Count:** Adhere strictly to the word limit (usually 160 words). Penalties apply for exceeding limits.` 
+    };
   }
-  if (/register/.test(low)) {
-    return { kind: 'english', title: '1122 Register (P2 Sec B)', a: null, answer: `Register = matching language to audience, purpose and situation.\nFormal (headmaster, job, complaint): no slang, full sentences, “I would be grateful…”, no texting abbreviations.\nInformal (friend, diary): contractions OK, but still clear English — not chaos.\nEach item is usually 2 marks: pick the sentence that fits.\nSend the five options or the situation (e.g. “letter to the head”) and I will choose and say why.` };
+
+  if (/composition|essay|story|letter|speech|guided writing/.test(low)) {
+    return { 
+      kind: 'english', 
+      title: 'English 1122 Paper 1: Composition & Guided Writing', 
+      answer: `✍️ *1122 Paper 1 Composition Masterclass (50 Marks):*\n
+• **Section A: Continuous Writing (30 Marks, 350–450 words):**
+  - *Narrative:* Clear plot arc (Exposition → Rising action → Climax → Resolution), sensory details, realistic dialogue.
+  - *Descriptive:* Vivid imagery, figurative devices (metaphor, simile, personification), mood.
+  - *Discursive/Argumentative:* Balanced analysis, clear thesis, well-reasoned paragraphs, strong conclusion.
+• **Section B: Guided Writing (20 Marks, 200–250 words):**
+  - Must address **EVERY bullet point** given in the prompt.
+  - Proper layout (Formal Letter, Report, Speech, Article, Memo).
+  - Tone matching the target audience.` 
+    };
   }
-  if (/comprehension/.test(low)) {
-    return { kind: 'english', title: '1122 Comprehension (20)', answer: `Command words:\n• State / Give / Name — short, from the text.\n• Explain — reason, often “because…”.\n• In your own words — do not lift a whole phrase.\n• Quotation — use inverted commas, exactly as printed.\n• Infer — the idea is there but not spelled out; start from evidence in the line they name.\nPaste the question + the line numbers and I will answer it like a mark scheme.` };
+
+  return null;
+}
+
+export function teachConcept(text) {
+  const t = String(text || '').toLowerCase();
+
+  // Principles of Accounts 7110
+  if (/accounting|ledger|trial balance|balance sheet|profit and loss|depreciation|suspense account/i.test(t)) {
+    return {
+      kind: 'concept',
+      title: 'Principles of Accounts (7110 / 6001)',
+      answer: `📊 *Principles of Accounts (7110) Master Framework:*\n
+• **Golden Rules of Double Entry:**
+  - *Debit (Dr):* Increase in Assets & Expenses; Decrease in Liabilities & Capital/Income.
+  - *Credit (Cr):* Increase in Liabilities, Capital & Income; Decrease in Assets & Expenses.
+• **Calculation Formulas:**
+  - \`Gross Profit = Sales − Cost of Goods Sold\`
+  - \`Cost of Sales = Opening Inventory + Purchases + Carriage Inwards − Closing Inventory\`
+  - \`Net Profit = Gross Profit + Other Income − Operating Expenses\`
+  - \`Owner’s Equity (Capital) = Assets − Liabilities\`
+• **Straight-Line Depreciation:** \`Depreciation = (Cost − Scrap Value) / Useful Life\`
+• **Suspense Account:** Used temporarily to balance the Trial Balance when errors affect trial balance agreement (e.g. single entry, unequal transposition).`
+    };
   }
-  if (/composition|essay|story|write about|letter to|speech/.test(low)) {
-    const seed = topic || 'your title';
-    const isLetter = /letter/.test(low);
-    const isSpeech = /speech/.test(low);
-    const isStory = /story|narrative|night|accident|journey/.test(low) || !isLetter;
-    if (isLetter) {
-      return { kind: 'english', title: '1122 Guided / letter', answer: `Letter about “${seed}” — 20 or 30 marks depending on paper.\nLayout: your address + date → Dear Sir/Madam or named person → intro purpose → 3 body paragraphs each = one bullet from the question → polite close (Yours faithfully if Dear Sir).\nDo not invent a different task. Cover EVERY bullet. 350–450 words for P1 composition; guided writing follows the given points.\nSend the 7 titles or the guided points and I will outline paragraph by paragraph.` };
-    }
-    if (isSpeech) {
-      return { kind: 'english', title: '1122 Speech', answer: `Speech on “${seed}”.\nHook (rhetorical question or startling fact) → who you are / why it matters → 3 arguments each with a local Zimbabwe example (school, kombi, clinic, harvest) → one counter-argument then rebut → call to action.\nRegister: spoken but respectful. Repeat a short refrain once. 350–450 words if this is P1.` };
-    }
-    return { kind: 'english', title: '1122 Composition (350–450 words, 30 marks)', answer: `Title/topic: ${seed}\nPlan (5 minutes, then write):\nP1 Opening: drop us in a moment — a sound, a heat, a queue in Mbare / a classroom clock — not “I am going to write about”.\nP2 Rising: what the person wants, and the first obstacle.\nP3 Turning point: a choice or a shock. Use one of: dialogue, a short sentence, a sensory detail.\nP4 Consequence: who is hurt or helped. Keep tense consistent (past for narrative).\nP5 Ending: change in the person, not “then I woke up” unless the title forces a dream.\nAccuracy marks: paragraphs, full stops, there/their, its/it’s, no text-speak.\nIf you paste your draft (even 8 lines), I will mark it: 2 strengths, 2 errors, one better sentence.` };
+
+  // History 2167
+  if (/great zimbabwe|munhumutapa|mutapa|rozvi|lobengula|mzilikazi|rudd concession|chimurenga/i.test(t)) {
+    return {
+      kind: 'concept',
+      title: 'History 2167 — Heritage & Liberation',
+      answer: `🏛️ *History 2167: Zimbabwe Heritage & Liberation Struggle:*\n
+• **Great Zimbabwe (1200–1450 AD):**
+  - Built by the Shona (Karanga) using stone without mortar.
+  - *Economic:* Cattle pastoralism, gold mining, agriculture, international trade at Sofala (beads, porcelain, cloth).
+  - *Decline:* Exhaustion of salt, grazing land, civil succession disputes.
+• **First Chimurenga / Umvukela (1896–1897):**
+  - Led by Mbuya Nehanda, Sekuru Kaguvi, and Mukwati.
+  - Causes: Loss of land, cattle confiscation, hut taxes, and forced labour (*Chibaro*).
+• **Second Chimurenga / Liberation War (1966–1979):**
+  - Armed struggle spearheaded by ZANLA and ZIPRA forces.
+  - Major milestones: Battle of Chinhoyi (1966), Mgagao Declaration (1975), Lancaster House Agreement (1979), Independence on 18 April 1980.`
+    };
   }
-  if (/verb|noun|adjective|adverb|tense|punctuation|comma|apostrophe/.test(low)) {
-    return { kind: 'english', title: 'Language point', answer: `A verb is a doing/being word (run, is, became). A noun names (Harare, hunger, team). An adjective describes a noun (dusty road). An adverb describes a verb (ran quickly).\nApostrophe: it’s = it is; its = belonging to it. They’re = they are; their = belonging to them; there = place.\nPaste the sentence you want corrected and I will rewrite it for 1122.` };
+
+  // Geography 2248
+  if (/itcz|natural regions|farming regions|relief rainfall|convectional|kariba/i.test(t)) {
+    return {
+      kind: 'concept',
+      title: 'Geography 2248 — Climate & Farming Regions',
+      answer: `🌦️ *Geography 2248: Weather Systems & Natural Regions:*\n
+• **ITCZ (Inter-Tropical Convergence Zone):** Thermal low-pressure belt where NE and SE Trade Winds converge, bringing main summer rains (November–March).
+• **Zimbabwe Natural Farming Regions (I to V):**
+  - **Region I (Eastern Highlands):** Rainfall > 1000mm. Tea, coffee, forestry, dairy, fruit.
+  - **Region II (Northern Highveld):** Rainfall 750–1000mm. Intensive crop farming (Maize, tobacco, soyabeans, wheat).
+  - **Region III (Semi-Intensive):** Rainfall 650–800mm. Maize, cotton, livestock.
+  - **Region IV (Semi-Extensive):** Rainfall 450–650mm. Drought-resistant crops (sorghum, millet) and cattle ranching.
+  - **Region V (Lowveld):** Rainfall < 450mm. Extensive cattle ranching, game ranching, sugarcane under irrigation (Chiredzi/Triangle).`
+    };
   }
+
+  // Pure Mathematics 6042 (A-Level)
+  if (/differentiation|integration|calculus|complex number|binomial theorem|de moivre/i.test(t)) {
+    return {
+      kind: 'concept',
+      title: 'Pure Mathematics 6042 (A-Level)',
+      answer: `📐 *A-Level Pure Mathematics 6042 Key Rules:*\n
+• **Calculus - Differentiation Rules:**
+  - *Product Rule:* \`d/dx (uv) = u(dv/dx) + v(du/dx)\`
+  - *Quotient Rule:* \`d/dx (u/v) = (v(du/dx) − u(dv/dx)) / v²\`
+  - *Chain Rule:* \`dy/dx = (dy/du) × (du/dx)\`
+• **Calculus - Integration by Parts:**
+  - \`∫ u (dv/dx) dx = uv − ∫ v (du/dx) dx\`
+• **Complex Numbers:**
+  - Modulus-Argument form: \`z = r(cos θ + i sin θ) = r e^(iθ)\`
+  - De Moivre’s Theorem: \`(cos θ + i sin θ)ⁿ = cos(nθ) + i sin(nθ)\``
+    };
+  }
+
   return null;
 }
 
@@ -495,37 +596,6 @@ export function tokensOf(text) {
 export function isConfused(text) {
   const t = String(text || '').toLowerCase();
   return /i (don'?t|do not|dont) (get|understand|know|see)|i am lost|confused|nobody (showed|taught)|what does .{0,48} mean|why do we|why not|i still don|help me understand/.test(t);
-}
-
-export function teachConcept(text) {
-  const t = String(text || '').toLowerCase();
-  const stuck = isConfused(text) || /what (is|does) (a |the )?|meaning of|i am lost/.test(t);
-  if (!stuck && !(/chlorophyll/.test(t) && /\bstate\b/.test(t)) && !/destarch/.test(t)) return null;
-  if (/pythag|a\s*\^?\s*2\s*\+|hypotenuse|right.?angl/.test(t)) {
-    return { kind: 'concept', title: 'Pythagoras', answer: `The square corner is the right angle. The two sides that make that corner are a and b. The longest side, opposite the corner, is c (hypotenuse).\n\na² + b² = c² means: the square sitting on a plus the square sitting on b fill the square sitting on c. That is why we square.\n\n3-4-5: 9 + 16 = 25, so c = 5.\nIf they give c and one short side: subtract, then square root.\n\nSay DRAW if you want the picture with the three squares.\nYou try: 6 and 8 meet at the right angle. Find c.` };
-  }
-  if (/bearing/.test(t)) {
-    return { kind: 'concept', title: 'Bearings', answer: `A bearing is the angle from North, turning clockwise, written with three digits.\n\n060° means: stand at A, face North, turn 60° towards East. Walk that way to B.\n000° = North. 090° = East. 180° = South. 270° = West.\n\nAlways three figures (060 not 60). Always from North. Always clockwise.\nSay DRAW if you want the North-line sketch.\nYou try: From A, B is due East. What bearing is that?` };
-  }
-  if (/\bvector/.test(t)) {
-    return { kind: 'concept', title: 'Vectors', answer: `A vector is an arrow with size AND direction. (3 ; 0) means 3 right, 0 up.\nAdding: nose to tail. 2u means twice as long, same way.\nA number alone (speed 3 m/s with no direction) is a scalar, not a vector.\nSay DRAW if you want the arrow on axes.\nYou try: u = (3 ; 0), v = (−2 ; 5). What is 2u + v?` };
-  }
-  if (/gradient|slope/.test(t)) {
-    return { kind: 'concept', title: 'Gradient', answer: `Gradient m = rise / run = (y2 − y1) / (x2 − x1).\nPositive: uphill as you go right. Negative: downhill. 0: flat.\nm = −2 means: one step right, two steps down.\nOn y = mx + c, m is the tilt and c is where it cuts the y-axis.\nSay DRAW and send y = … if you want the line.\nYou try: (1, 4) and (3, 10). What is m?` };
-  }
-  if (/factoris|factoriz/.test(t)) {
-    return { kind: 'concept', title: 'Factorise', answer: `Factorise = put back into brackets. Expanding is the opposite.\nx² + 5x + 6 → two numbers that multiply to 6 and add to 5: 2 and 3.\nSo (x + 2)(x + 3).\nCheck by FOIL. If the last number is negative, the two numbers have opposite signs.\nYou try: x² + 7x + 10.` };
-  }
-  if (/simultaneous/.test(t)) {
-    return { kind: 'concept', title: 'Simultaneous equations', answer: `Two equations, one pair (x, y) that fits BOTH at the same time.\nIf you see +y and −y, add the equations so y disappears. Then solve x. Then put x back in.\nThat is elimination. Substitution is: make y the subject in one, plug into the other.\nPaste your two lines if you want them done slowly.` };
-  }
-  if (/chlorophyll/.test(t) && /\bstate\b/.test(t)) {
-    return { kind: 'concept', title: 'Chlorophyll', answer: `State: Chlorophyll absorbs light (for photosynthesis).\nNo because — the command was State.\nIf they had said Explain: because light energy is needed to make glucose.` };
-  }
-  if (/destarch/.test(t)) {
-    return { kind: 'concept', title: 'Destarching', answer: `Destarch so that any starch you find later was made in THIS experiment, not leftover from yesterday.\nHow: leave the plant in the dark 24–48 h. Iodine then stays brown if destarching worked.\nExplain needs because / so that.` };
-  }
-  return null;
 }
 
 export function searchBank(bank, text) {
@@ -579,15 +649,15 @@ export function formatMath(solved, lang) {
   const body = fmtSteps(solved.steps || []);
   const xish = solved.kind === 'linear' || solved.kind === 'quad' ? `x = ${solved.answer}` : solved.answer;
   const stamp = (solved.kind === 'linear' || solved.kind === 'quad' || solved.kind === 'simultaneous' || solved.kind === 'expand')
-    ? 'On 4004/1: working on the page, box the answer. Answer-only is often 0 of 2. No calculator.'
-    : 'Write the working. The marker awards method as well as the final number.';
-  return `${head}: ${xish}\n${body}\n\n${stamp}`.slice(0, 3500);
+    ? '📌 On 4004/1: Show full working on the page. Answer-only scores 0 on method questions. No calculator.'
+    : '📌 Write the step-by-step working. ZIMSEC markers award Method Marks (M1) for correct substitution.';
+  return `${head}: ${xish}\n\n*Step-by-Step Working:*\n${body}\n\n${stamp}`.slice(0, 3500);
 }
 
 const CLOSERS = [
-  'Send the next question — equation, topic, or a full exam sentence.',
-  'Another one? Paste it exactly as it appears on the paper.',
-  'Next: try a different topic or the next part (b).',
+  'Send the next question — equation, science concept, past paper topic, or essay title.',
+  'Another one? Paste it exactly as it appears on the ZIMSEC paper.',
+  'Next: try a different topic or the next structured question (b).',
 ];
 
 export function closer(phone) {
@@ -596,7 +666,7 @@ export function closer(phone) {
 }
 
 export function fallback(text) {
-  const c = teachConcept(text);
+  const c = teachConcept(text) || explainScience(text) || helpEnglish(text);
   if (c) return c.answer;
-  return `I heard you. Tell me the stuck bit in one sentence. Maths: paste the equation. Science: name the process. English: the title or the command word. I will go slowly. Say DRAW if you want a sketch.`;
+  return `I am ready. Send any equation, syllabus concept, or past paper question. Maths: paste the equation. Science: name the reaction or process. Commercials: name the ledger or principle. Humanities: name the topic. I will provide step-by-step ZIMSEC working.`;
 }

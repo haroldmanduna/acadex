@@ -369,69 +369,109 @@ function generateLocalTutorResponse(text) {
 
   // 1. Math / Linear Equation Solver
   const eqMatch = t.match(/(-?\d*)\s*x\s*([+-]\s*\d+)?\s*=\s*(-?\d+)/i) || t.match(/(\d+)\s*\(\s*x\s*([+-]\s*\d+)\s*\)\s*=\s*(-?\d+)/i);
-  if (eqMatch || /^[0-9xX\s\+\-\*\/\=\(\)]+$/.test(t) && t.includes("=")) {
+  if (eqMatch || (/^[0-9xX\s\+\-\*\/\=\(\)]+$/.test(t) && t.includes("="))) {
     const solved = solveLinear(t);
     if (solved) {
-      return `📐 *Step-by-Step Algebraic Solution:*\nEquation: \`${t}\`\n\n*Method Marks Breakdown:*\n• **Step 1 (Expand/Transpose):** ${solved.step1}\n• **Step 2 (Isolate Variable):** ${solved.step2}\n\n🏆 **Final Result:** \`x = ${solved.ans}\`\n\n📌 *ZIMSEC Marker Note:* Always show the intermediate line of working to secure your Method Mark (M1). Writing answer only risks losing marks if arithmetic slips!`;
+      return `📐 *Step-by-Step Algebraic Solution:*\nEquation: \`${t}\`\n\n*Method Marks Breakdown:*\n• **Step 1 (Expand/Transpose) [Method Mark M1]:** ${solved.step1}\n• **Step 2 (Isolate Variable) [Method Mark M1]:** ${solved.step2}\n\n🏆 **Final Result [Accuracy Mark A1]:** \`x = ${solved.ans}\`\n\n📌 *ZIMSEC Senior Examiner Note:* Always show full working on Paper 1 (4004/1). Writing answer only risks 0 marks if arithmetic slips!`;
     }
   }
 
-  // 2. Pythagoras Theorem
-  if (/pythag|hypotenuse|right.?angle/i.test(tl)) {
-    return `📐 *Pythagoras Theorem (ZIMSEC 4004 Core):*\n\n**Formula:** \`a² + b² = c²\` (where \`c\` is the longest side opposite the 90° right angle, called the **hypotenuse**).\n\n*Worked Example:*\nGiven sides \`a = 6 cm\` and \`b = 8 cm\`:\n1. \`c² = 6² + 8² = 36 + 64 = 100\`\n2. \`c = √100 = 10 cm\` [Method Mark M1, Accuracy Mark A1]\n\n📌 *Examiner Rule:* When calculating a shorter side: \`a² = c² - b²\`. Always state the square root step explicitly.`;
+  // 2. Pythagoras & Trigonometry (SOH CAH TOA)
+  if (/pythag|hypotenuse|right.?angle|soh|cah|toa|sine rule|cosine rule/i.test(tl)) {
+    return `📐 *Pythagoras & Trigonometry (ZIMSEC 4004 Core):*\n\n• **Pythagoras Theorem:** \`a² + b² = c²\` (where \`c\` is the longest side opposite the 90° angle).\n  - *Calculating Hypotenuse:* \`c = √(a² + b²)\`\n  - *Calculating Shorter Side:* \`a = √(c² − b²)\`\n• **SOH CAH TOA (Right-Angled Triangles):**\n  - \`sin θ = Opposite / Hypotenuse\`\n  - \`cos θ = Adjacent / Hypotenuse\`\n  - \`tan θ = Opposite / Adjacent\`\n• **Non-Right-Angled Triangles:**\n  - *Sine Rule:* \`a / sin A = b / sin B = c / sin C\` [Use when 2 angles + 1 side or 2 sides + non-included angle given]\n  - *Cosine Rule:* \`a² = b² + c² − 2bc cos A\` [Use when 2 sides + included angle or all 3 sides given]\n  - *Area of Triangle:* \`Area = ½ ab sin C\`\n\n📌 *Examiner Tip:* Give non-exact angles to 1 decimal place and lengths to 3 significant figures.`;
   }
 
-  // 3. Science Concepts
-  if (/osmosis|diffusion/i.test(tl)) {
-    return `🔬 *Osmosis vs Diffusion (Combined Science 5006 / Biology 5008):*\n\n• **Diffusion:** Net movement of particles from a region of *higher concentration* to a region of *lower concentration* down a concentration gradient (does not require a membrane).\n• **Osmosis:** Net movement of *water molecules* from a region of higher water potential (dilute) to lower water potential (concentrated) through a **partially permeable membrane**.\n\n📌 *ZIMSEC Command Word:* On an "Explain" question, always state: *"water moves down the water potential gradient through the partially permeable cell membrane by osmosis."*`;
+  // 3. Circle Theorems (Geometry)
+  if (/circle theorem|cyclic quad|alternate segment|tangent to|subtended/i.test(tl)) {
+    return `⭕ *ZIMSEC Circle Theorems Master Summary (4004/2):*\n\n1. **Angle at Centre:** Angle subtended by an arc at the centre is **twice** the angle subtended at the circumference.\n2. **Angles in Same Segment:** Angles subtended by the same arc are **equal**.\n3. **Angle in a Semicircle:** The angle subtended by a diameter at the circumference is always **90°**.\n4. **Cyclic Quadrilateral:** Opposite angles sum to **180°** (\`∠A + ∠C = 180°\`). Exterior angle equals opposite interior angle.\n5. **Tangent & Radius:** A tangent meets the radius at right angles (**90°**) at the point of contact.\n6. **Alternate Segment Theorem:** Angle between tangent and chord equals angle subtended by chord in alternate segment.\n\n📌 *ZIMSEC Mark Scheme:* In geometry proofs, you MUST write the geometric reason in brackets next to your step (e.g. *[angle in semicircle = 90°]* or *[opposite angles of cyclic quad]*).`;
   }
 
+  // 4. Extraction of Iron (Blast Furnace) & Chemistry
+  if (/blast furnace|iron extraction|haematite|hematite|limestone slag/i.test(tl)) {
+    return `🔬 *Extraction of Iron in the Blast Furnace (ZIMSEC 5006/5070):*\n\n• **Raw Materials:**\n  1. Haematite (Iron Ore, Fe₂O₃) — source of iron.\n  2. Coke (Carbon, C) — fuel and reducing agent.\n  3. Limestone (CaCO₃) — removes silica/sand impurities.\n  4. Hot Air Blast — provides O₂ for combustion.\n\n• **Key Chemical Reactions:**\n  1. \`C + O₂ → CO₂\` (Exothermic combustion providing high temperature ~1800°C).\n  2. \`CO₂ + C → 2CO\` (Formation of reducing agent).\n  3. \`Fe₂O₃ + 3CO → 2Fe + 3CO₂\` [Method M1, Accuracy A1] (Reduction of haematite to molten iron).\n  4. \`CaCO₃ → CaO + CO₂\` (Thermal decomposition of limestone).\n  5. \`CaO + SiO₂ → CaSiO₃\` [Slag formation, floats above molten iron preventing re-oxidation].`;
+  }
+
+  // 5. Electrolysis & Redox
+  if (/electrolysis|cathode|anode|electrolyte|electroplating/i.test(tl)) {
+    return `⚡ *Electrolysis & Redox Rules (ZIMSEC 5006/5070):*\n\n• **Electrolysis:** Decomposition of molten or aqueous ionic compound by electricity.\n• **CATHODE (−):**\n  - Attracts positively charged Cations.\n  - **Reduction** occurs (Gain of Electrons: \`Mⁿ⁺ + ne⁻ → M\`).\n  - Discharges Hydrogen gas (if metal is more reactive than H) or metal.\n• **ANODE (+):**\n  - Attracts negatively charged Anions.\n  - **Oxidation** occurs (Loss of Electrons: \`2Cl⁻ → Cl₂ + 2e⁻\`).\n  - Discharges Halogen (if concentrated) or Oxygen gas.\n• **Electroplating:** Object to be coated is placed at the **Cathode (−)**, pure coating metal at the **Anode (+)**, using a salt solution of the plating metal.`;
+  }
+
+  // 6. Biology Concepts: Photosynthesis, Respiration, Osmosis, Heart
   if (/photosynth/i.test(tl)) {
-    return `🌱 *Photosynthesis (ZIMSEC 5006 & 5008):*\n\n**Word Equation:**\n\`Carbon Dioxide + Water --(Light & Chlorophyll)--> Glucose + Oxygen\`\n\n**Chemical Equation:**\n\`6CO2 + 6H2O -> C6H12O6 + 6O2\`\n\n📌 *Essential Factors:* Light intensity, Chlorophyll, CO2 concentration, Temperature (optimum ~25°C–35°C; enzymes denature above 45°C).`;
+    return `🌱 *Photosynthesis (ZIMSEC 5006 & 5008):*\n\n• **Word Equation:** Carbon Dioxide + Water --(Light & Chlorophyll)--> Glucose + Oxygen.\n• **Chemical Equation:** \`6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂\` [M1, A1].\n• **Limiting Factors:** Light intensity, CO₂ concentration, Temperature (optimum ~25°C–35°C; enzymes denature above 45°C).\n• **Destarching:** Keeping a plant in total darkness for 24–48 hours to ensure leaves are depleted of starch before experiments.`;
   }
 
-  // 4. Commercials & Accounts
-  if (/ledger|double entry|balance sheet|profit and loss|gross profit/i.test(tl)) {
-    return `📊 *Principles of Accounts (7110 / 6001):*\n\n• **Double Entry Rule:** For every debit entry, there must be an equal corresponding credit entry.\n• **Gross Profit Formula:** \`Sales - Cost of Goods Sold\`\n• **Cost of Sales:** \`Opening Inventory + Purchases + Carriage Inwards - Closing Inventory\`\n• **Profit for the Year (Net Profit):** \`Gross Profit + Other Income - Operating Expenses\``;
+  if (/osmosis|diffusion|active transport/i.test(tl)) {
+    return `🔬 *Osmosis vs Diffusion vs Active Transport (5006/5008):*\n\n• **Diffusion:** Net movement of particles from high to low concentration down a concentration gradient (no energy, no membrane required).\n• **Osmosis:** Net movement of *water molecules* from higher water potential (dilute) to lower water potential (concentrated) through a **partially permeable membrane**.\n• **Active Transport:** Movement of particles from low to high concentration *against* a concentration gradient across a cell membrane, requiring **energy (ATP)** and carrier proteins.\n\n📌 *Examiner Command Word Rule:* On "Explain osmosis", you must mention *"water molecules"*, *"down a water potential gradient"*, and *"partially permeable membrane"*.`;
   }
 
-  // 5. History & Geography
-  if (/great zimbabwe|mutapa|rozvi/i.test(tl)) {
-    return `🏛️ *History 2167 — Munhumutapa & Great Zimbabwe Heritage:*\n\n• **Economic Activities:** Cattle pastoralism, agriculture (sorghum, millet), gold and iron mining, elephant ivory hunting, and long-distance trade with Swahili/Arab merchants at Sofala.\n• **Social/Religious:** Mwari cult, royal ancestral spirits (Mhondoro), reverence for the Hungwe/Bateleur eagle.\n• **Decline Factors:** Drought/depletion of salt and pastures, succession disputes, and Portuguese interference.`;
+  if (/heart|double circulation|artery|vein|capillary/i.test(tl)) {
+    return `❤️ *Circulatory System (ZIMSEC 5006/5008):*\n\n• **Double Circulation:** Blood passes through the heart twice in one complete circuit (Pulmonary circulation: Heart → Lungs → Heart; Systemic circulation: Heart → Body → Heart).\n• **Left Ventricle:** Thicker muscular wall than right ventricle because it must generate high pressure to pump blood to the entire body.\n• **Vessels:**\n  - *Arteries:* Thick elastic muscular walls, narrow lumen, high pressure, carry blood AWAY from heart.\n  - *Veins:* Thin walls, wide lumen, low pressure, carry blood TOWARDS heart, have **valves** to prevent backflow.\n  - *Capillaries:* One cell thick for rapid diffusion.`;
   }
 
-  if (/itcz|inter-tropical|rainfall/i.test(tl)) {
-    return `🌦️ *Geography 2248 — ITCZ & Rainfall Systems:*\n\n• **ITCZ (Inter-Tropical Convergence Zone):** Low-pressure thermal trough where the Northeast Trade Winds and Southeast Trade Winds converge, causing heavy convectional summer rainfall across Zimbabwe (November–March).\n• **Relief (Orographic) Rainfall:** Moisture-laden winds forced over the Eastern Highlands (Nyanga/Chimanimani) cool adiabatically, condense, and deposit rainfall on the windward slope.`;
+  // 7. Physics: Forces, Motion, Electricity, Transformers
+  if (/force|f=ma|newton|speed|velocity|acceleration|transformer/i.test(tl)) {
+    return `⚙️ *Physics Formulas & Rules (ZIMSEC 5006/5054):*\n\n• **Newton’s Second Law:** \`F = ma\` (Force = mass × acceleration) [Units: Newtons, N].\n• **Weight:** \`W = mg\` (mass in kg, on Earth g ≈ 10 N/kg or 9.8 m/s²).\n• **Equations of Motion:**\n  1. \`v = u + at\`\n  2. \`s = ut + ½at²\`\n  3. \`v² = u² + 2as\`\n• **Work, Energy & Power:** \`Work = F × d\`, \`KE = ½mv²\`, \`GPE = mgh\`, \`Power = Work / time = V × I\`.\n• **Transformer Equation:** \`Vp / Vs = Np / Ns = Is / Ip\` (Step-up: Ns > Np, Vs > Vp; Step-down: Np > Ns, Vp > Vs).`;
   }
 
-  // 6. ZIMSEC Command Words
+  // 8. Principles of Accounts (7110 / 6001)
+  if (/ledger|double entry|balance sheet|profit and loss|gross profit|trial balance|suspense|depreciation/i.test(tl)) {
+    return `📊 *Principles of Accounts (7110) Master Rules:*\n\n• **Double Entry Rules:**\n  - *Debit (Dr):* Increase in Assets & Expenses; Decrease in Liabilities & Income.\n  - *Credit (Cr):* Increase in Liabilities, Capital & Income; Decrease in Assets & Expenses.\n• **Key Financial Formulas:**\n  - \`Gross Profit = Sales − Cost of Goods Sold\`\n  - \`Cost of Sales = Opening Inventory + Purchases + Carriage Inwards − Closing Inventory\`\n  - \`Net Profit = Gross Profit + Other Income − Operating Expenses\`\n  - \`Capital = Assets − Liabilities\` (Accounting Equation).\n• **Straight-Line Depreciation:** \`Depreciation = (Cost − Scrap Value) / Estimated Useful Life\`.\n• **Suspense Account:** Temporary ledger account opened to balance the trial balance when single-entry or casting errors occur.`;
+  }
+
+  // 9. History 2167 & Heritage Studies 4006
+  if (/great zimbabwe|mutapa|rozvi|ndebele|lobengula|mzilikazi|rudd concession|chimurenga|liberation war/i.test(tl)) {
+    return `🏛️ *History 2167 — Heritage, Colonisation & Liberation:*\n\n• **Great Zimbabwe (1200–1450):** Shona state known for dry stone masonry without mortar. Economy: cattle pastoralism, gold mining, agriculture, international trade via Sofala port (cloth, glass beads, Chinese porcelain).\n• **First Chimurenga / Umvukela (1896–1897):** Led by Mbuya Nehanda, Sekuru Kaguvi, and Mukwati. Causes: loss of ancestral land, cattle confiscation, hut taxes, and forced labour (*chibaro*).\n• **Second Chimurenga / Liberation War (1966–1979):** Armed struggle spearheaded by ZANLA and ZIPRA. Key milestones: Battle of Chinhoyi (1966), Mgagao Declaration (1975), Lancaster House Conference (1979), Independence on 18 April 1980.\n• **National Heritage Symbols:** Zimbabwe Bird (*Hungwe*), National Anthem (*Simudzai Mureza weZimbabwe / Kalibusiswe Ilizwe leZimbabwe*), National Flag, Eternal Flame.`;
+  }
+
+  // 10. Geography 2248
+  if (/itcz|natural regions|farming regions|relief rainfall|convectional|weathering|kariba/i.test(tl)) {
+    return `🌦️ *Geography 2248 — Climate, Natural Regions & Resources:*\n\n• **ITCZ (Inter-Tropical Convergence Zone):** Low-pressure thermal trough where NE and SE Trade Winds converge, bringing main summer rains (November–March).\n• **Zimbabwe Natural Farming Regions (I to V):**\n  - **Region I (Eastern Highlands):** Rainfall > 1000mm. Tea, coffee, forestry, fruit.\n  - **Region II (Northern Highveld):** Rainfall 750–1000mm. Intensive crop farming (Maize, tobacco, wheat, soyabeans).\n  - **Region III (Semi-Intensive):** Rainfall 650–800mm. Maize, cotton, livestock.\n  - **Region IV (Semi-Extensive):** Rainfall 450–650mm. Drought-resistant grains (sorghum, millet) and cattle ranching.\n  - **Region V (Lowveld):** Rainfall < 450mm. Cattle ranching, wildlife management, sugarcane under irrigation (Triangle/Chiredzi).`;
+  }
+
+  // 11. English Language 1122 (P1 Composition, P2 Summary & Register)
+  if (/summary|composition|1122|register|comprehension/i.test(tl)) {
+    return `📝 *English Language 1122 Senior Examiner Strategy:*\n\n• **Paper 1 Section A (Composition, 30 Marks):** 350–450 words. Focus on strong hook, paragraph progression, varied sentence structures, and accurate punctuation.\n• **Paper 1 Section B (Guided Writing, 20 Marks):** Must address **EVERY bullet point** given. Format strictly as requested (Formal Letter, Report, Speech, Article, Memo).\n• **Paper 2 Summary (20 Marks):**\n  1. Read question focus carefully.\n  2. Extract 10–12 points from designated lines.\n  3. Paraphrase into **own words** (lifting sentences loses marks).\n  4. Write in continuous prose within the strict word limit (usually 160 words).`;
+  }
+
+  // 12. Primary Grade 7 Curriculum (701, 702, 703)
+  if (/grade 7|general paper|703|702|701|primary/i.test(tl)) {
+    return `🎒 *Primary (Grade 7) ZIMSEC Master Guide:*\n\n• **Mathematics 702:** Place value, fractions, decimals, percentages, perimeter, area, volume of cuboids, money ($/ZWG), and time.\n• **General Paper 703:**\n  - *Agriculture:* Soil conservation, organic manure, crop rotation, pests, livestock.\n  - *Science & Tech:* States of matter, energy sources, simple machines, hygiene, balanced diet.\n  - *Social Sciences:* Heritage, family structures, Great Zimbabwe, national heroes, Unhu/Ubuntu.\n• **Grading:** Units 1 to 9 (Unit 1 = Distinction ~85%+). Maximum aggregate is 4 or 5 Units.`;
+  }
+
+  // 13. A-Level Pure Mathematics 6042 & Economics 6073
+  if (/6042|pure maths|a level|integration by parts|differential equation|elasticity|ped|6073/i.test(tl)) {
+    return `🎓 *A-Level (Forms 5–6) Master Framework:*\n\n• **Pure Maths 6042:**\n  - *Differentiation:* Product rule \`d/dx(uv) = u v' + v u'\`, Quotient rule, Chain rule \`dy/dx = (dy/du)(du/dx)\`.\n  - *Integration by Parts:* \`∫ u v' dx = uv − ∫ v u' dx\` (Choose u using L-I-A-T-E: Log, Inverse trig, Algebraic, Trig, Exponential).\n  - *Complex Numbers:* \`z = r(cos θ + i sin θ)\`, De Moivre's \`zⁿ = rⁿ(cos nθ + i sin nθ)\`.\n• **Economics 6073:**\n  - *Price Elasticity of Demand (PED):* \`%ΔQd / %ΔP\`. Inelastic (<1), Elastic (>1), Unitary (=1).\n  - *Cross Elasticity (XED):* Positive for Substitutes, Negative for Complements.\n  - *Income Elasticity (YED):* Positive for Normal goods, Negative for Inferior goods.`;
+  }
+
+  // 14. ZIMSEC Command Words
   if (/command word|marking scheme|marks/i.test(tl)) {
     return `📋 *ZIMSEC Senior National Examiner Command Words:*\n\n• **State / Name / Give:** 1 concise fact (1 mark = 1 fact, no "because").\n• **Explain:** Linked cause and effect (must use *"because"*, *"therefore"*, or *"leading to"*).\n• **Describe:** Step-by-step sequence or appearance (no "why").\n• **Calculate:** Formula → Substitution with units → Working → Final answer (3 s.f.).\n• **Show that / Prove:** Start strictly from given data and deduce result step-by-step without assuming conclusion.\n• **Evaluate / Discuss:** Balanced two-sided analysis + supported conclusion (Level 1–4 mark matrix).`;
   }
 
-  // 7. Mock Exam Commands
+  // 15. Mock Exam Commands
   if (/start mock|mock exam|practice exam/i.test(tl)) {
     switchTab('mock', document.querySelectorAll('.tab')[3]);
     startMockExam();
     return `⏱️ *Launching Timed Mock Exam Room!* I have opened the Mock Exam tab with your active paper. Give it your best shot!`;
   }
 
-  // 8. Past Papers Request
+  // 16. Past Papers Request
   if (/past paper|download paper|send paper|pdf/i.test(tl)) {
     switchTab('library', document.querySelectorAll('.tab')[2]);
     return `📚 *Opened Past Papers Library!* You can browse, study worked solutions, or download all 118 ZIMSEC practice PDFs.`;
   }
 
-  // 9. Vernacular Code-Switching
+  // 17. Vernacular Code-Switching
   if (/shona|chishona/i.test(tl)) {
-    return `🇿🇼 *Mhoro!* Ndiri ACADEX, mudzidzisi wenyu weZIMSEC. Ndinogona kutsanangura masvomhu, sainzi, nhoroondo nezvimwe zvidzidzo zvose neChiShona chakajeka. Tumirai mubvunzo wenyu pano!`;
+    return `🇿🇼 *Mhoro!* Ndiri ACADEX, mudzidzisi wenyu weZIMSEC. Ndinogona kutsanangura masvomhu, sainzi, nhoroondo, zvekurima nezvimwe zvidzidzo zvose neChiShona chakajeka. Tumirai mubvunzo wenyu pano!`;
   }
 
   if (/ndebele|isindebele/i.test(tl)) {
-    return `🇿🇼 *Salibonani!* Ngingu ACADEX, umbalisi wakho weZIMSEC. Ngingakuchasisela izibalo, isayensi, kanye lezinye izifundo ngesiNdebele esicacileyo. Thumela umbuzo wakho lapha!`;
+    return `🇿🇼 *Salibonani!* Ngingu ACADEX, umbalisi wakho weZIMSEC. Ngingakuchasisela izibalo, isayensi, ezolimo, kanye lezinye izifundo ngesiNdebele esicacileyo. Thumela umbuzo wakho lapha!`;
   }
 
-  // 10. Greetings & General Chat
+  // 18. Greetings & General Chat
   if (/^(hi|hello|hey|mhoro|salibonani|mangwanani|masikati|sawubona)\b/i.test(tl)) {
     return `👋 *Mhoro ${namePrefix}!* How is your study session going today?\n\nSend any equation, exam question, or topic you'd like to master, or tap the quick chips above to get started!`;
   }
