@@ -296,10 +296,33 @@ Type or snap a photo of your Maths, Science, English, Grade 7, or A-Level questi
 • Type *Start Mock Grade 7* (702/1)
 • Type *Start Mock Pure Maths* (6042/1)
 
-🏆 *4. Badges & Progress:*
+📲 *4. Offline Mode (0% Data):*
+• Type *OFFLINE* to download all 88 papers and the offline solver to your phone screen.
+
+🏆 *5. Badges & Progress:*
 • Type *PRIZES* to see your stars and rank.
 • Type *SLIP* for your ACADEX merit certificate.
 • Type *VOICE* if you want the working spoken as an audio note.`;
+}
+
+function offlineInstructions() {
+  return `📲 *ACADEX OFFLINE TUTOR & 88 QUESTION PAPERS*
+━━━━━━━━━━━━━━━━━━━━
+You can study and practice with ACADEX completely *offline with 0% mobile data*:
+
+👉 *Step 1: Open the link in your browser:*
+https://haroldmanduna.github.io/acadex/
+
+👉 *Step 2: Install to your phone:*
+• On Android (Chrome): Tap the *3 dots (⋮)* at the top right → tap *“Add to Home screen”* or *“Install App”*.
+• On iPhone (Safari): Tap the *Share icon* at the bottom → tap *“Add to Home Screen”*.
+
+👉 *Step 3: All 88 Papers & Solver Download Automatically:*
+The app stores all 88 ZIMSEC papers, worked answers, and the offline marking engine directly into your phone memory.
+
+✨ *After installing:*
+• You can switch off mobile data or turn on Airplane Mode.
+• Open ACADEX from your home screen anytime to practice papers, solve equations, and get instant step-by-step working offline!`;
 }
 
 function isProfileOnly(text, prof) {
@@ -663,6 +686,11 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     say(visionOn()
       ? 'I could not extract the text from that picture clearly. Send a closer snapshot of the question with good lighting, or type it out.'
       : 'Type your question or add a short caption to the photo. I mark step-by-step working best when numbers are visible.');
+    return { replies };
+  }
+
+  if (/^(offline|study offline|download offline|no data|offline app|offline tutor|offline mode|how to (use|study) offline)$/i.test(tl) || /\b(study offline|offline mode|offline tutor|offline app)\b/i.test(tl)) {
+    say(offlineInstructions());
     return { replies };
   }
 
