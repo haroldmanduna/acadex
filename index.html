@@ -72,6 +72,33 @@ nav {
   font-weight: 800;
 }
 
+/* Offline Banner */
+.offline-sync-bar {
+  background: #f0fdf4;
+  border-bottom: 1px solid #bbf7d0;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: #166534;
+}
+.btn-sync-pack {
+  background: var(--green);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 11.5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
 /* Hero */
 .hero {
   background: linear-gradient(135deg, #0a7a3c 0%, #064e26 100%);
@@ -177,7 +204,7 @@ nav {
   gap: 10px;
 }
 .msg {
-  max-width: 82%;
+  max-width: 84%;
   padding: 10px 14px;
   border-radius: 14px;
   font-size: 13.5px;
@@ -211,6 +238,7 @@ nav {
   border-top: 1px solid var(--border);
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 .chat-input {
   flex: 1;
@@ -226,11 +254,25 @@ nav {
   color: white;
   border: none;
   border-radius: 999px;
-  padding: 0 18px;
+  padding: 10px 18px;
   font-weight: 800;
   font-size: 13px;
   cursor: pointer;
 }
+.chat-attach-btn {
+  background: #f1f5f9;
+  border: 1px solid var(--border);
+  color: var(--dark);
+  border-radius: 999px;
+  padding: 9px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chat-attach-btn:hover { background: #e2e8f0; }
+
 .quick-chips {
   display: flex;
   gap: 6px;
@@ -393,6 +435,7 @@ nav {
   display: block;
   height: 100%;
   background: var(--green);
+  transition: width 0.3s ease;
 }
 
 /* Footer */
@@ -460,6 +503,28 @@ footer {
       <button style="background:#f8fafc;border:1px solid var(--border);color:var(--dark);padding:7px 12px;border-radius:999px;font-weight:800;cursor:pointer;font-size:11.5px" onclick="openLegalModal('support')">💬 Support</button>
     </div>
   </nav>
+
+  <!-- 100% Offline Pack Notification Banner -->
+  <div id="offlineSyncBanner" class="offline-sync-bar">
+    <div style="display:flex;align-items:center;gap:6px">
+      <span style="font-size:16px">⚡</span>
+      <span id="syncBannerText"><b>0% Mobile Data Mode:</b> Download the full 118 past paper question bank &amp; offline AI solver to study anywhere without internet.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button id="btnDownloadPack" class="btn-sync-pack" onclick="downloadOfflineDataPack()">📥 Download Offline Pack (0 MB Data Mode)</button>
+    </div>
+  </div>
+
+  <!-- Offline Download Progress Bar -->
+  <div id="packDownloadProgressBox" style="display:none;background:white;border-bottom:1px solid var(--border);padding:10px 18px">
+    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--green)">
+      <span id="packProgressLabel">Caching 118 ZIMSEC Papers &amp; Solver Engine...</span>
+      <span id="packProgressPct">0%</span>
+    </div>
+    <div class="progress" style="margin-top:6px">
+      <i id="packProgressBar" style="width:0%"></i>
+    </div>
+  </div>
 
   <!-- Student Onboarding & Profile Modal -->
   <div id="profileModal" class="modal-overlay">
@@ -656,7 +721,7 @@ footer {
             💬 24/7 ZIMSEC AI Tutor &amp; Examiner
             <span style="background:#f0fdf4;color:var(--green);border:1px solid #bbf7d0;font-size:10px;padding:2px 8px;border-radius:999px;font-weight:900">100% OFFLINE</span>
           </h3>
-          <p style="font-size:11.5px;color:var(--muted)">Ask any Maths, Science, Commercials, or Humanities question. Solves with method marks ($M1, A1$).</p>
+          <p style="font-size:11.5px;color:var(--muted)">Ask anything! Equations, science, history, study advice, or snap a photo of any question.</p>
         </div>
         <button onclick="clearChatHistory()" style="background:#f1f5f9;border:1px solid var(--border);padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800;cursor:pointer">Clear</button>
       </div>
@@ -667,14 +732,20 @@ footer {
           <span class="quick-chip" onclick="sendChatPrompt('Solve 3x + 7 = 22 step by step')">📐 Solve 3x + 7 = 22</span>
           <span class="quick-chip" onclick="sendChatPrompt('Explain Pythagoras theorem with an example')">📐 Pythagoras Theorem</span>
           <span class="quick-chip" onclick="sendChatPrompt('Explain the difference between Osmosis and Diffusion')">🔬 Osmosis vs Diffusion</span>
+          <span class="quick-chip" onclick="sendChatPrompt('Explain how iron is extracted in the Blast Furnace')">🔬 Blast Furnace Reactions</span>
           <span class="quick-chip" onclick="sendChatPrompt('State 5 economic activities of Great Zimbabwe')">🏛️ Great Zimbabwe</span>
-          <span class="quick-chip" onclick="sendChatPrompt('What are the ZIMSEC command words?')">📋 Command Words</span>
+          <span class="quick-chip" onclick="sendChatPrompt('What are the rules of double entry in Accounts?')">📊 Double Entry</span>
+          <span class="quick-chip" onclick="sendChatPrompt('What are the entry requirements for Medicine at UZ?')">🎓 University Guidance</span>
           <span class="quick-chip" onclick="sendChatPrompt('Start Mock Maths')">⏱️ Start Mock Exam</span>
           <span class="quick-chip" onclick="sendChatPrompt('Ndinokumbira kutsanangurirwa neChiShona')">🇿🇼 ChiShona</span>
           <span class="quick-chip" onclick="sendChatPrompt('Ngicela ukuchasiselwa ngesiNdebele')">🇿🇼 isiNdebele</span>
         </div>
+        
+        <!-- Chat Input Bar with Photo Attachment Button -->
         <div class="chat-input-bar">
-          <input id="chatInput" class="chat-input" placeholder="Type an equation, science concept, or question..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+          <input type="file" id="chatPhotoInput" accept="image/*" style="display:none" onchange="handleChatPhotoUpload(event)">
+          <button class="chat-attach-btn" onclick="document.getElementById('chatPhotoInput').click()" title="Snap or upload question photo">📷</button>
+          <input id="chatInput" class="chat-input" placeholder="Ask any question, equation, or topic..." onkeydown="if(event.key==='Enter') sendChatMessage()">
           <button class="chat-btn" onclick="sendChatMessage()">Send →</button>
         </div>
       </div>
