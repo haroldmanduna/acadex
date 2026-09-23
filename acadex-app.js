@@ -195,6 +195,22 @@ function updateUIForProfile() {
   renderParentReport();
 }
 
+/* ----- Offline Prompt Modal Controls ----- */
+function openOfflinePromptModal() {
+  const m = document.getElementById("offlinePromptModal");
+  if (m) m.style.display = "flex";
+}
+
+function closeOfflinePromptModal() {
+  const m = document.getElementById("offlinePromptModal");
+  if (m) m.style.display = "none";
+}
+
+function acceptOfflineDownloadPrompt() {
+  closeOfflinePromptModal();
+  downloadOfflineDataPack();
+}
+
 /* ----- Offline Data Pack Downloader (0 MB Mode) ----- */
 async function downloadOfflineDataPack() {
   const box = document.getElementById("packDownloadProgressBox");
@@ -375,7 +391,7 @@ function clearChatHistory() {
   loadChatHistory();
 }
 
-function processUserChat(text) {
+async function processUserChat(text) {
   const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   chatMessages.push({ sender: "user", text, time: now });
   renderChatMessages();
@@ -384,16 +400,51 @@ function processUserChat(text) {
   acadexProfile.practiceCount = (acadexProfile.practiceCount || 0) + 1;
   try { localStorage.setItem("acadex_student_profile_v2", JSON.stringify(acadexProfile)); } catch (e) {}
 
-  setTimeout(() => {
-    const replyText = generateLocalTutorResponse(text);
-    chatMessages.push({
-      sender: "bot",
-      text: replyText,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    });
-    renderChatMessages();
-    saveChatHistory();
-  }, 350);
+  let replyText = null;
+
+  // 1. If online, attempt live multi-model backend chat
+  if (navigator.onLine) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 4500);
+      const res = await fetch('./api/chat', {
+        method: 'POST',
+        signal: ctrl.signal,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          history: chatMessages.slice(-10).map(m => ({ role: m.sender === 'user' ? 'user' : 'assistant', content: m.text })),
+          learner: {
+            name: acadexProfile?.name,
+            grade: acadexProfile?.grade,
+            school: acadexProfile?.school
+          }
+        })
+      });
+      clearTimeout(timer);
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.ok && data.reply) {
+          replyText = data.reply;
+        }
+      }
+    } catch (e) {
+      /* network timeout or offline, fallback to local brain */
+    }
+  }
+
+  // 2. If offline or backend unreachable, use local intelligent engine
+  if (!replyText) {
+    replyText = generateLocalTutorResponse(text);
+  }
+
+  chatMessages.push({
+    sender: "bot",
+    text: replyText,
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  });
+  renderChatMessages();
+  saveChatHistory();
 }
 
 /* ----- Local Intelligent Offline Solver Engine & Open-Domain Chat ----- */
@@ -1026,16 +1077,10 @@ function initApp() {
   renderLibrary();
   updateUIForProfile();
 
-  // If user hasn't downloaded offline pack, prompt after 1.5s
+  // Prompt offline pack download modal if not yet downloaded
   if (!acadexProfile.offlinePackDownloaded) {
-    setTimeout(() => {
-      const banner = document.getElementById("offlineSyncBanner");
-      if (banner) banner.scrollIntoView({ behavior: 'smooth' });
-    }, 1500);
-  }
-
-  // If new user with no name set, prompt profile after 600ms
-  if (!acadexProfile.name || acadexProfile.name === "Student") {
+    setTimeout(openOfflinePromptModal, 1200);
+  } else if (!acadexProfile.name || acadexProfile.name === "Student") {
     setTimeout(openProfile, 600);
   }
 

@@ -17,6 +17,8 @@ import { restoreLearners, schedulePersist, sessionStoreMode } from './session-st
 import { visionOn } from './vision.js';
 import { getSupabaseStatus, initSupabase } from './supabase-sync.js';
 import { getAvailablePapersMenu } from './papers.js';
+import { askTeacher } from './teacher.js';
+import { solveMath, explainScience, helpEnglish, teachConcept, fallback } from './brain.js';
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -227,6 +229,60 @@ app.get('/health', (req,res)=>{
 app.get('/api/supabase/status', (req, res) => {
   noCacheCors(res);
   res.json(getSupabaseStatus());
+});
+
+app.post('/api/chat', async (req, res) => {
+  noCacheCors(res);
+  try {
+    const { message, history = [], learner = {} } = req.body || {};
+    const text = String(message || '').trim();
+    if (!text) return res.status(400).json({ ok: false, error: 'Empty message' });
+
+    // Try solver first
+    const math = solveMath(text);
+    if (math) {
+      const steps = (math.steps || []).map((s, i) => `${i + 1}. ${s.t}: ${s.d}`).join('\n');
+      return res.json({
+        ok: true,
+        source: 'math-solver',
+        reply: `📐 *Step-by-Step ZIMSEC Working:*\nEquation: \`${text}\`\n\n${steps}\n\n🏆 **Final Result:** \`${math.kind === 'linear' || math.kind === 'quad' ? 'x = ' : ''}${math.answer}\`\n\n📌 *Examiner Note:* Method marks (M1) awarded for correct substitution.`,
+      });
+    }
+
+    const sci = explainScience(text);
+    if (sci) {
+      return res.json({ ok: true, source: 'science-engine', reply: `🔬 *${sci.title}:*\n\n${sci.answer}` });
+    }
+
+    const eng = helpEnglish(text);
+    if (eng) {
+      return res.json({ ok: true, source: 'english-engine', reply: `📝 *${eng.title}:*\n\n${eng.answer}` });
+    }
+
+    const concept = teachConcept(text);
+    if (concept) {
+      return res.json({ ok: true, source: 'concept-engine', reply: concept.answer });
+    }
+
+    // Call live multi-model teacher
+    const learnerStr = learner?.name ? `Student Name: ${learner.name}, Grade: ${learner.grade || 'O-Level'}, School: ${learner.school || 'Zimbabwe'}` : '';
+    const llmReply = await askTeacher({
+      history: (history || []).slice(-10),
+      user: text,
+      learner: learnerStr,
+      chat: true,
+    });
+
+    if (llmReply) {
+      return res.json({ ok: true, source: 'teacher-llm', reply: llmReply });
+    }
+
+    // Fallback
+    return res.json({ ok: true, source: 'fallback', reply: fallback(text) });
+  } catch (err) {
+    console.warn('API /api/chat error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
 app.get('/api/papers', (req, res) => {

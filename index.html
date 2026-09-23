@@ -526,6 +526,32 @@ footer {
     </div>
   </div>
 
+  <!-- Dedicated Offline Download Prompt Modal -->
+  <div id="offlinePromptModal" class="modal-overlay">
+    <div class="modal-box" style="max-width:480px;text-align:center">
+      <div style="font-size:36px;margin-bottom:6px">📥</div>
+      <h3 style="font-size:19px">Download 100% Offline Study Pack</h3>
+      <p style="font-size:12.5px;color:var(--muted);margin:8px 0 16px;line-height:1.5">
+        Save all <b>118 ZIMSEC Question Papers</b>, step-by-step marking schemes, and the <b>Offline AI Tutor</b> directly to your phone storage. Practice anywhere in Zimbabwe with <b>0% mobile data</b>!
+      </p>
+
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:12px;border-radius:12px;text-align:left;font-size:12px;margin-bottom:16px">
+        <div style="font-weight:800;color:var(--green)">✨ What will be saved on your device:</div>
+        <ul style="margin-top:6px;padding-left:18px;color:#1e293b;line-height:1.5">
+          <li>118 Full Papers (Primary Grade 7, O-Level &amp; A-Level)</li>
+          <li>1,485 Questions with Method Marks ($M1, A1$)</li>
+          <li>Offline AI Equation &amp; Theory Solver</li>
+          <li>ChiShona &amp; isiNdebele audio explainers</li>
+        </ul>
+      </div>
+
+      <div style="display:flex;gap:8px">
+        <button onclick="acceptOfflineDownloadPrompt()" style="flex:1;background:var(--green);color:white;border:none;padding:12px;border-radius:999px;font-weight:900;font-size:13px;cursor:pointer">📥 Download Offline Pack (Free) →</button>
+        <button onclick="closeOfflinePromptModal()" style="background:#f1f5f9;border:1px solid var(--border);padding:12px 16px;border-radius:999px;font-weight:800;font-size:12px;cursor:pointer">Later</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Student Onboarding & Profile Modal -->
   <div id="profileModal" class="modal-overlay">
     <div class="modal-box" style="max-width:500px">
