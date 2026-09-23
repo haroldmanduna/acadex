@@ -2,18 +2,33 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import PImage from 'pureimage';
+
+let PImage = null;
+async function getPImage() {
+  if (PImage) return PImage;
+  try {
+    const mod = await import('pureimage');
+    PImage = mod.default || mod;
+    return PImage;
+  } catch (e) {
+    return null;
+  }
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FONT = path.join(__dirname, 'fonts', 'DejaVuSans.ttf');
 let fontReady = false;
 
-async function font() {
-  if (fontReady) return;
-  const f = PImage.registerFont(FONT, 'DejaVu');
-  if (typeof f.loadSync === 'function') f.loadSync();
-  else await new Promise((res, rej) => f.load(e => (e ? rej(e) : res())));
-  fontReady = true;
+async function font(pi) {
+  if (fontReady || !pi) return;
+  try {
+    const f = pi.registerFont(FONT, 'DejaVu');
+    if (typeof f.loadSync === 'function') f.loadSync();
+    else await new Promise((res, rej) => f.load(e => (e ? rej(e) : res())));
+    fontReady = true;
+  } catch (e) {
+    // Font optional fallback
+  }
 }
 
 export function figureKind(text) {
@@ -70,8 +85,8 @@ function parseLine(text) {
   return { m: slope, c };
 }
 
-function canvas(w = 900, h = 900) {
-  const img = PImage.make(w, h);
+function canvas(pi, w = 900, h = 900) {
+  const img = pi.make(w, h);
   const ctx = img.getContext('2d');
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
@@ -357,16 +372,18 @@ function drawAngle(ctx) {
   label(ctx, 'θ', x + 110, y - 40);
 }
 
-async function save(img, dir) {
+async function save(pi, img, dir) {
   fs.mkdirSync(dir, { recursive: true });
   const fp = path.join(dir, `d-${Date.now()}-${Math.random().toString(16).slice(2, 8)}.png`);
-  await PImage.encodePNGToStream(img, fs.createWriteStream(fp));
+  await pi.encodePNGToStream(img, fs.createWriteStream(fp));
   return fp;
 }
 
 export async function renderDiagram(workspaceRoot, text) {
-  await font();
-  const { img, ctx } = canvas();
+  const pi = await getPImage();
+  if (!pi) return null;
+  await font(pi);
+  const { img, ctx } = canvas(pi);
   const k = figureKind(text) || 'triangle';
   if (k === 'circle') drawCircle(ctx, /\btangent\b/i.test(text));
   else if (k === 'pythagoras') drawPythagoras(ctx);
@@ -389,5 +406,5 @@ export async function renderDiagram(workspaceRoot, text) {
     ctx.fillText('sides: ' + n.slice(0, 3).join(', '), 40, 50);
   }
   const dir = path.join(workspaceRoot || path.join(__dirname, '..'), 'data', 'diagrams');
-  return save(img, dir);
+  return save(pi, img, dir);
 }

@@ -609,7 +609,7 @@ export function searchBank(bank, text) {
   else if (/\b(math|4004|algebra|trig|equation)\b/.test(tl)) syll = '4004';
 
   const scored = [];
-  for (const p of bank.papers || []) {
+  for (const p of (bank?.papers || [])) {
     if (syll && String(p.syllabus) !== syll) continue;
     for (const qu of p.questions || []) {
       if (qu.kind === 'passage') continue;

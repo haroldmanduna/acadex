@@ -445,7 +445,7 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   let tl = work.toLowerCase().trim();
   text = work;
 
-  if (!tl) return { replies: [], ignored: true };
+  if (!tl && !mediaPath) return { replies: [], ignored: true };
   enterBotMode(digits, sessionMinutes);
   bumpStreak(digits);
   pendingPrize = maybeStreakPrize(digits);
@@ -453,15 +453,13 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
   let visionNotes = '';
   if (mediaPath) {
     const seen = await readVisual({ filePath: mediaPath, kind: mediaKind || 'image', mime: mediaMime, caption: incoming });
-    if (seen?.ok && seen.text) {
-      visionNotes = seen.text;
+    if (seen?.ok && (seen.text || seen.question)) {
+      visionNotes = seen.text || seen.question;
       text = visionUserText(seen, incoming);
       const sessV = sessions.get(digits) || {};
       sessV.visionNotes = visionNotes;
       sessions.set(digits, sessV);
       tl = String(text || '').toLowerCase().trim();
-    } else if (seen?.text) {
-      visionNotes = '';
     }
   }
 
@@ -622,8 +620,8 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     return { replies };
   }
 
-  // 4. NUMBERED ANSWER SCRIPTS
-  if (/^mark\b/i.test(tl) || parseNumbered(text).length >= 3) {
+  // 4. NUMBERED ANSWER SCRIPTS (Text only — photos go to Vision Teacher)
+  if (!visionNotes && (/^mark\b/i.test(tl) || parseNumbered(text).length >= 3)) {
     const nums = parseNumbered(text.replace(/^mark\s*/i, ''));
     const details = parsePaperDetails(text);
     const paper = (bank.papers || []).find(p => String(p.year) === String(details.year) && String(p.syllabus) === String(details.code) && Number(p.paperNo) === Number(details.paperNo))
@@ -640,8 +638,8 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     }
   }
 
-  // 5. ESSAYS & 1122 COMPOSITIONS
-  if (looksLikeEssay(text) || /^mark (essay|composition)/i.test(tl)) {
+  // 5. ESSAYS & 1122 COMPOSITIONS (Text only)
+  if (!visionNotes && (looksLikeEssay(text) || /^mark (essay|composition)/i.test(tl))) {
     const m = markComposition(text);
     const essayAward = /A/.test(m.band) ? awardMerit(digits, { stars: 2, house: 1, badge: '1122 band', announce: true }) : null;
     say(glue(m.text, essayAward));
