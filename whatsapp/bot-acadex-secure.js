@@ -238,37 +238,26 @@ app.post('/api/chat', async (req, res) => {
     const text = String(message || '').trim();
     if (!text) return res.status(400).json({ ok: false, error: 'Empty message' });
 
-    // Try solver first
+    // Provide syllabus solver steps as authoritative context to LLM
+    let ctx = '';
     const math = solveMath(text);
     if (math) {
-      const steps = (math.steps || []).map((s, i) => `${i + 1}. ${s.t}: ${s.d}`).join('\n');
-      return res.json({
-        ok: true,
-        source: 'math-solver',
-        reply: `📐 *Step-by-Step ZIMSEC Working:*\nEquation: \`${text}\`\n\n${steps}\n\n🏆 **Final Result:** \`${math.kind === 'linear' || math.kind === 'quad' ? 'x = ' : ''}${math.answer}\`\n\n📌 *Examiner Note:* Method marks (M1) awarded for correct substitution.`,
-      });
+      const steps = (math.steps || []).map((s, i) => `${i + 1}. ${s.t}: ${s.d}`).join('; ');
+      ctx += `\nMATH ENGINE: Result = ${math.answer}. Steps: ${steps}.`;
     }
-
     const sci = explainScience(text);
-    if (sci) {
-      return res.json({ ok: true, source: 'science-engine', reply: `🔬 *${sci.title}:*\n\n${sci.answer}` });
-    }
-
+    if (sci) ctx += `\nSCIENCE ENGINE: ${sci.title}. Key Points: ${sci.answer}`;
     const eng = helpEnglish(text);
-    if (eng) {
-      return res.json({ ok: true, source: 'english-engine', reply: `📝 *${eng.title}:*\n\n${eng.answer}` });
-    }
-
+    if (eng) ctx += `\nENGLISH ENGINE: ${eng.title}. Points: ${eng.answer}`;
     const concept = teachConcept(text);
-    if (concept) {
-      return res.json({ ok: true, source: 'concept-engine', reply: concept.answer });
-    }
+    if (concept) ctx += `\nCONCEPT ENGINE: ${concept.title}. Details: ${concept.answer}`;
 
-    // Call live multi-model teacher
+    // Call live multi-model teacher as primary engine
     const learnerStr = learner?.name ? `Student Name: ${learner.name}, Grade: ${learner.grade || 'O-Level'}, School: ${learner.school || 'Zimbabwe'}` : '';
     const llmReply = await askTeacher({
       history: (history || []).slice(-10),
       user: text,
+      context: ctx,
       learner: learnerStr,
       chat: true,
     });
@@ -277,7 +266,18 @@ app.post('/api/chat', async (req, res) => {
       return res.json({ ok: true, source: 'teacher-llm', reply: llmReply });
     }
 
-    // Fallback
+    // Fallback if network offline
+    if (math) {
+      const steps = (math.steps || []).map((s, i) => `${i + 1}. ${s.t}: ${s.d}`).join('\n');
+      return res.json({
+        ok: true,
+        source: 'math-solver',
+        reply: `📐 *Step-by-Step ZIMSEC Working:*\nEquation: \`${text}\`\n\n${steps}\n\n🏆 **Final Result:** \`${math.kind === 'linear' || math.kind === 'quad' ? 'x = ' : ''}${math.answer}\`\n\n📌 *Examiner Note:* Method marks (M1) awarded for correct substitution.`,
+      });
+    }
+    if (sci) return res.json({ ok: true, source: 'science-engine', reply: `🔬 *${sci.title}:*\n\n${sci.answer}` });
+    if (concept) return res.json({ ok: true, source: 'concept-engine', reply: concept.answer });
+
     return res.json({ ok: true, source: 'fallback', reply: fallback(text) });
   } catch (err) {
     console.warn('API /api/chat error:', err.message);

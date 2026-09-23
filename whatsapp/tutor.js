@@ -707,12 +707,20 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     return { replies };
   }
 
-  const personFirst = personality(text, digits);
-  if (personFirst) {
-    say(personFirst);
-    pushChat(digits, 'user', text);
-    pushChat(digits, 'assistant', personFirst);
+  const sub = canUse(digits);
+  if (!sub.allowed) {
+    say('Free drill limit reached. Unlimited access is $0.75/week or $3/month via EcoCash/Innbucks. Admin unlocks upon confirmation.');
     return { replies };
+  }
+
+  // 8. SENIOR AI TEACHER & MULTI-SUBJECT SOLVER (PRIMARY DYNAMIC INTELLIGENCE)
+  if (await teach(digits, text, bank, say, replies)) {
+    if (askVoice) {
+      const last = (sessions.get(digits) || {}).lastReply;
+      if (last) await attachVoice(replies, digits, last);
+    }
+    await attachDiagram(replies, incoming);
+    return { replies, increment: true };
   }
 
   const zFacts = zimsecExplain(text);
@@ -722,20 +730,12 @@ export async function handleTurn({ from, text: incoming, bank, publicUrl, adminP
     return { replies, increment: true };
   }
 
-  const sub = canUse(digits);
-  if (!sub.allowed) {
-    say('Free drill limit reached. Unlimited access is $0.75/week or $3/month via EcoCash/Innbucks. Admin unlocks upon confirmation.');
+  const personFirst = personality(text, digits);
+  if (personFirst) {
+    say(personFirst);
+    pushChat(digits, 'user', text);
+    pushChat(digits, 'assistant', personFirst);
     return { replies };
-  }
-
-  // 8. SENIOR TEACHER & MULTI-SUBJECT SOLVER
-  if (await teach(digits, text, bank, say, replies)) {
-    if (askVoice) {
-      const last = (sessions.get(digits) || {}).lastReply;
-      if (last) await attachVoice(replies, digits, last);
-    }
-    await attachDiagram(replies, incoming);
-    return { replies, increment: true };
   }
 
   if (isChat(text) || isGreeting(text)) {
