@@ -220,7 +220,7 @@ app.get('/health', (req,res)=>{
     queue: inboxStats(),
     keepalive: keepaliveState(),
     sessionStore: sessionStoreMode(),
-    vision: visionOn() ? 'ox-alpha-read' : 'off',
+    vision: visionOn() ? 'dual-layer-ocr' : 'off',
     supabase: getSupabaseStatus(),
     time: new Date().toISOString()
   });
