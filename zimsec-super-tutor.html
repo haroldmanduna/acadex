@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0a7a3c">
-<meta name="description" content="ACADEX — 118 ZIMSEC Past Exam Papers, Live AI Chat Tutor, Timed Mocks, and Worked Solutions for Primary (Grade 7), O-Level, and A-Level. 100% Offline Ready.">
+<meta name="description" content="ACADEX — 24/7 ZIMSEC AI Tutor, 118 Past Exam Papers, Timed Mocks, and Worked Solutions for Primary (Grade 7), O-Level, and A-Level. 100% Offline Ready.">
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/png" href="./icon-192.png">
-<title>ACADEX — ZIMSEC Super Tutor (118 Papers &amp; Live AI Chat)</title>
+<title>ACADEX — 24/7 ZIMSEC AI Assistant &amp; Offline Study Platform</title>
 
 <style>
 :root {
@@ -72,7 +72,7 @@ nav {
   font-weight: 800;
 }
 
-/* Offline Banner */
+/* Offline Sync Banner */
 .offline-sync-bar {
   background: #f0fdf4;
   border-bottom: 1px solid #bbf7d0;
@@ -89,27 +89,23 @@ nav {
   background: var(--green);
   color: white;
   border: none;
-  padding: 6px 14px;
+  padding: 7px 16px;
   border-radius: 999px;
   font-weight: 900;
-  font-size: 11.5px;
+  font-size: 12px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
+.btn-sync-pack:hover { background: var(--green-dark); }
 
 /* Hero */
 .hero {
   background: linear-gradient(135deg, #0a7a3c 0%, #064e26 100%);
   color: white;
-  padding: 28px 18px 24px;
+  padding: 24px 18px 20px;
   border-radius: 0 0 24px 24px;
-}
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
 }
 .badge {
   display: inline-block;
@@ -120,26 +116,26 @@ nav {
   border-radius: 999px;
   letter-spacing: 0.5px;
 }
-.hero h1 { font-size: 26px; line-height: 1.2; font-weight: 900; margin-top: 8px; }
+.hero h1 { font-size: 24px; line-height: 1.25; font-weight: 900; margin-top: 8px; }
 .hero h1 em { color: var(--gold); font-style: normal; }
-.hero p { opacity: 0.95; font-size: 13.5px; margin-top: 6px; max-width: 650px; }
+.hero p { opacity: 0.95; font-size: 13px; margin-top: 4px; max-width: 680px; }
 
 .stats-bar {
   display: flex;
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 12px;
   flex-wrap: wrap;
 }
 .stat-item {
   background: rgba(255,255,255,0.12);
-  padding: 8px 14px;
-  border-radius: 12px;
+  padding: 6px 12px;
+  border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.2);
-  font-size: 12px;
+  font-size: 11.5px;
 }
-.stat-item b { font-size: 16px; display: block; }
+.stat-item b { font-size: 14px; display: block; }
 
-/* Tabs */
+/* Tabs Navigation */
 .tabs-wrap {
   position: sticky;
   top: 57px;
@@ -185,11 +181,11 @@ nav {
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
-/* Chat UI */
+/* Primary AI Chat Interface */
 .chat-window {
   display: flex;
   flex-direction: column;
-  height: 480px;
+  height: 520px;
   background: #f8fafc;
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -197,44 +193,44 @@ nav {
 }
 .chat-messages {
   flex: 1;
-  padding: 14px;
+  padding: 16px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 .msg {
-  max-width: 84%;
-  padding: 10px 14px;
-  border-radius: 14px;
+  max-width: 86%;
+  padding: 12px 16px;
+  border-radius: 16px;
   font-size: 13.5px;
-  line-height: 1.45;
+  line-height: 1.5;
   word-break: break-word;
 }
 .msg.user {
   align-self: flex-end;
   background: var(--green);
   color: white;
-  border-bottom-right-radius: 2px;
+  border-bottom-right-radius: 3px;
 }
 .msg.bot {
   align-self: flex-start;
   background: white;
   border: 1px solid var(--border);
   color: var(--dark);
-  border-bottom-left-radius: 2px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  border-bottom-left-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
 }
 .msg-time {
   font-size: 10px;
   opacity: 0.65;
   display: block;
-  margin-top: 4px;
+  margin-top: 6px;
   text-align: right;
 }
 .chat-input-bar {
   background: white;
-  padding: 10px 12px;
+  padding: 10px 14px;
   border-top: 1px solid var(--border);
   display: flex;
   gap: 8px;
@@ -244,17 +240,18 @@ nav {
   flex: 1;
   border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 10px 16px;
+  padding: 11px 18px;
   font-size: 13.5px;
   outline: none;
+  background: #f8fafc;
 }
-.chat-input:focus { border-color: var(--green); }
+.chat-input:focus { border-color: var(--green); background: white; }
 .chat-btn {
   background: var(--green);
   color: white;
   border: none;
   border-radius: 999px;
-  padding: 10px 18px;
+  padding: 11px 20px;
   font-weight: 800;
   font-size: 13px;
   cursor: pointer;
@@ -264,8 +261,8 @@ nav {
   border: 1px solid var(--border);
   color: var(--dark);
   border-radius: 999px;
-  padding: 9px 12px;
-  font-size: 14px;
+  padding: 10px 14px;
+  font-size: 15px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -277,7 +274,7 @@ nav {
   display: flex;
   gap: 6px;
   overflow-x: auto;
-  padding: 6px 12px;
+  padding: 8px 14px;
   background: #f1f5f9;
   border-top: 1px solid var(--border);
   scrollbar-width: none;
@@ -285,13 +282,14 @@ nav {
 .quick-chip {
   background: white;
   border: 1px solid var(--border);
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   color: var(--dark);
   white-space: nowrap;
   cursor: pointer;
+  transition: all 0.12s ease;
 }
 .quick-chip:hover { border-color: var(--green); color: var(--green); }
 
@@ -359,7 +357,7 @@ nav {
 }
 .filter-bar input { flex: 1; min-width: 140px; }
 
-/* Modal Backdrops */
+/* Modals */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -482,8 +480,8 @@ footer {
 }
 
 @media (max-width: 600px) {
-  .hero h1 { font-size: 22px; }
-  .chat-window { height: 420px; }
+  .hero h1 { font-size: 20px; }
+  .chat-window { height: 460px; }
 }
 </style>
 </head>
@@ -494,7 +492,7 @@ footer {
   <nav>
     <a href="#" class="logo">
       🇿🇼 ACADEX 
-      <span class="logo-tag">ZIMSEC TUTOR</span> 
+      <span class="logo-tag">AI TUTOR</span> 
       <span class="logo-ver">118 PAPERS</span>
     </a>
     <div style="display:flex;gap:6px;align-items:center">
@@ -508,7 +506,7 @@ footer {
   <div id="offlineSyncBanner" class="offline-sync-bar">
     <div style="display:flex;align-items:center;gap:6px">
       <span style="font-size:16px">⚡</span>
-      <span id="syncBannerText"><b>0% Mobile Data Mode:</b> Download the full 118 past paper question bank &amp; offline AI solver to study anywhere without internet.</span>
+      <span id="syncBannerText"><b>0% Mobile Data Mode:</b> Download the full 118 past paper question bank &amp; offline AI Assistant to study anywhere without internet.</span>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
       <button id="btnDownloadPack" class="btn-sync-pack" onclick="downloadOfflineDataPack()">📥 Download Offline Pack (0 MB Data Mode)</button>
@@ -518,7 +516,7 @@ footer {
   <!-- Offline Download Progress Bar -->
   <div id="packDownloadProgressBox" style="display:none;background:white;border-bottom:1px solid var(--border);padding:10px 18px">
     <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--green)">
-      <span id="packProgressLabel">Caching 118 ZIMSEC Papers &amp; Solver Engine...</span>
+      <span id="packProgressLabel">Caching 118 ZIMSEC Papers &amp; AI Engine...</span>
       <span id="packProgressPct">0%</span>
     </div>
     <div class="progress" style="margin-top:6px">
@@ -529,19 +527,19 @@ footer {
   <!-- Dedicated Offline Download Prompt Modal -->
   <div id="offlinePromptModal" class="modal-overlay">
     <div class="modal-box" style="max-width:480px;text-align:center">
-      <div style="font-size:36px;margin-bottom:6px">📥</div>
-      <h3 style="font-size:19px">Download 100% Offline Study Pack</h3>
+      <div style="font-size:38px;margin-bottom:6px">📥</div>
+      <h3 style="font-size:20px">Download 100% Offline Study Pack</h3>
       <p style="font-size:12.5px;color:var(--muted);margin:8px 0 16px;line-height:1.5">
-        Save all <b>118 ZIMSEC Question Papers</b>, step-by-step marking schemes, and the <b>Offline AI Tutor</b> directly to your phone storage. Practice anywhere in Zimbabwe with <b>0% mobile data</b>!
+        Save all <b>118 ZIMSEC Question Papers</b>, step-by-step marking schemes, and the <b>Offline AI Assistant</b> directly to your device storage. Chat and practice anywhere in Zimbabwe with <b>0% mobile data</b>!
       </p>
 
-      <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:12px;border-radius:12px;text-align:left;font-size:12px;margin-bottom:16px">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:12px 14px;border-radius:12px;text-align:left;font-size:12px;margin-bottom:16px">
         <div style="font-weight:800;color:var(--green)">✨ What will be saved on your device:</div>
         <ul style="margin-top:6px;padding-left:18px;color:#1e293b;line-height:1.5">
-          <li>118 Full Papers (Primary Grade 7, O-Level &amp; A-Level)</li>
+          <li>118 Full Exam Papers (Primary Grade 7, O-Level &amp; A-Level)</li>
           <li>1,485 Questions with Method Marks ($M1, A1$)</li>
-          <li>Offline AI Equation &amp; Theory Solver</li>
-          <li>ChiShona &amp; isiNdebele audio explainers</li>
+          <li>Offline AI Equation, Science &amp; Open-Topic Assistant</li>
+          <li>100% Zero Data Practice &amp; Instant Grading</li>
         </ul>
       </div>
 
@@ -710,25 +708,21 @@ footer {
 
   <!-- Hero Banner -->
   <div class="hero">
-    <div class="hero-grid">
-      <div>
-        <div class="badge">🇿🇼 ZIMSEC HERITAGE 5.0 · 118 PRACTICE PAPERS · PRIMARY · O-LEVEL · A-LEVEL</div>
-        <h1 id="heroHeadline">Pass <em>ZIMSEC exams</em> in your own language.</h1>
-        <p id="heroSubline">Complete ZIMSEC-style practice papers and interactive AI tutor with step-by-step working, method marks, and 100% offline support.</p>
-        
-        <div class="stats-bar">
-          <div class="stat-item"><b id="statPapers">118</b> Practice Papers</div>
-          <div class="stat-item"><b id="statQs">1,485</b> ZIMSEC Questions</div>
-          <div class="stat-item"><b>100%</b> Offline Capable (0 MB Data)</div>
-        </div>
-      </div>
+    <div class="badge">🇿🇼 ZIMSEC HERITAGE 5.0 · 118 PRACTICE PAPERS · PRIMARY · O-LEVEL · A-LEVEL</div>
+    <h1 id="heroHeadline">24/7 ZIMSEC AI Tutor &amp; Examiner</h1>
+    <p id="heroSubline">Complete ZIMSEC-style practice papers and interactive AI assistant with step-by-step working, method marks, and 100% offline support.</p>
+    
+    <div class="stats-bar">
+      <div class="stat-item"><b id="statPapers">118</b> Practice Papers</div>
+      <div class="stat-item"><b id="statQs">1,485</b> ZIMSEC Questions</div>
+      <div class="stat-item"><b>100%</b> Offline Capable (0 MB Data)</div>
     </div>
   </div>
 
   <!-- Navigation Tabs -->
   <div class="tabs-wrap">
     <div class="tabs">
-      <button class="tab active" id="tabBtnChat" onclick="switchTab('chat',this)">💬 Live AI Chat Tutor</button>
+      <button class="tab active" id="tabBtnChat" onclick="switchTab('chat',this)">💬 Live AI Assistant Chat</button>
       <button class="tab" onclick="switchTab('solve',this)">📸 Photo &amp; Solver</button>
       <button class="tab" onclick="switchTab('library',this)">📚 Past Papers Library (118)</button>
       <button class="tab" onclick="switchTab('mock',this)">⏱️ Timed Mock Exam</button>
@@ -739,23 +733,23 @@ footer {
 
   <!-- Main Content Areas -->
   <section class="section">
-    <!-- TAB 1: LIVE AI CHAT TUTOR -->
-    <div id="tab-chat" class="card" style="padding:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px 10px">
+    <!-- TAB 1: LIVE AI CHAT ASSISTANT (FRONT & CENTER) -->
+    <div id="tab-chat" class="card" style="padding:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px 12px;border-bottom:1px solid var(--border);margin-bottom:12px">
         <div>
-          <h3 style="font-size:15px;display:flex;align-items:center;gap:6px">
-            💬 24/7 ZIMSEC AI Tutor &amp; Examiner
-            <span style="background:#f0fdf4;color:var(--green);border:1px solid #bbf7d0;font-size:10px;padding:2px 8px;border-radius:999px;font-weight:900">100% OFFLINE</span>
+          <h3 style="font-size:16px;display:flex;align-items:center;gap:6px">
+            💬 24/7 ZIMSEC AI Tutor &amp; Senior Examiner
+            <span style="background:#f0fdf4;color:var(--green);border:1px solid #bbf7d0;font-size:10px;padding:2px 8px;border-radius:999px;font-weight:900">100% OFFLINE READY</span>
           </h3>
-          <p style="font-size:11.5px;color:var(--muted)">Ask anything! Equations, science, history, study advice, or snap a photo of any question.</p>
+          <p style="font-size:12px;color:var(--muted)">Ask anything! Equations, science, commerce, history, study advice, university admission, or snap a photo of any question.</p>
         </div>
-        <button onclick="clearChatHistory()" style="background:#f1f5f9;border:1px solid var(--border);padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800;cursor:pointer">Clear</button>
+        <button onclick="clearChatHistory()" style="background:#f1f5f9;border:1px solid var(--border);padding:5px 12px;border-radius:999px;font-size:11px;font-weight:800;cursor:pointer">Clear</button>
       </div>
 
       <div class="chat-window">
         <div class="chat-messages" id="chatMessages"></div>
         <div class="quick-chips">
-          <span class="quick-chip" onclick="sendChatPrompt('Solve 3x + 7 = 22 step by step')">📐 Solve 3x + 7 = 22</span>
+          <span class="quick-chip" onclick="sendChatPrompt('Solve 3x + 7 = 22 step by step showing method marks')">📐 Solve 3x + 7 = 22</span>
           <span class="quick-chip" onclick="sendChatPrompt('Explain Pythagoras theorem with an example')">📐 Pythagoras Theorem</span>
           <span class="quick-chip" onclick="sendChatPrompt('Explain the difference between Osmosis and Diffusion')">🔬 Osmosis vs Diffusion</span>
           <span class="quick-chip" onclick="sendChatPrompt('Explain how iron is extracted in the Blast Furnace')">🔬 Blast Furnace Reactions</span>
@@ -780,7 +774,7 @@ footer {
     <!-- TAB 2: PHOTO & EQUATION SOLVER -->
     <div id="tab-solve" class="card" style="display:none">
       <h3 style="font-size:15px">📸 Snap / Type Any ZIMSEC Question</h3>
-      <p style="font-size:12px;color:var(--muted);margin:2px 0 14px">Get step-by-step working with ZIMSEC Method Marks ($M1, A1, B1$) and voice explanation in your language.</p>
+      <p style="font-size:12px;color:var(--muted);margin:2px 0 14px">Get step-by-step working with ZIMSEC Method Marks ($M1, A1, B1$) in your language.</p>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div style="border:2px dashed #0a7a3c;background:#f0fdf4;border-radius:14px;padding:16px;text-align:center;cursor:pointer" onclick="document.getElementById('photoInput').click()">
@@ -804,11 +798,6 @@ footer {
           <b style="font-size:12px">🇿🇼 Vernacular Explanations:</b>
           <p id="shonaExplain" style="font-size:12px;margin-top:4px;color:#1e293b"></p>
           <p id="ndebeleExplain" style="font-size:12px;margin-top:4px;color:#1e293b"></p>
-        </div>
-
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <button onclick="speakExplain()" style="background:var(--gold);color:#0f172a;border:none;padding:7px 12px;border-radius:999px;font-weight:900;cursor:pointer;font-size:11px">▶ Play Voice</button>
-          <button onclick="stopSpeak()" style="background:#f1f5f9;border:1px solid var(--border);padding:7px 10px;border-radius:999px;font-weight:800;cursor:pointer;font-size:11px">⏹ Stop</button>
         </div>
       </div>
     </div>
@@ -928,7 +917,7 @@ footer {
     </div>
   </section>
 
-  <!-- WhatsApp Integration Section -->
+  <!-- WhatsApp Companion Section -->
   <section class="section" style="padding-top:0">
     <div class="card" style="background:linear-gradient(135deg,#25D366,#128C7E);color:white;border:none;display:grid;grid-template-columns:1.2fr 0.8fr;gap:16px;align-items:center">
       <div>

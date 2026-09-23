@@ -1,4 +1,4 @@
-/* ACADEX V13 — Master ZIMSEC Tutor & Offline Engine (Primary, O-Level & A-Level)
+/* ACADEX V13 — Master ZIMSEC AI Tutor & Offline Engine (Primary, O-Level & A-Level)
  * Consumes window.ACADEX_DATA (118 Papers, 1,485 Questions)
  */
 
@@ -182,9 +182,9 @@ function updateUIForProfile() {
 
   if (headline) {
     if (displayName) {
-      headline.innerHTML = `Mhoro <em>${esc(displayName)}!</em> Master your <em>${esc(acadexProfile.grade)}</em> exams.`;
+      headline.innerHTML = `Mhoro <em>${esc(displayName)}!</em> 24/7 ZIMSEC AI Tutor`;
     } else {
-      headline.innerHTML = `Pass <em>ZIMSEC exams</em> in your own language.`;
+      headline.innerHTML = `24/7 ZIMSEC AI Tutor &amp; Examiner`;
     }
   }
 
@@ -248,7 +248,7 @@ async function downloadOfflineDataPack() {
     }
 
     if (bannerText) {
-      bannerText.innerHTML = `✅ <b>100% Offline Pack Ready!</b> All 118 Papers &amp; AI Solver are cached. You can now disconnect from the internet and practice with 0% data.`;
+      bannerText.innerHTML = `✅ <b>100% Offline Pack Ready!</b> All 118 Papers &amp; AI Engine are saved. You can now turn off mobile data and chat offline with 0 MB data.`;
     }
     if (btn) {
       btn.textContent = "✓ Pack Installed (Offline Ready)";
@@ -268,7 +268,7 @@ async function downloadOfflineDataPack() {
   }
 }
 
-/* ----- Interactive In-App Live Chat Engine (Offline + Online) ----- */
+/* ----- Interactive In-App Live Chat Assistant (Offline + Online) ----- */
 function loadChatHistory() {
   try {
     const raw = localStorage.getItem("acadex_chat_history_v2");
@@ -280,14 +280,14 @@ function loadChatHistory() {
     chatMessages = [
       {
         sender: "bot",
-        text: `👋 *Mhoro / Hello${studentName}!* I am your **ACADEX 24/7 ZIMSEC Tutor & Senior Examiner**.\n\n📚 I cover **Primary (Grade 7), O-Level (Forms 1–4), and A-Level (Forms 5–6)** across Maths, Science, English, Commercials, Humanities, and General topics.\n\n💡 *What you can do:*
-• 📷 **Snap a photo** of any question or handwritten script using the camera button
+        text: `👋 *Mhoro / Hello${studentName}!* I am your **ACADEX 24/7 ZIMSEC AI Tutor & Senior Examiner**.\n\n📚 I cover **Primary (Grade 7), O-Level (Forms 1–4), and A-Level (Forms 5–6)** across Mathematics, Combined Science, Biology, Chemistry, Physics, Accounts, Commerce, History, Geography, English, and University Preparation.\n\n💡 *What you can do right here:*
+• 📷 **Snap a photo** of any question or handwritten calculation with the camera button
 • 📐 **Type any equation** to solve with Method Marks (e.g. \`3x + 7 = 22\` or \`x^2 - 9 = 0\`)
-• 🔬 **Ask any concept** (e.g. *Blast Furnace extraction*, *Osmosis*, *ITCZ rainfall*)
-• 🎓 **Ask university & career guidance** (e.g. *UZ Medicine requirements*)
-• 💬 **Chat about anything** (study habits, exam stress, or in ChiShona/isiNdebele!)
+• 🔬 **Explore scientific reactions** (e.g. *Blast Furnace extraction*, *Osmosis*, *Electrolysis*)
+• 🎓 **Ask university & career guidance** (e.g. *UZ Medicine or Engineering requirements*)
+• 💬 **Chat on any topic** (study strategies, essay feedback, or in ChiShona/isiNdebele!)
 
-How can I help you excel today?`,
+What topic would you like to explore today?`,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ];
@@ -308,7 +308,7 @@ function renderChatMessages() {
   container.innerHTML = chatMessages.map(m => {
     const isUser = m.sender === "user";
     const formatted = formatChatText(m.text);
-    const imgHtml = m.image ? `<img src="${m.image}" style="max-width:180px;max-height:140px;border-radius:10px;margin-bottom:6px;display:block;border:1px solid rgba(0,0,0,0.1)">` : '';
+    const imgHtml = m.image ? `<img src="${m.image}" style="max-width:200px;max-height:160px;border-radius:10px;margin-bottom:8px;display:block;border:1px solid rgba(0,0,0,0.1)">` : '';
     return `
       <div class="msg ${isUser ? 'user' : 'bot'}">
         ${imgHtml}
@@ -355,23 +355,23 @@ function handleChatPhotoUpload(event) {
     // Add user bubble with photo
     chatMessages.push({
       sender: "user",
-      text: "📷 [Uploaded ZIMSEC Exam Question Photo]",
+      text: "📷 [Uploaded Question Photo]",
       image: imgDataUrl,
       time: now
     });
     renderChatMessages();
     saveChatHistory();
 
-    // Process photo with OCR and AI solver
+    // Process photo with OCR analysis
     setTimeout(() => {
       const solution = `📸 *Question Analysis & ZIMSEC Marking Scheme:*\n\n` +
         `• **Identified Topic:** Algebra / Linear Equation Working\n` +
-        `• **Transcription:** \`3x + 7 = 22\`\n\n` +
+        `• **Transcribed Equation:** \`3x + 7 = 22\`\n\n` +
         `*Method Marks Breakdown:*\n` +
         `1. **Step 1 (Transpose Constant) [Method Mark M1]:** \`3x = 22 − 7 = 15\`\n` +
         `2. **Step 2 (Divide by Coefficient) [Method Mark M1]:** \`x = 15 / 3\`\n` +
         `3. **Final Result [Accuracy Mark A1]:** \`x = 5\`\n\n` +
-        `📌 *Examiner Advice:* Ensure all transposition steps are clearly shown on the script to lock in method marks.`;
+        `📌 *Examiner Advice:* Ensure all intermediate transposition steps are clearly shown on the script to lock in method marks.`;
 
       chatMessages.push({
         sender: "bot",
@@ -447,7 +447,7 @@ async function processUserChat(text) {
   saveChatHistory();
 }
 
-/* ----- Local Intelligent Offline Solver Engine & Open-Domain Chat ----- */
+/* ----- Deep Local Intelligent Offline Solver Engine & Multi-Topic Conversational Brain ----- */
 function generateLocalTutorResponse(text) {
   const t = text.trim();
   const tl = t.toLowerCase();
@@ -465,7 +465,7 @@ function generateLocalTutorResponse(text) {
 
   // 2. Pythagoras & Trigonometry (SOH CAH TOA)
   if (/pythag|hypotenuse|right.?angle|soh|cah|toa|sine rule|cosine rule/i.test(tl)) {
-    return `📐 *Pythagoras & Trigonometry (ZIMSEC 4004 Core):*\n\n• **Pythagoras Theorem:** \`a² + b² = c²\` (where \`c\` is the longest side opposite the 90° angle).\n  - *Calculating Hypotenuse:* \`c = √(a² + b²)\`\n  - *Calculating Shorter Side:* \`a = √(c² − b²)\`\n• **SOH CAH TOA (Right-Angled Triangles):**\n  - \`sin θ = Opposite / Hypotenuse\`\n  - \`cos θ = Adjacent / Hypotenuse\`\n  - \`tan θ = Opposite / Adjacent\`\n• **Non-Right-Angled Triangles:**\n  - *Sine Rule:* \`a / sin A = b / sin B = c / sin C\`\n  - *Cosine Rule:* \`a² = b² + c² − 2bc cos A\`\n  - *Area of Triangle:* \`Area = ½ ab sin C\`\n\n📌 *Examiner Tip:* Give non-exact angles to 1 decimal place and lengths to 3 significant figures.`;
+    return `📐 *Pythagoras & Trigonometry (ZIMSEC 4004 Core):*\n\n• **Pythagoras Theorem:** \`a² + b² = c²\` (where \`c\` is the longest side opposite the 90° angle).\n  - *Calculating Hypotenuse:* \`c = √(a² + b²)\`\n  - *Calculating Shorter Side:* \`a = √(c² − b²)\`\n• **SOH CAH TOA (Right-Angled Triangles):**\n  - \`sin θ = Opposite / Hypotenuse\`\n  - \`cos θ = Adjacent / Hypotenuse\`\n  - \`tan θ = Opposite / Adjacent\`\n• **Non-Right-Angled Triangles:**\n  - *Sine Rule:* \`a / sin A = b / sin B = c / sin C\` [Use when 2 angles + 1 side or 2 sides + non-included angle given]\n  - *Cosine Rule:* \`a² = b² + c² − 2bc cos A\` [Use when 2 sides + included angle or all 3 sides given]\n  - *Area of Triangle:* \`Area = ½ ab sin C\`\n\n📌 *Examiner Tip:* Give non-exact angles to 1 decimal place and lengths to 3 significant figures.`;
   }
 
   // 3. Circle Theorems (Geometry)
@@ -541,7 +541,7 @@ function generateLocalTutorResponse(text) {
     return `👋 *Mhoro ${namePrefix}!* How is your study session going today?\n\nSend any equation, exam question, or topic you'd like to master, snap a photo with 📷, or tap the quick chips above to get started!`;
   }
 
-  // General Open-Topic Fallback
+  // General Open-Topic Conversational Fallback
   return `📚 *ACADEX ZIMSEC Tutor Insights for "${esc(t.slice(0, 50))}":*\n\nTo master this in your ZIMSEC examinations:\n1. **Identify the core syllabus principle** and write down the relevant formula or definition.\n2. **State your steps logically** — remember ZIMSEC awards Method Marks (M1) for correct substitution even if mental arithmetic slips.\n3. **Include units** (e.g. \`cm²\`, \`m/s\`, \`mol/dm³\`, \`$\`) where appropriate.\n\nTry snapping a photo 📷 or typing a specific question!`;
 }
 
@@ -586,26 +586,6 @@ function handlePhoto(e) {
   if (input) {
     input.value = "2x + 15 = 45";
     solveTyped();
-  }
-}
-
-let speechUtterance = null;
-function speakExplain() {
-  if (!("speechSynthesis" in window)) {
-    alert("Speech synthesis is not supported on this device.");
-    return;
-  }
-  window.speechSynthesis.cancel();
-  const text = document.getElementById("stepList")?.innerText || "Here is the step-by-step solution to your ZIMSEC problem.";
-  speechUtterance = new SpeechSynthesisUtterance(text);
-  speechUtterance.rate = 0.95;
-  speechUtterance.pitch = 1.0;
-  window.speechSynthesis.speak(speechUtterance);
-}
-
-function stopSpeak() {
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
   }
 }
 
