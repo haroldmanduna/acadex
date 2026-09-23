@@ -304,10 +304,9 @@ Send your working. I mark as ZIMSEC marks: command word, method, units. Aim: Gra
 export function extractProfile(text) {
   const t = String(text || '').trim();
   const out = {};
-  const name = t.match(/(?:ndinonzi|zita rangu(?: ndi)?|ngingu|my name is|ndini)\s+([A-Za-zÀ-ÿ]{2,20})/i)
-    || t.match(/\b(?:I(?:'?m| am)|i(?:'?m| am))\s+([A-Z][a-zÀ-ÿ]{2,20})\b/)
-    || t.match(/^([A-Z][a-z]{2,20})$/);
-  const blocked = /^(shona|chishona|ndebele|isindebele|english|chirungu|french|portuguese|sotho|tswana|venda|xhosa|chewa|nyanja|voice|acadex|hello|hi|form|tired|fine|scared|worried|lost|back|okay|sad|good|here)$/i;
+  const name = t.match(/(?:ndinonzi|zita rangu(?: ndi)?|ngingu|my name is|ndini|call me)\s+([A-Za-zÀ-ÿ]{2,20})/i)
+    || t.match(/\b(?:I(?:'?m| am)|i(?:'?m| am))\s+([A-Z][a-zÀ-ÿ]{2,20})\b/);
+  const blocked = /^(shona|chishona|ndebele|isindebele|english|chirungu|french|portuguese|sotho|tswana|venda|xhosa|chewa|nyanja|voice|acadex|hello|hi|form|tired|fine|scared|worried|lost|back|okay|sad|good|here|relationships?|life|future|career|school|student|boy|girl|friend|friends|topic|study|exam|past|paper|maths|math|science|accounts|history|geography|commerce|biology|chemistry|physics)$/i;
   if (name && !blocked.test(name[1])) out.name = name[1].replace(/[^A-Za-zÀ-ÿ]/g, '');
   const g = t.match(/\b(?:form|giredhi|grade)\s*([1-7])\b/i);
   if (g) out.grade = /grade/i.test(t) && g[1] === '7' ? 'Grade 7' : `Form ${g[1]}`;

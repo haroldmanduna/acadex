@@ -215,8 +215,9 @@ function isChat(raw) {
   if (helpEnglish(raw) && /composition|summary|register|comprehension|essay/.test(t)) return false;
   if (isGreeting(raw)) return true;
   if (/how are you|how'?s (it|school|the week)|how is (it|school)|i('?m| am) (tired|sad|scared|worried|fine|ok|okay|lost|back)|i failed|i got a [a-eu]\b|thank(s| you)|ndatenda|see you|good ?night|good ?day|missed you|my teacher|at school|in hostel|can we talk|i want to talk|i need to talk|i'?m struggling|eish/.test(t)) return true;
+  if (/\b(relationship|relationships|dating|love|family|friends?|life|future|career|feelings?|advice|stress|pressure|depress\w*|talk|chat|listen|tell me|let'?s\s+(?:juc\s+|just\s+)?talk|talk\s+abou[ht]?|talk\s+to\s+me)\b/i.test(t)) return true;
   if (raw.split(/\s+/).length <= 12 && !/\d/.test(raw) && !/(download|mock|prize|pdf|predictor|challenge|slip|voice|send paper|past paper|exam)/i.test(t)) {
-    if (/^(ok|okay|yes|yeah|yebo|ehe|no|nope|hmm|lol|haha|sure|thanks|cool|alright|right|wow|eish|shame|fine)\b/.test(t)) return true;
+    return true;
   }
   return false;
 }
@@ -251,7 +252,7 @@ async function teach(digits, text, bank, say, replies) {
   const academic = !chatting && (solveMath(text) || looksLikeExam(text) || explainScience(text) || helpEnglish(text) || Boolean(s.visionNotes));
   if (academic && !L0.name) touchLearner(digits, { nameAskPending: true });
   const L = getLearner(digits);
-  const need = nextNeed(digits);
+  const need = chatting ? null : nextNeed(digits);
   const hist = (s.chat || []).slice(-10);
   const ctx = buildContext(text, bank, digits, s.visionNotes);
   const learnerStr = card(digits);
