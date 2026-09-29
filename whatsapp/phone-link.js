@@ -6,6 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { enqueue, splitWhatsApp } from './inbox.js';
 import { restoreSession, schedulePersist, clearRemoteSession } from './session-store.js';
+import { syncSetting } from './supabase-sync.js';
 
 const state = {
   status: 'idle',
@@ -326,6 +327,7 @@ async function connect() {
         try {
           state.qrDataUrl = await QRCode.toDataURL(qr, { margin: 1, width: 280, color: { dark: '#0a7a3c', light: '#ffffff' } });
           await QRCode.toFile(path.join(authDir, 'qr.png'), qr, { margin: 1, width: 360 });
+          syncSetting('acadex_qr_data', state.qrDataUrl).catch(() => {});
         } catch (e) {
           console.warn('qr image', e.message);
         }
@@ -339,6 +341,8 @@ async function connect() {
             state.pairingCode = raw.length === 8 ? `${raw.slice(0, 4)}-${raw.slice(4)}` : raw;
             fs.writeFileSync(path.join(authDir, 'pairing.txt'), state.pairingCode);
             console.log(`PHONE LINK code for +${phoneDigits}: ${state.pairingCode}`);
+            syncSetting('acadex_pairing_code', state.pairingCode).catch(() => {});
+            syncSetting('acadex_link_status', 'waiting').catch(() => {});
           } catch (e) {
             console.warn('pairing code', e.message);
             state.error = e.message;
@@ -355,6 +359,8 @@ async function connect() {
         const id = sock.user?.id || '';
         state.me = String(id).split(':')[0].split('@')[0] || phoneDigits;
         console.log(`PHONE LINK live as +${state.me}`);
+        syncSetting('acadex_link_status', 'connected').catch(() => {});
+        syncSetting('acadex_pairing_code', '').catch(() => {});
         schedulePersist(authDir, learnersFile);
         try {
           await sock.sendMessage(`${phoneDigits}@s.whatsapp.net`, {

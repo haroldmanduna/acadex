@@ -1,6 +1,9 @@
 {
   "version": 2,
   "rewrites": [
+    { "source": "/link", "destination": "/link.html" },
+    { "source": "/link/status", "destination": "/api/link-status" },
+    { "source": "/api/link-status", "destination": "/api/link-status" },
     { "source": "/api/supabase/status", "destination": "/api/supabase-status" },
     { "source": "/health", "destination": "/api/health" },
     { "source": "/api/papers", "destination": "/api/papers" },
