@@ -8,6 +8,7 @@
   <style>
     :root {
       --g: #0a7a3c;
+      --g-hover: #086330;
       --g-light: #ecfdf5;
       --ink: #0f172a;
       --muted: #64748b;
@@ -25,29 +26,29 @@
       line-height: 1.5;
     }
     .wrap {
-      max-width: 520px;
+      max-width: 540px;
       margin: 0 auto;
-      padding: 24px 16px 48px;
+      padding: 24px 16px 56px;
     }
     .header {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
     .logo-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 14px;
+      padding: 6px 16px;
       border-radius: 999px;
       background: var(--g-light);
       color: var(--g);
       font-weight: 800;
       font-size: 13px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       border: 1px solid #bbf7d0;
     }
     h1 {
-      font-size: 24px;
+      font-size: 26px;
       font-weight: 900;
       margin: 0 0 6px;
       letter-spacing: -0.02em;
@@ -61,9 +62,9 @@
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 20px;
-      padding: 22px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      padding: 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.03);
     }
     .status-badge {
       display: inline-block;
@@ -83,23 +84,23 @@
       border-color: #bbf7d0;
     }
     .code-label {
-      margin: 12px 0 4px;
+      margin: 14px 0 6px;
       text-align: center;
       color: var(--muted);
       font-size: 13px;
       font-weight: 600;
     }
     .code-box {
-      font-size: 42px;
-      letter-spacing: 5px;
+      font-size: 44px;
+      letter-spacing: 6px;
       font-weight: 900;
       text-align: center;
       color: var(--g);
-      margin: 8px 0 16px;
+      margin: 6px 0 16px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       background: #f1f5f9;
-      padding: 12px 8px;
-      border-radius: 12px;
+      padding: 14px 10px;
+      border-radius: 14px;
       border: 2px dashed #cbd5e1;
     }
     .btn-copy {
@@ -119,27 +120,48 @@
       transition: background 0.15s ease;
     }
     .btn-copy:hover {
-      background: #086330;
+      background: var(--g-hover);
+    }
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 22px 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border);
+    }
+    .divider:not(:empty)::before {
+      margin-right: .75em;
+    }
+    .divider:not(:empty)::after {
+      margin-left: .75em;
     }
     .qr-wrap {
       text-align: center;
-      margin: 20px 0 10px;
-      padding: 14px;
+      padding: 16px;
       background: #f8fafc;
       border-radius: 16px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid var(--border);
     }
     .qr-wrap img {
-      width: 220px;
-      height: 220px;
+      width: 250px;
+      height: 250px;
       display: block;
       margin: 0 auto;
-      border-radius: 8px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
     }
     .qr-caption {
-      font-size: 12px;
+      font-size: 13px;
+      font-weight: 600;
       color: var(--muted);
-      margin-top: 8px;
+      margin-top: 10px;
     }
     ol {
       margin: 12px 0 0;
@@ -152,17 +174,18 @@
     .hint-box {
       background: #f8fafc;
       border-left: 3px solid var(--g);
-      padding: 10px 14px;
+      padding: 12px 14px;
       border-radius: 0 8px 8px 0;
       font-size: 13px;
       color: #334155;
       margin-top: 14px;
+      line-height: 1.6;
     }
     .live-card {
       background: var(--g-light);
       border: 1px solid #bbf7d0;
       text-align: center;
-      padding: 28px 20px;
+      padding: 32px 20px;
     }
   </style>
 </head>
@@ -171,12 +194,12 @@
     <div class="header">
       <div class="logo-badge">🎓 ACADEX WhatsApp Companion</div>
       <h1>Link ACADEX to WhatsApp</h1>
-      <p class="sub">Pair your phone number (<b>+263 71 698 7183</b>) to start automated 24/7 student tutoring.</p>
+      <p class="sub">Pair phone <b>+263 71 698 7183</b> using either the <b>Pairing Code</b> or the <b>QR Code</b>.</p>
     </div>
 
     <div id="portalContent">
-      <div class="card" style="text-align:center;padding:32px;">
-        <p style="color:var(--muted);">Connecting to ACADEX Cloud...</p>
+      <div class="card" style="text-align:center;padding:36px;">
+        <p style="color:var(--muted);font-weight:600;">Loading Pairing Code & QR Code...</p>
       </div>
     </div>
   </div>
@@ -194,10 +217,10 @@
           root.innerHTML = `
             <div class="card live-card">
               <span class="status-badge on">● LIVE CONNECTED</span>
-              <h2 style="margin:12px 0 6px;color:#065f46;">Auto-Replies Are Active!</h2>
+              <h2 style="margin:14px 0 6px;color:#065f46;">Auto-Replies Are Active!</h2>
               <p style="color:#047857;margin:0 0 16px;font-size:14px;">WhatsApp bot is successfully linked to <b>+263 71 698 7183</b>.</p>
-              <div style="background:#fff;padding:14px;border-radius:12px;border:1px solid #a7f3d0;font-size:14px;line-height:1.6;color:#1e293b;">
-                Students can send <b>"hi"</b> or any exam question to start practicing past papers and step-by-step marking.
+              <div style="background:#fff;padding:16px;border-radius:12px;border:1px solid #a7f3d0;font-size:14px;line-height:1.6;color:#1e293b;">
+                Students can message <b>"hi"</b> or send any question for instant step-by-step marking and past paper downloads.
               </div>
             </div>
           `;
@@ -209,15 +232,15 @@
         const qrImage = data.qrDataUrl ? `
           <div class="qr-wrap">
             <img src="${data.qrDataUrl}" alt="WhatsApp QR Code">
-            <div class="qr-caption">Or point WhatsApp camera at this QR code</div>
+            <div class="qr-caption">📷 Scan with WhatsApp Camera (Option 2)</div>
           </div>
         ` : '';
 
         root.innerHTML = `
           <div class="card">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-weight:700;font-size:14px;">Pairing Code:</span>
-              <span class="status-badge">READY TO PAIR</span>
+              <span style="font-weight:800;font-size:15px;color:var(--g);">OPTION 1: 8-DIGIT PAIRING CODE</span>
+              <span class="status-badge">READY</span>
             </div>
             
             <div class="code-label">Enter this code on your WhatsApp phone:</div>
@@ -227,20 +250,22 @@
               <span>📋 Copy 8-Digit Code</span>
             </button>
 
+            <div class="divider">OR SCAN QR CODE</div>
+
             ${qrImage}
           </div>
 
           <div class="card">
-            <h3 style="margin:0 0 8px;font-size:16px;">📲 Easy 30-Second Setup:</h3>
+            <h3 style="margin:0 0 8px;font-size:16px;">📲 Instructions for Linking:</h3>
             <ol>
               <li>Open <b>WhatsApp</b> on your phone (<code>+263 71 698 7183</code>).</li>
-              <li>Tap the <b>3 dots (⋮)</b> at top right (or <b>Settings</b> on iPhone).</li>
+              <li>Tap <b>⋮ (3 dots)</b> at the top right (or <b>Settings</b> on iPhone).</li>
               <li>Tap <b>Linked Devices</b> $\\rightarrow$ <b>Link a Device</b>.</li>
-              <li>Tap <b>"Link with phone number instead"</b> at the bottom.</li>
-              <li>Type in the code: <b style="color:var(--g);font-size:15px;">${currentCode}</b></li>
+              <li><b>To enter code:</b> Tap <i>"Link with phone number instead"</i> and type <b style="color:var(--g);">${currentCode}</b>.</li>
+              <li><b>To scan QR:</b> Simply point your phone's camera at the QR code above.</li>
             </ol>
             <div class="hint-box">
-              🇿🇼 <b>ChiShona:</b> Vhura WhatsApp $\\rightarrow$ Linked devices $\\rightarrow$ Link a device $\\rightarrow$ Link with phone number instead $\\rightarrow$ isa code iri pamusoro.
+              🇿🇼 <b>ChiShona:</b> Vhura WhatsApp $\\rightarrow$ Linked devices $\\rightarrow$ Link a device $\\rightarrow$ Nyora code iri pamusoro kana kutarisa QR code nekhamera.
             </div>
           </div>
         `;
