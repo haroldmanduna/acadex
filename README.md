@@ -34,26 +34,16 @@ PWA, 88 Practice PDFs, WhatsApp Bot, and Supabase Cloud Sync share the same unif
 
 ## 📲 Use It
 
-- **Website / PWA:** https://haroldmanduna.github.io/acadex/
-- **WhatsApp Companion Bot:** **+263 71 698 7183** — Send `mhoro acadex` or any question
-- **Link Portal:** https://acadex-r6z0.onrender.com/link
-- **Live Health Status:** https://acadex-r6z0.onrender.com/health
+- **Live Production App (Vercel):** https://acadex-zimsec.vercel.app/
+- **GitHub Pages PWA:** https://haroldmanduna.github.io/acadex/
+- **WhatsApp Companion Bot:** **+263 71 698 7183** — Send `mhoro` or any question
+- **Live Health Status:** https://acadex-zimsec.vercel.app/health
 
-## 🛠️ Deploy (Render)
+## 🛠️ Deploy (Vercel)
 
-Start command:
-```bash
-node whatsapp/bot-acadex-secure.js
-```
-
-Environment Variables:
-- `ADMIN_PHONE` — `263716987183`
-- `ADMIN_PASSWORD` — Admin dashboard password
-- `PUBLIC_URL` — `https://acadex-r6z0.onrender.com`
-- `TRIGGER_PHRASE` — `mhoro acadex`
-- `SUPABASE_URL` — `https://eczotaismhalrbvpanck.supabase.co`
-- `SUPABASE_KEY` — `sb_publishable_Q3eEj-h6uR4yjdX0lE9LIg_KLi7DKgg`
-- `OPENROUTER_KEY` — OpenRouter API key for vision OCR and LLM reasoning
+The platform is deployed directly on Vercel Serverless with global edge distribution and zero maintenance costs:
+- **Project URL:** https://acadex-zimsec.vercel.app
+- **API Endpoints:** `/api/chat`, `/api/papers`, `/api/health`, `/api/vision`
 
 ## 💻 Local Development
 

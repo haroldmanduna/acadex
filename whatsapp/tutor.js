@@ -239,7 +239,7 @@ I am *ACADEX* — your 24/7 ZIMSEC Tutor & Senior Examiner across *Primary (Grad
 
 📲 *Chat with me 100% OFFLINE (0% Mobile Data):*
 You can install ACADEX directly to your phone storage and chat offline anytime with zero data:
-👉 *https://acadex-r6z0.onrender.com/* (or https://haroldmanduna.github.io/acadex/)
+👉 *https://acadex-zimsec.vercel.app/* (or https://haroldmanduna.github.io/acadex/)
 _(Open in Chrome/Safari → tap "Add to Home screen" → turn off mobile data and practice offline!)_
 
 What would you like to start with today?`;
@@ -320,7 +320,7 @@ function offlineInstructions() {
 You can study and practice with ACADEX completely *offline with 0% mobile data*:
 
 👉 *Step 1: Open the link in your browser:*
-https://acadex-r6z0.onrender.com/ (or https://haroldmanduna.github.io/acadex/)
+https://acadex-zimsec.vercel.app/ (or https://haroldmanduna.github.io/acadex/)
 
 👉 *Step 2: Install to your phone screen:*
 • On Android (Chrome): Tap the *3 dots (⋮)* at the top right → tap *“Add to Home screen”* or *“Install App”*.
