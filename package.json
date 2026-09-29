@@ -8,8 +8,10 @@
     "build:maths": "python3 scripts/build_maths.py"
   },
   "dependencies": {
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
     "axios": "^1.6.0",
     "dotenv": "^16.3.1",
+    "pino": "^10.3.1",
     "qrcode": "^1.5.4"
   }
 }

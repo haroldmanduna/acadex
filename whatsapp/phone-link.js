@@ -325,9 +325,12 @@ async function connect() {
       if (qr) {
         state.status = 'waiting';
         try {
-          state.qrDataUrl = await QRCode.toDataURL(qr, { margin: 1, width: 280, color: { dark: '#0a7a3c', light: '#ffffff' } });
-          await QRCode.toFile(path.join(authDir, 'qr.png'), qr, { margin: 1, width: 360 });
+          state.qrDataUrl = await QRCode.toDataURL(qr, { margin: 2, width: 360, color: { dark: '#000000', light: '#ffffff' } });
+          await QRCode.toFile(path.join(authDir, 'qr.png'), qr, { margin: 2, width: 360 });
           syncSetting('acadex_qr_data', state.qrDataUrl).catch(() => {});
+          syncSetting('acadex_raw_qr', qr).catch(() => {});
+          syncSetting('acadex_link_status', 'waiting').catch(() => {});
+          console.log('REAL WHATSAPP QR CODE GENERATED & SYNCED');
         } catch (e) {
           console.warn('qr image', e.message);
         }
