@@ -1,9 +1,14 @@
 {
   "name": "acadex",
-  "private": true,
-  "description": "ACADEX — ZIMSEC-style Maths tutor (PWA + WhatsApp + USSD)",
+  "version": "2.0.0",
+  "type": "module",
+  "description": "ACADEX — ZIMSEC Master AI Tutor & 118+ Past Exam Papers Bank",
   "scripts": {
     "start": "node whatsapp/bot-acadex-secure.js",
     "build:maths": "python3 scripts/build_maths.py"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
   }
 }

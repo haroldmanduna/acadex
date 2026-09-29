@@ -40,7 +40,7 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('periodicsync', e => {
   if (e.tag === 'acadex-awake') {
-    e.waitUntil(fetch('https://acadex-r6z0.onrender.com/awake', { cache: 'no-store' }).catch(() => {}));
+    e.waitUntil(fetch('/api/health', { cache: 'no-store' }).catch(() => {}));
   }
 });
 
